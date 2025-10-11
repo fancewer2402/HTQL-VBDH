@@ -1,0 +1,79 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng xuất thành công</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background-color: #f8f9fa;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog {
+            width: 440px;
+            border: 2px solid #000080;
+            background-color: #fff;
+            text-align: center;
+            box-shadow: 2px 2px 8px rgba(0,0,128,0.1);
+        }
+
+        /* Thanh tiêu đề */
+        .dialog-header {
+            border-bottom: 2px solid #000080;
+            font-weight: bold;
+            color: white;
+            padding: 10px 0;
+            font-size: 17px;
+            background: linear-gradient(to bottom, #0052cc, #003399);
+            letter-spacing: 0.5px;
+        }
+
+        .dialog-content {
+            padding: 25px 20px;
+        }
+
+        .icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            font-size: 17px;
+            margin-bottom: 25px;
+            color: #000;
+        }
+
+        .btn-primary {
+            font-family: "Times New Roman", Times, serif;
+            font-weight: bold;
+            border: 1px solid #000080;
+            background: linear-gradient(to bottom, #dcdcdc, #bfbfbf);
+            padding: 6px 16px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(to bottom, #f0f0f0, #cfcfcf);
+        }
+    </style>
+</head>
+<body>
+    <div class="dialog">
+        <div class="dialog-header">Đăng xuất thành công</div>
+
+        <div class="dialog-content">
+            <div class="icon">🔑</div>
+            <div class="message">Bạn đã đăng xuất khỏi hệ thống.</div>
+            <form method="get" action="{% url 'login' %}">
+                <button type="submit" class="btn-primary">Đăng nhập</button>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
