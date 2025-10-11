@@ -1,10 +1,14 @@
 from django.db import models
 
+# =====================
+# 1. Phòng Ban
+# =====================
 class PhongBan(models.Model):
-    ten_phong_ban = models.CharField(max_length=100, unique=True)
+    TenPhongBan = models.CharField(max_length=100, unique=True)
+    Email = models.EmailField(blank=True, null=True)
 
     def __str__(self):
-        return self.ten_phong_ban
+        return self.TenPhongBan
 
 class NhanVien(models.Model):
     VAITRO_CHOICES = [

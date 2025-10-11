@@ -1,0 +1,179 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Xác nhận đăng xuất</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background-color: #ffffff;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .dialog {
+            width: 440px;
+            border: 2px solid #000080;
+            box-sizing: border-box;
+            position: relative;
+            background-color: #fff;
+            transition: all 0.3s ease;
+        }
+
+        /* Thanh tiêu đề */
+        .dialog-header {
+            height: 25px;
+            background-color: #ffffff;
+            border-bottom: 2px solid #000080;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding-right: 8px;
+            cursor: move;
+        }
+
+        .dialog-header span {
+            font-size: 14px;
+            color: #000080;
+            margin-left: 8px;
+            cursor: pointer;
+            width: 18px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .dialog-header span:hover {
+            background-color: #e6e6ff;
+        }
+
+        .dialog-header span.close:hover {
+            background-color: #ffcccc;
+            color: red;
+        }
+
+        /* Nội dung chính */
+        .dialog-content {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            min-height: 80px;
+        }
+
+        .icon-question {
+            font-size: 60px;
+            color: gray;
+            margin-right: 15px;
+        }
+
+        .message {
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Chân hộp thoại */
+        .dialog-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 15px 25px 20px 25px;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 80px;
+            height: 30px;
+            font-size: 15px;
+            border: 1px solid #000080;
+            background-color: #ffffff;
+            cursor: pointer;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .btn:hover {
+            background-color: #f0f0f0;
+        }
+
+        .btn-primary {
+            font-weight: bold;
+            background: linear-gradient(to bottom, #dcdcdc, #bfbfbf);
+        }
+
+        /* Phóng to */
+        .maximized {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            width: calc(100% - 20px);
+            height: calc(100% - 20px);
+        }
+    </style>
+</head>
+<body>
+    <div class="dialog" id="dialogBox">
+        <div class="dialog-header" id="dialogHeader">
+            <span id="minimize">_</span>
+            <span id="maximize">□</span>
+            <span id="close" class="close">✕</span>
+        </div>
+
+        <div class="dialog-content">
+            <div class="icon-question">?</div>
+            <div class="message">
+                <span style="font-size:18px;">🔒</span>
+                <span>Bạn có chắc muốn đăng xuất?</span>
+            </div>
+        </div>
+
+        <div class="dialog-footer">
+            <form method="POST">
+                {% csrf_token %}
+                <button type="button" class="btn" onclick="window.history.back()">Hủy</button>
+                <button type="submit" class="btn btn-primary">Đăng xuất</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const dialog = document.getElementById("dialogBox");
+        const minimize = document.getElementById("minimize");
+        const maximize = document.getElementById("maximize");
+        const closeBtn = document.getElementById("close");
+
+        // Lưu trạng thái gốc
+        let originalStyle = {
+            width: dialog.offsetWidth + "px",
+            height: dialog.offsetHeight + "px",
+            position: "relative",
+            top: dialog.offsetTop + "px",
+            left: dialog.offsetLeft + "px",
+        };
+
+        // Phóng to / thu nhỏ
+        maximize.onclick = () => {
+            dialog.classList.toggle("maximized");
+        };
+
+        // Nút thu nhỏ → quay về vị trí & kích thước ban đầu
+        minimize.onclick = () => {
+            if (dialog.classList.contains("maximized")) {
+                dialog.classList.remove("maximized");
+                dialog.style.width = originalStyle.width;
+                dialog.style.height = originalStyle.height;
+                dialog.style.position = originalStyle.position;
+                dialog.style.top = "auto";
+                dialog.style.left = "auto";
+                dialog.style.margin = "auto";
+            }
+        };
+
+        // Đóng hộp thoại
+        closeBtn.onclick = () => {
+            window.location.href = "/";
+        };
+    </script>
+</body>
+</html>
