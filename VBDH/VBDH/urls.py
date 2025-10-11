@@ -19,9 +19,7 @@ from django.urls import path, include
 from QLVB import views
 
 urlpatterns = [
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.logout_confirm, name='logout_confirm'),
-    path('logout-success/', views.logout_success, name='logout_success'),
+    path('admin/',admin.site.urls),
     path('', include('QLVB.urls')),
 
 ]
