@@ -1,10 +1,11 @@
 from django.db import models
 
 class PhongBan(models.Model):
-    ten_phong_ban = models.CharField(max_length=100, unique=True)
+    TenPhongBan = models.CharField(max_length=100, unique=True)
+    Email = models.EmailField(unique=True)
 
     def __str__(self):
-        return self.ten_phong_ban
+        return self.TenPhongBan
 
 class NhanVien(models.Model):
     VAITRO_CHOICES = [
@@ -57,6 +58,7 @@ class VanBanDi(models.Model):
     NoiDung = models.TextField()  # NoiDung
     LoaiVbDi = models.CharField(max_length=255)  # LoaiVbDi
     DonViNhan = models.CharField(max_length=255, null=True, blank=True)  # DonViNhan
+    Email = models.EmailField(unique=True)
     FileDinhKem = models.FileField(upload_to='vanbandi/', blank=True)
     DoMat = models.CharField(max_length=255, null=True, blank=True)  # DoMat
     DoKhan = models.CharField(max_length=255, null=True, blank=True)  # DoKhan
