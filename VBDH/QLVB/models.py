@@ -1,5 +1,8 @@
 from django.db import models
 
+# =====================
+# 1. Phòng Ban
+# =====================
 class PhongBan(models.Model):
     TenPhongBan = models.CharField(max_length=100, unique=True)
     Email = models.EmailField(unique=True)
@@ -58,7 +61,7 @@ class VanBanDi(models.Model):
     NoiDung = models.TextField()  # NoiDung
     LoaiVbDi = models.CharField(max_length=255)  # LoaiVbDi
     DonViNhan = models.CharField(max_length=255, null=True, blank=True)  # DonViNhan
-    Email = models.EmailField(unique=True)
+    Email = models.EmailField(blank=False)
     FileDinhKem = models.FileField(upload_to='vanbandi/', blank=True)
     DoMat = models.CharField(max_length=255, null=True, blank=True)  # DoMat
     DoKhan = models.CharField(max_length=255, null=True, blank=True)  # DoKhan

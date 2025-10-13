@@ -1,0 +1,132 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập hệ thống</title>
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            background-color: #ffffff;
+        }
+
+        .login-container {
+            width: 380px;
+            margin: 80px auto;
+            border: 1px solid #00008B;
+            padding: 10px;
+        }
+
+        .login-title {
+            text-align: center;
+            font-weight: bold;
+            color: white;
+            padding: 8px 0;
+            font-size: 16px;
+            background: linear-gradient(to bottom, #0066cc, #004080);
+            border: 1px solid #000080;
+            margin-bottom: 15px;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .login-form {
+            padding: 0 20px 20px 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: normal;
+            font-size: 15px;
+        }
+
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            height: 30px;
+            border: 1px solid #999;
+            padding-left: 8px;
+            font-size: 14px;
+            box-sizing: border-box;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 8px;
+            top: 6px;
+            cursor: pointer;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .note {
+            font-size: 13px;
+            color: #333;
+            margin-top: 6px;
+        }
+
+        .error-message {
+            color: red;
+            font-weight: normal;
+            margin-top: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        .btn-login {
+            margin-top: 12px;
+            width: 100%;
+            height: 34px;
+            font-size: 15px;
+            color: #000;
+            border: 1px solid #999;
+            border-radius: 3px;
+            background: linear-gradient(to bottom, #f4f4f4, #dcdcdc);
+            cursor: pointer;
+            font-family: "Times New Roman", Times, serif;
+        }
+
+        .btn-login:hover {
+            background: linear-gradient(to bottom, #e8e8e8, #cfcfcf);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-title">ĐĂNG NHẬP</div>
+        <form method="POST" class="login-form">
+            {% csrf_token %}
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" maxlength="50" required>
+
+            <label for="password">Password:</label>
+            <div class="password-container">
+                <input type="password" id="password" name="password" minlength="8" maxlength="32" required>
+                <span class="toggle-password" onclick="togglePassword()">👁️</span>
+            </div>
+
+            <div class="note">Nhấn 👁️ để hiện/ẩn mật khẩu</div>
+
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="error-message">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+
+            <button type="submit" class="btn-login">Đăng nhập</button>
+        </form>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const field = document.getElementById("password");
+            field.type = field.type === "password" ? "text" : "password";
+        }
+    </script>
+</body>
+</html>
