@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Tra cứu văn bản{% endblock %}
+{% block content %}
+<style>
+    body, input, select, button {
+        font-family: 'Times New Roman', Times, serif;
+    }
+    .filter-box {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 6px;
+        background-color: #f9f9f9;
+    }
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 10px;
+    }
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+    }
+    .filter-group label {
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+    .filter-inline input,
+    .filter-inline select,
+    .filter-group select {
+        height: 30px;
+        min-width: 200px;
+        padding: 5px 10px;
+        box-sizing: border-box;
+    }
+    .filter-inline.date-range {
+        display: flex;
+        gap: 18px;
+    }
+    .filter-inline.date-range input {
+        flex: 1;
+    }
+    .btn-loc, .btn-create {
+        height: 30px;
+        padding: 0 25px;
+    }
+    .filter-row.first {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+    }
+    .filter-row.second {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        margin-left: 220px;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 0;
+    }
+    .btn-create {
+        margin-left: 174px;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+        font-family: 'Times New Roman', Times, serif;
+    }
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+    .actions button {
+        margin-right: 5px;
+        font-size: 13px;
+    }
+    #noResult {
+        margin-top: 15px;
+        color: red;
+        font-weight: bold;
+        display: none;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="container mt-3">
+    <h5><b>Tra cứu văn bản</b></h5>
+    <div class="filter-box">
+        <div class="filter-row first">
+            <div class="filter-group">
+                <label>Tìm kiếm</label>
+                <div class="filter-inline">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Nhập số kí hiệu, trích yếu">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Ngày ban hành</label>
+                <div class="filter-inline date-range">
+                    <input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
+                    <input id="toDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Phòng ban</label>
+                <select id="department" class="form-select">
+                    <option value="">Phòng ban</option>
+                    <option>Phòng Kinh doanh</option>
+                    <option>Phòng Marketing</option>
+                    <option>Phòng Kế toán tổng hợp</option>
+                    <option>Phòng Hành chính nhân sự</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-row second">
+            <div class="filter-group">
+                <label>Cơ quan ban hành</label>
+                <select id="agency" class="form-select">
+                    <option value="">Cơ quan</option>
+                    <option>Bộ GD&ĐT</option>
+                    <option>UBND Tỉnh</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label>Hình thức văn bản</label>
+                <select id="docType" class="form-select">
+                    <option value="">Loại văn bản</option>
+                    <option>Công văn</option>
+                    <option>Thông báo</option>
+                    <option>Quyết định</option>
+                    <option>Tờ trình</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button id="filterBtn" class="btn btn-primary btn-loc">Lọc</button>
+                <button id="createBtn" class="btn btn-success btn-create">Tạo văn bản đến</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="noResult">Không tìm thấy văn bản</div>
+
+    <table id="resultTable" style="display:none;">
+        <thead>
+            <tr>
+                <th>Số hiệu</th>
+                <th>Trích yếu</th>
+                <th>Cơ quan tiếp nhận</th>
+                <th>Phòng ban</th>
+                <th>Loại văn bản</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+<script>
+    const data = [
+        {sohieu: 'CV001', trichyeu: 'Về việc họp hành', coquan: 'Phòng Kinh doanh', phongban: 'Phòng Hành chính nhân sự', loai: 'Công văn', trangthai: 'Đã duyệt', date: '2025-10-10'},
+        {sohieu: 'TB002', trichyeu: 'Thông báo nghỉ lễ', coquan: 'Phòng Tài vụ', phongban: 'Phòng Kế toán tổng hợp', loai: 'Thông báo', trangthai: 'Chưa duyệt', date: '2025-09-30'},
+        {sohieu: 'QD003', trichyeu: 'Quyết định nhân sự', coquan: 'UBND Tỉnh', phongban: 'Phòng Marketing', loai: 'Quyết định', trangthai: 'Đã duyệt', date: '2025-10-01'}
+    ];
+
+    const filterBtn = document.getElementById('filterBtn');
+    const createBtn = document.getElementById('createBtn');
+    const resultTable = document.getElementById('resultTable');
+    const tbody = resultTable.querySelector('tbody');
+    const noResult = document.getElementById('noResult');
+
+    function renderTable(filteredData) {
+        tbody.innerHTML = '';
+        if (filteredData.length === 0) {
+            resultTable.style.display = 'none';
+            noResult.style.display = 'block';
+            return;
+        }
+        noResult.style.display = 'none';
+        filteredData.forEach(item => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.sohieu}</td>
+                <td>${item.trichyeu}</td>
+                <td>${item.coquan}</td>
+                <td>${item.phongban}</td>
+                <td>${item.loai}</td>
+                <td>${item.trangthai}</td>
+                <td class="actions">
+                    <button class="btn btn-sm btn-info">Xem chi tiết</button>
+                    <button class="btn btn-sm btn-warning">Sửa</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+        resultTable.style.display = 'table';
+    }
+
+    flatpickr("#fromDate", { dateFormat: "d/m/Y" });
+    flatpickr("#toDate", { dateFormat: "d/m/Y" });
+
+    filterBtn.addEventListener('click', () => {
+        const searchValue = document.getElementById('searchInput').value.toLowerCase();
+        const department = document.getElementById('department').value.toLowerCase();
+        const agency = document.getElementById('agency').value.toLowerCase();
+        const docType = document.getElementById('docType').value.toLowerCase();
+        const fromDateVal = document.getElementById('fromDate').value;
+        const toDateVal = document.getElementById('toDate').value;
+
+        function parseDDMMYYYY(str) {
+            if(!str) return '';
+            const [day, month, year] = str.split('/');
+            return `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+        }
+
+        const fromDate = parseDDMMYYYY(fromDateVal);
+        const toDate = parseDDMMYYYY(toDateVal);
+
+        const filtered = data.filter(item => {
+            const matchesSearch = searchValue === '' || item.sohieu.toLowerCase().includes(searchValue) || item.trichyeu.toLowerCase().includes(searchValue);
+            const matchesDept = department === '' || item.phongban.toLowerCase().includes(department);
+            const matchesAgency = agency === '' || item.coquan.toLowerCase().includes(agency);
+            const matchesType = docType === '' || item.loai.toLowerCase().includes(docType);
+            const matchesDate = (!fromDate || item.date >= fromDate) && (!toDate || item.date <= toDate);
+            return matchesSearch && matchesDept && matchesAgency && matchesType && matchesDate;
+        });
+
+        renderTable(filtered);
+    });
+
+    createBtn.addEventListener('click', () => {
+        alert('Chức năng tạo văn bản đến sẽ mở form ở đây!');
+    });
+
+    renderTable(data);
+</script>
+{% endblock %}
