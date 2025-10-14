@@ -1,7 +1,6 @@
 from django.db import models
 
 class PhongBan(models.Model):
-    ten_phong_ban = models.CharField(max_length=100, unique=True)
     TenPhongBan = models.CharField(max_length=100, unique=True)
     Email = models.EmailField(unique=True)
 
@@ -20,7 +19,6 @@ class NhanVien(models.Model):
     vai_tro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
     email = models.EmailField(unique=True)
     sdt = models.CharField(max_length=10)
-    phong_ban = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
     HoTen = models.CharField(max_length=100)
     VaiTro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
     Email = models.EmailField(unique=True)
