@@ -1,12 +1,9 @@
 from django.db import models
 
 class PhongBan(models.Model):
-<<<<<<< HEAD
     ten_phong_ban = models.CharField(max_length=100, unique=True)
-=======
     TenPhongBan = models.CharField(max_length=100, unique=True)
     Email = models.EmailField(unique=True)
->>>>>>> 4e43b66eb521fdbec650ff1648c090c7daf8096c
 
     def __str__(self):
         return self.ten_phong_ban
@@ -19,27 +16,23 @@ class NhanVien(models.Model):
         ('VT', 'Văn Thư'),
     ]
 
-<<<<<<< HEAD
     ho_ten = models.CharField(max_length=100)
     vai_tro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
     email = models.EmailField(unique=True)
     sdt = models.CharField(max_length=10)
     phong_ban = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
-=======
     HoTen = models.CharField(max_length=100)
     VaiTro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
     Email = models.EmailField(unique=True)
     SDT = models.CharField(max_length=10)
     PhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
->>>>>>> 4e43b66eb521fdbec650ff1648c090c7daf8096c
-
     def __str__(self):
         return self.ho_ten
 from django.db import models
 
-<<<<<<< HEAD
+
 # Create your models here.
-=======
+
 DOKHAN_CHOICES  = [
     ('KHAN', 'Khẩn'),
     ('BINH THUONG', 'Bình thường'),
@@ -115,4 +108,4 @@ class NhatKyCongVien(models.Model):
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE)
     def __str__(self):
         return self.TieuDe
->>>>>>> 4e43b66eb521fdbec650ff1648c090c7daf8096c
+
