@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Danh sách văn bản đi{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <!-- Tiêu đề căn giữa -->
+    <h3 class="text-center fw-bold mb-4 text-uppercase">
+        Danh sách văn bản đi
+    </h3>
+
+    <!-- Bộ lọc tìm kiếm (đÃ CHỈNH) -->
+    <form method="get" class="border p-3 rounded mb-3 bg-light">
+        <div class="row g-3 align-items-end">
+
+            <!-- Ô tìm kiếm -->
+            <div class="col-md-4">
+                <label class="form-label mb-1">Tìm kiếm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" name="search" placeholder="Nhập số kí hiệu, trích yếu">
+                    <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
+                </div>
+            </div>
+
+            <!-- Nhóm ngày ban hành -->
+            <div class="col-md-4">
+                <label class="form-label mb-1">Ngày ban hành</label>
+                <div class="d-flex gap-2">
+                    <input type="date" class="form-control" name="from_date" placeholder="Từ ngày">
+                    <input type="date" class="form-control" name="to_date" placeholder="Đến ngày">
+                </div>
+            </div>
+
+            <!-- Cơ quan ban hành + Loại văn bản + nút Lọc -->
+            <div class="col-md-4">
+                <div class="row g-2">
+
+                    <div class="col-6">
+                        <label class="form-label mb-1">Cơ quan ban hành</label>
+                        <select class="form-select" name="co_quan">
+                            <option value="">Cơ quan</option>
+                        </select>
+                    </div>
+
+                    <div class="col-6">
+                        <label class="form-label mb-1">Loại văn bản</label>
+                        <select class="form-select" name="loai_vb">
+                            <option value="">Loại văn bản</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 d-flex justify-content-start mt-2">
+                        <button type="submit" class="btn btn-outline-dark">Lọc</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+
+    <!-- Nút tạo văn bản đến (ra ngoài, sang phải) -->
+    <div class="d-flex justify-content-end mb-3">
+        <button type="button" class="btn btn-outline-primary">Tạo văn bản đến</button>
+    </div>
+
+    <!-- Bảng danh sách -->
+    <table class="table table-bordered align-middle text-center mt-3" style="border: 2px solid #000;">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 10%;">Số kí hiệu</th>
+                <th>Trích yếu</th>
+                <th>Cơ quan tiếp nhận</th>
+                <th>Loại văn bản</th>
+                <th>Trạng thái</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if documents %}
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.so_ki_hieu }}</td>
+                    <td>{{ doc.trich_yeu }}</td>
+                    <td>{{ doc.co_quan_tiep_nhan }}</td>
+                    <td>{{ doc.loai_vb }}</td>
+                    <td>{{ doc.trang_thai }}</td>
+                </tr>
+                {% endfor %}
+            {% else %}
+                <!-- Tạo 10 dòng kẻ trống giống hình -->
+                {% for i in "1234567890" %}
+                <tr>
+                    <td style="height: 10px; border: 1px solid #000;"></td>
+                    <td style="border: 1px solid #000;"></td>
+                    <td style="border: 1px solid #000;"></td>
+                    <td style="border: 1px solid #000;"></td>
+                    <td style="border: 1px solid #000;"></td>
+                </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+
+</div>
+{% endblock %}
