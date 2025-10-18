@@ -34,3 +34,7 @@ def logout_success(request):
     return render(request, 'QLVB/logout_success.html')
 def tra_cuu_van_ban(request):
     return render(request, 'QLVB/tra_cuu_van_ban.html')
+
+def tao_du_thao(request):
+    # Trả về template taoduthao.html
+    return render(request, 'vanbandi/tao_du_thao.html')

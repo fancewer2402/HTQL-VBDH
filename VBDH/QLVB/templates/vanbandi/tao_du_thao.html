@@ -1,185 +1,143 @@
-{% extends 'base.html' %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo dự thảo</title>
 
-{% block title %}Tạo dự thảo{% endblock %}
-{% block btn_outgoing %}active{% endblock %}
+    <!-- ✅ Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-{% block content %}
-<div class="draft-header">
-  <button class="btn-back">⬅ Quay lại</button>
-  <h2>Tạo dự thảo</h2>
-  <div class="action-buttons">
-      <button class="btn-save">Lưu & Trình ký</button>
-      <button class="btn-cancel">Hủy</button>
-  </div>
+    <!-- ✅ Font Awesome (icon) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- ✅ Custom CSS (nếu bạn có file style.css) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 🔹 Navbar chứa nút quay lại + tiêu đề + nút lưu */
+        .navbar-custom {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom h4 {
+            color: #0d6efd;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .container-form {
+            padding: 30px 50px;
+        }
+
+        .form-box {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔹 Thanh điều hướng trên cùng -->
+<nav class="navbar navbar-custom d-flex justify-content-between align-items-center">
+    <a href="" class="btn btn-outline-primary btn-sm">
+        <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+    </a>
+
+    <h4 class="mb-0">Tạo dự thảo</h4>
+
+    <button type="submit" form="formVanBan" class="btn btn-success">
+        <i class="fa-solid fa-save me-1"></i> Lưu &amp; Trình ký
+    </button>
+</nav>
+
+<!-- 🔹 Nội dung chính -->
+<div class="container-form">
+    <div class="form-box">
+        <form id="formVanBan" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="SoHieu" class="form-label">Số hiệu</label>
+                    <input type="text" id="SoHieu" name="SoHieu" class="form-control"
+                           value="{{ so_hieu_tu_dong }}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="MaPhongBan" class="form-label">Phòng ban</label>
+                    <select id="MaPhongBan" name="MaPhongBan" class="form-select" required>
+                        <option value="">-- Chọn phòng ban --</option>
+                        {% for pb in phong_ban_list %}
+                        <option value="{{ pb.id }}">{{ pb.TenPhongBan }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="TrichYeu" class="form-label">Trích yếu *</label>
+                <textarea id="TrichYeu" name="TrichYeu" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="LoaiVBDi" class="form-label">Loại văn bản *</label>
+                    <input type="text" id="LoaiVBDi" name="LoaiVBDi" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="MaVanBanDen" class="form-label">Mã văn bản đến</label>
+                    <select id="MaVanBanDen" name="MaVanBanDen" class="form-select">
+                        <option value="">-- Danh sách yêu cầu --</option>
+                        {% for nv in danh_sach_yeu_cau_list %}
+                        <option value="{{ vb.id }}">{{ vb.Ma }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="DonViSoanThao" class="form-label">Đơn vị soạn thảo *</label>
+                    <input type="text" id="DonViSoanThao" name="DonViSoanThao" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="NgaySoanThao" class="form-label">Ngày soạn thảo *</label>
+                    <input type="date" id="NgaySoanThao" name="NgaySoanThao" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="NoiDung" class="form-label">Nội dung</label>
+                <textarea id="NoiDung" name="NoiDung" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="FileDinhKem" class="form-label">Tệp đính kèm</label>
+                <div class="border rounded p-3 text-center bg-light">
+                    <input type="file" id="FileDinhKem" name="FileDinhKem" class="form-control">
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
+<!-- ✅ Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-
-
-<form method="POST" enctype="multipart/form-data" class="draft-form">
-  {% csrf_token %}
-  <table class="form-table">
-      <tr>
-          <td><label for="number">Số hiệu</label></td>
-          <td><input type="text" id="number" name="number" /></td>
-      </tr>
-      <tr>
-          <td><label for="summary">Trích yếu<span class="required">*</span></label></td>
-          <td><textarea id="summary" name="summary" rows="3"></textarea></td>
-      </tr>
-      <tr>
-          <td><label for="type">Loại văn bản<span class="required">*</span></label></td>
-          <td>
-              <select id="type" name="type">
-                  <option value="">-- Chọn loại văn bản --</option>
-                  <option value="cv">Công văn</option>
-                  <option value="tb">Thông báo</option>
-                  <option value="bc">Báo cáo</option>
-                  <option value="qd">Quyết định</option>
-              </select>
-          </td>
-      </tr>
-      <tr>
-          <td><label for="incoming_code">Mã văn bản đến</label></td>
-          <td>
-              <select id="incoming_code" name="incoming_code">
-                  <option value="">-- Danh sách yêu cầu --</option>
-              </select>
-          </td>
-      </tr>
-      <tr>
-          <td><label for="receiver">Đơn vị nhận<span class="required">*</span></label></td>
-          <td><input type="text" id="receiver" name="receiver" /></td>
-      </tr>
-      <tr>
-          <td><label for="date">Ngày ban hành<span class="required">*</span></label></td>
-          <td><input type="date" id="date" name="date" /></td>
-      </tr>
-      <tr>
-          <td><label for="content">Nội dung</label></td>
-          <td><textarea id="content" name="content" rows="4"></textarea></td>
-      </tr>
-      <tr>
-          <td><label for="file">Tệp đính kèm</label></td>
-          <td>
-              <div class="upload-box">
-                  <label for="file" class="upload-label">+ Đăng tải tệp</label>
-                  <input type="file" id="file" name="file" hidden>
-              </div>
-          </td>
-      </tr>
-  </table>
-</form>
-
-
-
-
-<style>
-    /* ======== HEADER ======== */
-    .draft-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid #999;
-      padding: 8px 0;
-    }
-    .draft-header h2 {
-      flex-grow: 1;
-      text-align: center;
-      color: #003d99;
-      margin: 0;
-    }
-    .btn-back {
-      background: linear-gradient(to bottom, #2a6df4, #0050a0);
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .action-buttons button {
-      margin-left: 8px;
-      padding: 8px 15px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .btn-save {
-      background: #2a6df4;
-      color: white;
-      border: none;
-    }
-    .btn-cancel {
-      background: #f5f5f5;
-      border: 1px solid #999;
-    }
-
-
-    /* ======== FORM ======== */
-    .draft-form {
-      width: 75%;
-      margin: 25px auto;
-    }
-    .form-table {
-      width: 100%;
-      border-collapse: collapse;
-      table-layout: fixed; /* giúp căn thẳng các cột */
-    }
-    .form-table td {
-      padding: 6px 10px;
-      vertical-align: middle;
-    }
-    .form-table td:first-child {
-      width: 180px; /* cố định cột label */
-      text-align: LEFT; /* label căn phải */
-      padding-LEFT: 15px;
-      white-space: nowrap;
-    }
-    .form-table td:last-child {
-      width: auto;
-    }
-    .form-table label {
-      font-weight: bold;
-      color: #333;
-    }
-    .required {
-      color: red;
-    }
-    input[type="text"],
-    input[type="date"],
-    select,
-    textarea {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #aaa;
-      border-radius: 3px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    textarea {
-      resize: vertical;
-    }
-
-
-    /* ======== FILE UPLOAD ======== */
-    .upload-box {
-      border: 1px dashed #2a6df4;
-      text-align: center;
-      padding: 15px;
-      cursor: pointer;
-      border-radius: 6px;
-      width: 60%;
-      transition: 0.2s;
-    }
-    .upload-label {
-      color: #2a6df4;
-      font-weight: bold;
-    }
-    .upload-box:hover {
-      background: #f0f8ff;
-    }
-</style>
-{% endblock %}
-
-
-
+</body>
+</html>
