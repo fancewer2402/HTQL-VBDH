@@ -3,18 +3,17 @@
 {% block title %}Tra cứu văn bản{% endblock %}
 {% block content %}
 <style>
+    /* 🔹 Đổi font chữ tại đây */
     body, input, select, button {
-        font-family: 'Times New Roman', Times, serif;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         font-size: 13px;
     }
 
-    /* Căn giữa toàn bộ container */
     .container {
         display: flex;
         justify-content: center;
     }
 
-    /* Hộp tra cứu */
     .filter-box {
         border: 1px solid #ddd;
         padding: 20px;
@@ -26,7 +25,6 @@
         flex-direction: column;
     }
 
-    /* Hàng tra cứu */
     .filter-row {
         display: flex;
         flex-wrap: wrap;
@@ -35,35 +33,31 @@
         width: 100%;
     }
 
-    /* Dòng 1 căn giữa */
     .filter-row.first {
         justify-content: center;
     }
 
-    /* Dòng 2 căn thẳng với ngày tạo */
     .filter-row.second {
         justify-content: flex-start;
         align-items: flex-start;
-        margin-left: 241px; /* Dịch sang phải cho thẳng hàng với "Ngày tạo" */
+        margin-left: 241px; /* Căn thẳng với "Ngày tạo" */
     }
 
-    /* Nhóm ô tra cứu */
     .filter-group {
         display: flex;
         flex-direction: column;
         align-items: flex-start;
     }
 
-    /* Nhãn */
     .filter-group label {
         font-weight: 500;
         margin-bottom: 4px;
     }
 
-    /* Input/select */
     .filter-inline input,
     .filter-inline select,
-    .filter-group select {
+    .filter-group select,
+    .filter-group input {
         height: 28px;
         min-width: 180px;
         padding: 4px 8px;
@@ -81,20 +75,17 @@
         flex: 1;
     }
 
-/* Nút Lọc */
-.btn-loc {
-    height: 28px;
-    padding: 0 30px;
-    font-size: 13px;
-    margin-top: 16px;      /* đẩy xuống dưới */
-    margin-left: -21px;      /* dịch sang trái */
-    align-self: flex-start; /* đảm bảo margin-left có tác dụng */
-}
+    .btn-loc {
+        height: 28px;
+        padding: 0 30px;
+        font-size: 13px;
+        margin-top: 16px;
+        margin-left: -21px;
+        align-self: flex-start;
+    }
 
-
-    /* Đẩy nút sang phải */
     .btn-group {
-        margin-left: 20px; /* Cách ô Hình thức văn bản */
+        margin-left: 20px;
         margin-top: 4px;
     }
 
@@ -150,10 +141,6 @@
                 <label>Phòng ban</label>
                 <select id="department" class="form-select">
                     <option value="">Phòng ban</option>
-                    <option>Phòng Kinh doanh</option>
-                    <option>Phòng Marketing</option>
-                    <option>Phòng Kế toán tổng hợp</option>
-                    <option>Phòng Hành chính nhân sự</option>
                 </select>
             </div>
         </div>
@@ -161,12 +148,8 @@
         <!-- Dòng 2 -->
         <div class="filter-row second">
             <div class="filter-group">
-                <label>Cơ quan ban hành</label>
-                <select id="agency" class="form-select">
-                    <option value="">Cơ quan</option>
-                    <option>Bộ GD&ĐT</option>
-                    <option>UBND Tỉnh</option>
-                </select>
+                <label>Đơn vị ban hành</label>
+                <input id="agency" type="text" class="form-control" placeholder="Nhập đơn vị ban hành">
             </div>
 
             <div class="filter-group">
