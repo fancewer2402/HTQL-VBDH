@@ -55,7 +55,7 @@ def danh_sach_van_ban_den(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    return render(request, 'QLVB/danh_sach_van_ban_den.html', {
+    return render(request, 'vanbanden/danh_sach_van_ban_den.html', {
         'van_ban_list': page_obj.object_list,
         'page_obj': page_obj,
         'paginator': paginator,
@@ -69,7 +69,7 @@ def chi_tiet_vb_den(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
     vb_truoc = VanBanDen.objects.filter(id__lt=vb.id).order_by('-id').first()
     vb_sau = VanBanDen.objects.filter(id__gt=vb.id).order_by('id').first()
-    return render(request, 'QLVB/chi_tiet_vb_den.html', {
+    return render(request, 'vanbanden/chi_tiet_vb_den.html', {
         'vb': vb,
         'vb_truoc': vb_truoc,
         'vb_sau': vb_sau
