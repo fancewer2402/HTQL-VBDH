@@ -5,6 +5,11 @@ from . import views
 
 urlpatterns = [
     path('login/', views.user_login, name='login'),
+    path('logout/', views.logout_confirm, name='logout_confirm'),
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
-
+    path('logout/', views.logout_confirm, name='logout_confirm'),
+    path('logout-success/', views.logout_success, name='logout_success'),
+    path('them-van-ban/', views.them_van_ban, name='them_van_ban'),
+    path('vanbandi/', views.ds_vanbandi, name='vanbandi'),
+    path('vanbandi/<int:pk>/', views.vanbandi_detail, name='vanbandi_detail'),
 ]

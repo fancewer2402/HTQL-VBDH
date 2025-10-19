@@ -1,10 +1,8 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login
-from .models import VanBanDen, VanBanDi
-from django.db.models import Q
-from .models import VanBanDen, VanBanDi, PhongBan
-
+from django.contrib.auth import logout
+from .models import VanBanDi, VanBanDen
 
 
 def user_login(request):
@@ -26,9 +24,17 @@ def user_login(request):
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
     return render(request, 'QLVB/login.html')
 
-
 def tra_cuu_van_ban(request):
     return render(request, 'QLVB/tra_cuu_van_ban.html')
 
+def them_van_ban(request):
+    return render(request, 'vanbanden/create.html')
 
+def ds_vanbandi(request):
+    ds = VanBanDi.objects.all().order_by('-NgayBanHanh')
+    return render(request, 'vanbandi/vanbandi.html', {'ds_vanbandi': ds})
+
+def vanbandi_detail(request, pk):
+    vb = get_object_or_404(VanBanDi, pk=pk)
+    return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
 

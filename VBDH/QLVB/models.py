@@ -1,35 +1,31 @@
 from django.db import models
 
+# =====================
+# 1. Phòng Ban
+# =====================
 class PhongBan(models.Model):
     TenPhongBan = models.CharField(max_length=100, unique=True)
     Email = models.EmailField(unique=True)
 
     def __str__(self):
-        return self.ten_phong_ban
-
+        return self.TenPhongBan
 
 class NhanVien(models.Model):
     VAITRO_CHOICES = [
         ('NV', 'Nhân Viên'),
         ('QL', 'Quản Lý'),
         ('VT', 'Văn Thư'),
+        ('TP', 'Trưởng Phòng')
     ]
 
-    ho_ten = models.CharField(max_length=100)
-    vai_tro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
-    email = models.EmailField(unique=True)
-    sdt = models.CharField(max_length=10)
     HoTen = models.CharField(max_length=100)
     VaiTro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
     Email = models.EmailField(unique=True)
     SDT = models.CharField(max_length=10)
     PhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
+
     def __str__(self):
-        return self.ho_ten
-from django.db import models
-
-
-# Create your models here.
+        return self.HoTen
 
 DOKHAN_CHOICES  = [
     ('KHAN', 'Khẩn'),
@@ -61,7 +57,7 @@ class VanBanDi(models.Model):
     # id = models.AutoField(primary_key=True)  # ID
     SoHieu = models.CharField(max_length=50, unique=True)  # SoHieu
     NgayBanHanh = models.DateField(null=True, blank=True)  # NgayBanHanh
-    TrichYeu = models.CharField(max_length=255)  # TrichYeu
+    TrichYeu = models.CharField(max_length=500)  # TrichYeu
     NoiDung = models.TextField()  # NoiDung
     LoaiVbDi = models.CharField(max_length=255)  # LoaiVbDi
     DonViNhan = models.CharField(max_length=255, null=True, blank=True)  # DonViNhan
@@ -106,4 +102,3 @@ class NhatKyCongVien(models.Model):
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE)
     def __str__(self):
         return self.TieuDe
-
