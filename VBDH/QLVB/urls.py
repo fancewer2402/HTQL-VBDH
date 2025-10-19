@@ -10,5 +10,5 @@ urlpatterns = [
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
     path('logout/', views.logout_confirm, name='logout_confirm'),
     path('logout-success/', views.logout_success, name='logout_success'),
-
+    path('them-van-ban/', views.them_van_ban, name='them_van_ban'),
 ]

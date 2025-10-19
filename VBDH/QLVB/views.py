@@ -34,3 +34,6 @@ def logout_success(request):
     return render(request, 'QLVB/logout_success.html')
 def tra_cuu_van_ban(request):
     return render(request, 'QLVB/tra_cuu_van_ban.html')
+
+def them_van_ban(request):
+    return render(request, 'vanbanden/create.html')
