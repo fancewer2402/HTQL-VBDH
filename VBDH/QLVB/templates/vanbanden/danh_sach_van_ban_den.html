@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Danh sách văn bản đi{% endblock %}
+{% block title %}Danh sách văn bản đến{% endblock %}
 
 {% block content %}
 <style>
@@ -42,7 +42,7 @@
     .filter-row.second {
         justify-content: flex-start;
         align-items: flex-start;
-        margin-left: 241px; /* Căn thẳng với "Ngày tạo" */
+        margin-left: 241px; /* Căn thẳng với "Ngày nhận" */
     }
 
     .filter-group {
@@ -95,7 +95,7 @@
         margin-top: 4px;
     }
 
-    /* ====== NÚT TẠO VĂN BẢN ====== */
+    /* ====== NÚT TẠO ====== */
     .btn-create-custom {
         font-family: 'Times New Roman', Times, serif;
         font-size: 16px;
@@ -113,40 +113,59 @@
         color: #0a58ca;
     }
 
-    /* ====== BẢNG DỮ LIỆU ====== */
+    /* ====== BẢNG ====== */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    /* Toàn bảng */
     table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
         background-color: #fff;
+        margin: 0 auto;
     }
+
+    /* Viền */
     table, th, td {
         border: 1px solid #ddd;
     }
+
+    /* Header */
     thead th {
-        background-color: #007bff !important;
-        color: white !important;
-        font-weight: bold !important;
+        background-color: #007bff;
+        color: white;
+        font-weight: 600;
         text-align: center;
-        font-size: 16px;
+        font-size: 15.5px;
         padding: 10px;
+        vertical-align: middle;
+        white-space: nowrap;
     }
+
+    /* Ô dữ liệu */
     td {
         padding: 10px 12px;
-        vertical-align: top;
         font-size: 15px;
+        vertical-align: middle;
     }
-    td:nth-child(1),
-    td:nth-child(2),
-    td:nth-child(4),
-    td:nth-child(5),
-    td:nth-child(6) {
+
+    /* Căn lề từng cột */
+    td:nth-child(1), /* STT */
+    td:nth-child(2), /* Số ký hiệu */
+    td:nth-child(5), /* Loại văn bản */
+    td:nth-child(6)  /* Trạng thái */
+    {
         text-align: center;
     }
+
+    /* Cột Trích yếu */
     td:nth-child(3) {
         text-align: justify;
         white-space: normal;
-        word-wrap: break-word;
+        word-break: break-word;
     }
     td:nth-child(4) {
         text-align: justify;
@@ -154,11 +173,18 @@
         word-break: break-word;
     }
 
-    /* ====== KHÔNG CÓ KẾT QUẢ ====== */
+    /* Hiệu ứng hover */
+    tbody tr:hover {
+        background-color: #f8faff;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Khi không có kết quả */
     #noResult {
         margin-top: 15px;
         color: red;
         font-weight: bold;
+        text-align: center;
         display: none;
     }
 
@@ -219,7 +245,7 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Danh sách văn bản đi</h2>
+    <h2>Danh sách văn bản đến</h2>
 </div>
 
 <div class="container mt-3">
@@ -229,7 +255,7 @@
             <div class="filter-group">
                 <label>Tìm kiếm</label>
                 <div class="filter-inline">
-                    <input id="searchInput" type="text" class="form-control" placeholder="Nhập số kí hiệu, trích yếu">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Nhập số ký hiệu, trích yếu">
                 </div>
                 <div class="search-btn-container">
                     <button id="searchBtn" class="btn btn-success btn-search">Tìm kiếm</button>
@@ -237,7 +263,7 @@
             </div>
 
             <div class="filter-group">
-                <label>Ngày tạo</label>
+                <label>Ngày nhận</label>
                 <div class="filter-inline date-range">
                     <input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
                     <input id="toDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
@@ -245,9 +271,13 @@
             </div>
 
             <div class="filter-group">
-                <label>Phòng ban</label>
-                <select id="department" class="form-select">
-                    <option value="">Phòng ban</option>
+                <label>Loại văn bản</label>
+                <select id="docType" class="form-select">
+                    <option value="">Chọn loại văn bản</option>
+                    <option>Công văn</option>
+                    <option>Thông báo</option>
+                    <option>Quyết định</option>
+                    <option>Tờ trình</option>
                 </select>
             </div>
         </div>
@@ -255,18 +285,16 @@
         <!-- Dòng 2 -->
         <div class="filter-row second">
             <div class="filter-group">
-                <label>Đơn vị ban hành</label>
-                <input id="agency" type="text" class="form-control" placeholder="Nhập đơn vị ban hành">
+                <label>Cơ quan ban hành</label>
+                <input id="agency" type="text" class="form-control" placeholder="Nhập cơ quan ban hành">
             </div>
 
             <div class="filter-group">
-                <label>Hình thức văn bản</label>
-                <select id="docType" class="form-select">
-                    <option value="">Loại văn bản</option>
-                    <option>Công văn</option>
-                    <option>Thông báo</option>
-                    <option>Quyết định</option>
-                    <option>Tờ trình</option>
+                <label>Trạng thái</label>
+                <select id="status" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option>Đã xử lý</option>
+                    <option>Chưa xử lý</option>
                 </select>
             </div>
 
@@ -282,14 +310,11 @@
     flatpickr("#fromDate", { dateFormat: "d/m/Y" });
     flatpickr("#toDate", { dateFormat: "d/m/Y" });
 
-    const filterBtn = document.getElementById('filterBtn');
-    const searchBtn = document.getElementById('searchBtn');
-
-    filterBtn.addEventListener('click', () => {
+    document.getElementById('filterBtn').addEventListener('click', () => {
         alert('Đã áp dụng bộ lọc!');
     });
 
-    searchBtn.addEventListener('click', () => {
+    document.getElementById('searchBtn').addEventListener('click', () => {
         const value = document.getElementById('searchInput').value.trim();
         if(value === '') {
             alert('Vui lòng nhập từ khóa cần tìm kiếm!');
@@ -301,64 +326,58 @@
 
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="" class="btn-create-custom">+ Tạo văn bản đi</a>
+        <a href="" class="btn-create-custom">+ Tạo văn bản đến</a>
     </div>
 
     <div class="table-responsive">
-        <table class="table table-hover table-bordered align-middle">
-            <thead class="table-primary text-center">
+        <table class="table table-hover table-bordered align-middle text-center">
+            <thead class="table-primary">
             <tr>
-                <th style="width: 60px;">STT</th>
-                <th style="width: 180px;">Số ký hiệu văn bản</th>
-                <th>Trích yếu</th>
-                <th style="width: 150px;">Ngày ban hành</th>
-                <th style="width: 150px;">Loại văn bản</th>
-                <th style="width: 140px;">Trạng thái</th>
+                <th style="width: 5%;">STT</th>
+                <th style="width: 15%;">Số ký hiệu</th>
+                <th style="width: 35%;">Trích yếu</th>
+                <th style="width: 20%;">Cơ quan ban hành</th>
+                <th style="width: 15%;">Loại văn bản</th>
+                <th style="width: 10%;">Trạng thái</th>
             </tr>
             </thead>
             <tbody>
-            {% for vb in danh_sach_vb %}
+            {% for vb in van_ban_list %}
             <tr>
-                <!-- STT căn giữa -->
-                <td class="text-center">{{ forloop.counter }}</td>
-
-                <!-- Số ký hiệu căn giữa -->
-                <td class="text-center fw-semibold">{{ vb.so_ky_hieu }}</td>
-
-                <!-- Trích yếu căn trái -->
-                <td class="text-start" style="white-space: normal; word-wrap: break-word;">
-                    {{ vb.trich_yeu }}
+                <td>{{ forloop.counter }}</td>
+                <td>{{ vb.SoHieu }}</td>
+                <td class="text-start">
+                    <a href="{% url 'vanbanden' vb.id %}" class="text-decoration-none text-dark fw-medium">
+                        {{ vb.TrichYeu }}
+                    </a>
                 </td>
-
-                <!-- Ngày ban hành căn giữa -->
-                <td class="text-center">{{ vb.ngay_ban_hanh|date:"d/m/Y" }}</td>
-
-                <!-- Hình thức căn giữa -->
-                <td class="text-center">{{ vb.hinh_thuc }}</td>
-
-                <!-- Trạng thái căn giữa, đổi tên cột -->
-                <td class="text-center">
-                    {% if vb.trang_thai == 'đã duyệt' %}
-                    <span class="badge bg-success">Đã duyệt</span>
-                    {% elif vb.trang_thai == 'chờ duyệt' %}
-                    <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                    {% elif vb.trang_thai == 'từ chối' %}
-                    <span class="badge bg-danger">Từ chối</span>
+                <td>{{ vb.DonViPhatHanh }}</td>
+                <td>{{ vb.LoaiVBDen }}</td>
+                <td>
+                    {% if vb.NhatKyCongVien_set.exists %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                            {{ vb.NhatKyCongVien_set.last.TrangThai }}
+                        </span>
                     {% else %}
-                    <span class="badge bg-secondary">Không xác định</span>
+                    <span class="text-muted">Chưa xử lý</span>
                     {% endif %}
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center text-muted py-4">Không có kết quả</td>
+                <td colspan="6" class="text-center text-muted py-4">
+                    Không có kết quả
+                </td>
             </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+</div>
 
+<!-- Phân trang -->
+<!-- Phân trang -->
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
 
@@ -421,5 +440,4 @@
         {% endif %}
     </ul>
 </nav>
-
 {% endblock %}

@@ -1,4 +1,3 @@
-{% extends "base.html" %}
 {% block content %}
 <style>
   .container {
@@ -89,8 +88,8 @@
   <div class="header-buttons">
     <div>
       <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
-      <button class="btn-blue">Xem chi tiết văn bản đến</button>
     </div>
+      <div>Trạng thái:</div>
     <button class="btn-gray">Xem nhật ký hoạt động</button>
   </div>
 
@@ -98,21 +97,9 @@
 
   <table>
     <tr>
-      <td style="width: 15%;"><label>Trích yếu (*):</label></td>
-      <td style="width: 60%;"><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
-      <td rowspan="5" style="width: 25%;" valign="top">
-        <div class="calendar-box">
-          <div class="calendar-title">AUG - 2016</div>
-          <div class="calendar-days">
-            <div>S</div><div>M</div><div>T</div><div>W</div><div>T</div><div>F</div><div>Sa</div>
-          </div>
-          <div class="calendar-dates" style="margin-top:4px;">
-            {% for i in "12345678910111213141516171819202122232425262728293031"|make_list %}
-              <div>{{ forloop.counter }}</div>
-            {% endfor %}
-          </div>
-        </div>
-      </td>
+      <td style="width: 20%;"><label>Trích yếu (*):</label></td>
+      <td style="width: 50%;"><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
+      <td rowspan="5" style="width: 30%;" valign="top">
     </tr>
     <tr>
       <td><label>Số ký hiệu (*):</label></td>
