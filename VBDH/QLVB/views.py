@@ -45,3 +45,7 @@ def vanbandi_detail(request, pk):
     vb = get_object_or_404(VanBanDi, pk=pk)
     return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
 
+
+def tao_du_thao(request):
+    # Trả về template taoduthao.html
+    return render(request, 'vanbandi/tao_du_thao.html')

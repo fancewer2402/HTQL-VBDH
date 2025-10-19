@@ -13,4 +13,5 @@ urlpatterns = [
     path('them-van-ban/', views.them_van_ban, name='them_van_ban'),
     path('vanbandi/', views.ds_vanbandi, name='vanbandi'),
     path('vanbandi/<int:pk>/', views.vanbandi_detail, name='vanbandi_detail'),
+    path('taoduthao/', views.tao_du_thao, name='tao_du_thao'),
 ]
