@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Danh sách văn bản đến{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+   {% include 'QLVB/tra_cuu_van_ban.html' %}
+  <h3 class="text-primary fw-bold mb-3 text-center">Danh sách văn bản đến</h3>
+
+  <div class="table-responsive shadow-sm bg-white rounded">
+    <table class="table table-bordered table-striped align-middle text-center">
+      <thead class="table-primary">
+        <tr>
+          <th>Số ký hiệu</th>
+          <th>Trích yếu</th>
+          <th>Cơ quan ban hành</th>
+          <th>Loại văn bản</th>
+          <th>Trạng thái</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if van_ban_list %}
+          {% for vb in van_ban_list %}
+          <tr>
+            <td>{{ vb.SoHieu }}</td>
+            <td class="text-start">
+              <a href="{% url 'chi_tiet_vb_den' vb.id %}" class="text-decoration-none text-dark">
+                {{ vb.TrichYeu }}
+              </a>
+            </td>
+            <td>{{ vb.DonViPhatHanh }}</td>
+            <td>{{ vb.LoaiVBDen }}</td>
+            <td>
+              {% if vb.NhatKyCongVien_set.exists %}
+                {{ vb.NhatKyCongVien_set.last.TrangThai }}
+              {% else %}
+                <span class="text-muted">Chưa xử lý</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% else %}
+          <tr>
+            <td colspan="5" class="text-center text-muted py-3">
+              Không có văn bản đến nào.
+            </td>
+          </tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Phân trang -->
+  {% if paginator.num_pages > 1 %}
+  <nav aria-label="Page navigation" class="mt-3">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">«</a>
+        </li>
+      {% endif %}
+      {% for num in paginator.page_range %}
+        {% if num == page_obj.number %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% else %}
+          <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+        {% endif %}
+      {% endfor %}
+      {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link" href="?page={{ page_obj.next_page_number }}">»</a>
+        </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+{% endblock %}

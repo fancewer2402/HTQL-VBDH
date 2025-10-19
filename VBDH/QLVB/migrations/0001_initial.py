@@ -30,24 +30,6 @@ class Migration(migrations.Migration):
             ],
         ),
         migrations.CreateModel(
-            name='VanBanDen',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('SoHieu', models.CharField(max_length=100)),
-                ('TrichYeu', models.CharField(max_length=250)),
-                ('LoaiVBDen', models.CharField(max_length=100)),
-                ('DonViPhatHanh', models.CharField(max_length=250)),
-                ('NgayBanHanh', models.DateTimeField()),
-                ('NgayDen', models.DateTimeField()),
-                ('NoiDung', models.CharField(max_length=250)),
-                ('DoKhan', models.CharField(choices=[('KHAN', 'Khẩn'), ('BINH THUONG', 'Bình thường')], default='BINH THUONG', max_length=50)),
-                ('DoMat', models.CharField(choices=[('MAT', 'Mật'), ('BINH THUONG', 'Bình thường')], default='BINH THUONG', max_length=50)),
-                ('FileDinhKem', models.FileField(blank=True, upload_to='vanbanden/')),
-                ('MaNhanVien', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='QLVB.nhanvien')),
-                ('MaPhongBan', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='QLVB.phongban')),
-            ],
-        ),
-        migrations.CreateModel(
             name='VanBanDi',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
