@@ -27,13 +27,6 @@ def user_login(request):
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
     return render(request, 'QLVB/login.html')
 
-def logout_confirm(request):
-    if request.method == "POST":
-        logout(request)
-        return redirect('logout_success')
-    return render(request, 'QLVB/logout_confirm.html')
-def logout_success(request):
-    return render(request, 'QLVB/logout_success.html')
 def tra_cuu_van_ban(request):
     return render(request, 'QLVB/tra_cuu_van_ban.html')
 
@@ -81,3 +74,7 @@ def chi_tiet_vb_den(request, vb_id):
         'vb_truoc': vb_truoc,
         'vb_sau': vb_sau
     })
+
+def tao_du_thao(request):
+    # Trả về template taoduthao.html
+    return render(request, 'vanbandi/tao_du_thao.html')
