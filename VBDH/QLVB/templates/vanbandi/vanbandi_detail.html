@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chi tiết văn bản: {{ vb.SoHieu }}{% endblock %}
+
+{% block content %}
+<style>
+    .title-chitiet {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    table, th, td {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 17px;
+        font-weight: bold;
+    }
+    .btn-quay-lai {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 17px;
+        font-weight: bold;
+        border: 1px solid #0d6efd;
+        color: #0d6efd;
+        background-color: #ffffff;
+        padding: 6px 14px;
+        border-radius: 6px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .btn-quay-lai:hover {
+        background-color: #e9f2ff;
+        text-decoration: none;
+        color: #0a58ca;
+    }
+</style>
+
+<div class="container mt-3">
+
+    <!-- Thanh tiêu đề + nút quay lại -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <a onclick="window.history.back()" class="btn-quay-lai">
+            <span style="font-weight:bold;">←</span> Quay lại
+        </a>
+        <h4 class="text-center flex-grow-1 m-0 title-chitiet">
+            Chi tiết văn bản
+        </h4>
+        <div style="width: 90px;"></div>
+    </div>
+
+    <table style="width:100%; border-collapse: collapse;">
+        <tr>
+            <th style="text-align:left; padding:8px; width:20%;">Số ký hiệu</th>
+            <td style="padding:8px;">{{ vb.SoHieu }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left; padding:8px;">Trích yếu</th>
+            <td style="padding:8px;">{{ vb.TrichYeu }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left; padding:8px;">Nội dung</th>
+            <td style="padding:8px; white-space:pre-wrap;">{{ vb.NoiDung }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left; padding:8px;">Ngày ban hành</th>
+            <td style="padding:8px;">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left; padding:8px;">Hình thức văn bản</th>
+            <td style="padding:8px;">{{ vb.HinhThucVanBan }}</td>
+        </tr>
+        <tr>
+            <th style="text-align:left; padding:8px;">File đính kèm</th>
+            <td style="padding:8px;">
+                {% if vb.FileDinhKem %}
+                    <a href="{{ vb.FileDinhKem.url }}" target="_blank">Tải / Xem file</a>
+                {% else %}
+                    Không có
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+</div>
+{% endblock %}
