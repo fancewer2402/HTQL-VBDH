@@ -1,6 +1,5 @@
 from django.db import models
 
-
 # =====================
 # 1. Phòng Ban
 # =====================
@@ -69,8 +68,6 @@ class VanBanDi(models.Model):
     TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)  # MaNhanVien
-    HinhThucVanBan = models.CharField(max_length=100, null=True, blank=True)
-
 
     def __str__(self):
         return self.TrichYeu
