@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # =====================
 # 1. Phòng Ban
 # =====================
@@ -102,3 +102,13 @@ class NhatKyCongVien(models.Model):
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE)
     def __str__(self):
         return self.TieuDe
+
+class PhanCongVanThu(models.Model):
+    van_ban = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, related_name='phan_cong')
+    van_thu = models.ForeignKey(User, on_delete=models.PROTECT, limit_choices_to={'is_staff': True})
+    noi_dung_phan_cong = models.TextField()
+    han_cuoi = models.DateTimeField()
+    ngay_tao = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Phân công {self.van_thu.username} cho {self.van_ban.SoHieu}"
