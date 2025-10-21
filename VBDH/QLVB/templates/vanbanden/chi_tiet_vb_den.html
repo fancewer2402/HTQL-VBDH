@@ -3,8 +3,8 @@
   .container {
     margin: 30px auto;
     width: 95%;
-    font-family: Arial, sans-serif;
-  }
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
   .btn-blue {
     background-color: #2b579a;
     color: #fff;
@@ -86,12 +86,21 @@
 
 <div class="container">
   <div class="header-buttons">
-    <div>
-      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
-    </div>
-      <div>Trạng thái:</div>
-    <button class="btn-gray">Xem nhật ký hoạt động</button>
+  <div>
+    <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
   </div>
+
+  <div style="text-align: right;">
+    <div>Trạng thái:</div>
+    <button class="btn-gray" style="margin-top: 5px;">Xem nhật ký hoạt động</button>
+    <br>
+  <button class="btn-blue" style="margin-top: 8px;"
+          onclick="window.location.href='{% url 'sua_vb_den' vb.id %}'">
+    Sửa văn bản đến
+  </button>
+  </div>
+</div>
+
 
   <div class="title">CHI TIẾT VĂN BẢN ĐẾN</div>
 
@@ -151,4 +160,45 @@
 
 
 </div>
+  <div style="text-align:center; margin-top:30px;">
+    <ul style="list-style:none; display:inline-flex; gap:10px; align-items:center; padding:0;">
+
+      <!-- Nút văn bản trước -->
+      {% if vb_truoc %}
+      <li>
+        <a href="{% url 'chi_tiet_vb_den' vb_truoc.id %}"
+           style="background:#f2f2f2; border:1px solid #ccc; padding:6px 12px; border-radius:8px; text-decoration:none; color:#333;">
+          «
+        </a>
+      </li>
+      {% else %}
+      <li>
+        <span style="background:#eee; color:#aaa; border:1px solid #ccc; padding:6px 12px; border-radius:8px;">«</span>
+      </li>
+      {% endif %}
+
+      <!-- Hiển thị dạng 1–10/23 -->
+      <li>
+        <span style="background:#2b579a; color:white; padding:6px 15px; border-radius:8px; font-weight:bold;">
+          {{ vb.id }} / {{ total_vb }}
+        </span>
+      </li>
+
+      <!-- Nút văn bản sau -->
+      {% if vb_sau %}
+      <li>
+        <a href="{% url 'chi_tiet_vb_den' vb_sau.id %}"
+           style="background:#f2f2f2; border:1px solid #ccc; padding:6px 12px; border-radius:8px; text-decoration:none; color:#333;">
+          »
+        </a>
+      </li>
+      {% else %}
+      <li>
+        <span style="background:#eee; color:#aaa; border:1px solid #ccc; padding:6px 12px; border-radius:8px;">»</span>
+      </li>
+      {% endif %}
+
+    </ul>
+  </div>
+
 {% endblock %}
