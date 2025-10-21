@@ -40,6 +40,17 @@ def ds_vanbandi(request):
 def vanbandi_detail(request, pk):
     vb = get_object_or_404(VanBanDi, pk=pk)
     return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
+def sua_vanbandi(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+
+    if request.method == 'POST':
+        vb.TrichYeu = request.POST.get('TrichYeu')
+        vb.SoKyHieu = request.POST.get('SoKyHieu')
+        vb.NoiDung = request.POST.get('NoiDung')
+        vb.save()
+        return redirect('chitiet_vanbandi', id=vb.id)
+
+    return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
 
 def get_current_nhanvien(request):
     # Nếu bạn chưa map user -> NhanVien, trả về None (đổi logic nếu cần)
