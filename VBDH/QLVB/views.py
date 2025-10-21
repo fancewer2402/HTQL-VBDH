@@ -5,7 +5,8 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.dateparse import parse_date
-from .models import VanBanDi, VanBanDen, NhanVien
+from .models import VanBanDi, VanBanDen, NhanVien, NhatKyCongViec
+from django.utils import timezone
 
 
 def user_login(request):
@@ -78,3 +79,50 @@ def chi_tiet_vb_den(request, vb_id):
 def tao_du_thao(request):
     # Trả về template taoduthao.html
     return render(request, 'vanbandi/tao_du_thao.html')
+
+
+from django.shortcuts import render, redirect, get_object_or_404
+from QLVB.models import VanBanDi
+
+
+# Xét duyệt văn bản đi
+def xetduyetvanbandi(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+
+    if request.method == "POST":
+        # Giả sử có nút 'duyet' trong form
+        if 'duyet' in request.POST:
+            vb.trang_thai = "Đã duyệt"
+            vb.save()
+            # ✅ Sau khi duyệt, điều hướng sang trang phân công văn thư
+            return redirect('phancong_vanthu', id=vb.id)
+
+    return render(request, 'vanbandi/xetduyetvanbandi.html', {'vb': vb})
+
+
+# Phân công văn thư
+def phan_cong_van_thu(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+    return render(request, 'vanbandi/phan_cong_van_thu.html', {'vb': vb})
+
+
+def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
+    # Xác định loại văn bản
+    if loaivanban == 'vanbanden':
+        vanban = get_object_or_404(VanBanDen, id=vanban_id)
+        nhatky = NhatKyCongViec.objects.filter(MaVBDen=vanban).order_by('NgayTao')
+    elif loaivanban == 'vanbandi':
+        vanban = get_object_or_404(VanBanDi, id=vanban_id)
+        nhatky = NhatKyCongViec.objects.filter(MaVBDi=vanban).order_by('NgayTao')
+    else:
+        # Không hợp lệ
+        nhatky = []
+        vanban = None
+
+    context = {
+        'loaivanban': loaivanban,
+        'vanban': vanban,
+        'nhatky': nhatky,
+    }
+    return render(request, 'QLVB/nhat_ky_hoat_dong.html', context)
+

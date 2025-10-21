@@ -90,7 +90,10 @@
       <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
     </div>
       <div>Trạng thái:</div>
-    <button class="btn-gray">Xem nhật ký hoạt động</button>
+     <button class="btn-gray" onclick="window.location.href='{% url 'nhatkyhoatdong' 'vanbanden' vb.id %}'">
+      Xem nhật ký hoạt động
+    </button>
+
   </div>
 
   <div class="title">CHI TIẾT VĂN BẢN ĐẾN</div>
