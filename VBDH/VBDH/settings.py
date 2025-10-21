@@ -71,6 +71,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'QLVB.context_processors.thong_bao_context',
+                'QLVB.views.global_notifications',
             ],
         },
     },
