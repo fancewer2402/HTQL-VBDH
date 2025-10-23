@@ -5,7 +5,8 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.dateparse import parse_date
-from .models import VanBanDi, VanBanDen, NhanVien, NhatKyCongViec
+from .models import VanBanDi, VanBanDen, NhanVien, ThongBao
+from datetime import timedelta, date
 from django.utils import timezone
 
 
@@ -91,11 +92,6 @@ def tao_du_thao(request):
     # Trả về template taoduthao.html
     return render(request, 'vanbandi/tao_du_thao.html')
 
-
-from django.shortcuts import render, redirect, get_object_or_404
-from QLVB.models import VanBanDi
-
-
 # Xét duyệt văn bản đi
 def xetduyetvanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
@@ -137,3 +133,56 @@ def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
     }
     return render(request, 'QLVB/nhat_ky_hoat_dong.html', context)
 
+def ban_hanh_van_ban(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+    today = timezone.now().date()   # Lấy ngày hiện tại (chỉ phần ngày, không có giờ)
+
+    context = {
+        'vb': vb,
+        'today': today
+    }
+    return render(request, 'vanbandi/ban_hanh_van_ban.html', context)
+
+
+def home(request):
+    now = timezone.now()
+    start_of_week = now - timedelta(days=now.weekday())  # Thứ 2 của tuần
+
+    today_notifications = ThongBao.objects.filter(NgayTao__date=now.date())
+    week_notifications = ThongBao.objects.filter(
+        NgayTao__gte=start_of_week,
+        NgayTao__lt=now.date()
+    )
+    old_notifications = ThongBao.objects.filter(NgayTao__lt=start_of_week)
+
+    notification_count = ThongBao.objects.count()
+
+    context = {
+        'today_notifications': today_notifications,
+        'week_notifications': week_notifications,
+        'old_notifications': old_notifications,
+        'notification_count': notification_count,
+    }
+    return render(request, 'home.html', context)
+
+def global_notifications(request):
+    now = timezone.now()
+    start_of_week = now - timedelta(days=now.weekday())
+
+    today_notifications = ThongBao.objects.filter(NgayTao__date=now.date())
+    week_notifications = ThongBao.objects.filter(NgayTao__gte=start_of_week, NgayTao__lt=now.date())
+    old_notifications = ThongBao.objects.filter(NgayTao__lt=start_of_week)
+
+    return {
+        'today_notifications': today_notifications,
+        'week_notifications': week_notifications,
+        'old_notifications': old_notifications,
+        'notification_count': ThongBao.objects.count()
+    }
+
+def mark_notification_read(request, id):
+    thongbao = get_object_or_404(ThongBao, id=id)
+    thongbao.DaDoc = True
+    thongbao.save()
+    next_url = request.GET.get('next', '/')
+    return redirect(next_url)

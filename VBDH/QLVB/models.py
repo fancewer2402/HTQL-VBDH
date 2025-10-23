@@ -73,15 +73,18 @@ class VanBanDi(models.Model):
         return self.TrichYeu
 
 class ThongBao(models.Model):
-    TieuDe = models.TextField(null = False)
-    NgayTao = models.DateTimeField(auto_now_add=True)
-    MaNhanVien = models.ForeignKey(NhanVien, on_delete = models.CASCADE)
-    MaVBDen = models.ForeignKey(VanBanDen, on_delete = models.CASCADE)
-    MaVBDi = models.ForeignKey(VanBanDi, on_delete = models.CASCADE)
-    def __str__(self):
-        return self.TieuDe
+   TieuDe = models.TextField(null=False)
+   NoiDung = models.TextField(null=True, blank=True)
+   NgayTao = models.DateTimeField(auto_now_add=True)
+   DaDoc = models.BooleanField(default=False)
+   MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)
+   MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
+   MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
 
-class NhatKyCongVien(models.Model):
+   def __str__(self):
+       return self.TieuDe
+
+class NhatKyCongViec(models.Model):
     class TrangThai(models.TextChoices):
         Choxetduyet = "Chờ xét duyêt", "CHỜ XÉT DUYỆT"
         BiTuChoi = "Bị từ chối", "BỊ TỪ CHỐI"
@@ -102,13 +105,3 @@ class NhatKyCongVien(models.Model):
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE)
     def __str__(self):
         return self.TieuDe
-
-class PhanCongVanThu(models.Model):
-    van_ban = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, related_name='phan_cong')
-    van_thu = models.ForeignKey(User, on_delete=models.PROTECT, limit_choices_to={'is_staff': True})
-    noi_dung_phan_cong = models.TextField()
-    han_cuoi = models.DateTimeField()
-    ngay_tao = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return f"Phân công {self.van_thu.username} cho {self.van_ban.SoHieu}"
