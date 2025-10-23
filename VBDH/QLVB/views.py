@@ -5,12 +5,10 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.dateparse import parse_date
-from .models import VanBanDi, VanBanDen, NhanVien
-from datetime import date
-from .models import VanBanDi, VanBanDen
+from .models import VanBanDi, VanBanDen, NhanVien, ThongBao
+from datetime import timedelta, date
 from django.utils import timezone
-from django.utils import timezone
-from datetime import timedelta
+
 
 def user_login(request):
     if request.method == 'POST':
@@ -44,6 +42,17 @@ def ds_vanbandi(request):
 def vanbandi_detail(request, pk):
     vb = get_object_or_404(VanBanDi, pk=pk)
     return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
+def sua_vanbandi(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+
+    if request.method == 'POST':
+        vb.TrichYeu = request.POST.get('TrichYeu')
+        vb.SoKyHieu = request.POST.get('SoKyHieu')
+        vb.NoiDung = request.POST.get('NoiDung')
+        vb.save()
+        return redirect('chitiet_vanbandi', id=vb.id)
+
+    return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
 
 def get_current_nhanvien(request):
     # Nếu bạn chưa map user -> NhanVien, trả về None (đổi logic nếu cần)
@@ -83,6 +92,47 @@ def tao_du_thao(request):
     # Trả về template taoduthao.html
     return render(request, 'vanbandi/tao_du_thao.html')
 
+# Xét duyệt văn bản đi
+def xetduyetvanbandi(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+
+    if request.method == "POST":
+        # Giả sử có nút 'duyet' trong form
+        if 'duyet' in request.POST:
+            vb.trang_thai = "Đã duyệt"
+            vb.save()
+            # ✅ Sau khi duyệt, điều hướng sang trang phân công văn thư
+            return redirect('phancong_vanthu', id=vb.id)
+
+    return render(request, 'vanbandi/xetduyetvanbandi.html', {'vb': vb})
+
+
+# Phân công văn thư
+def phan_cong_van_thu(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
+    return render(request, 'vanbandi/phan_cong_van_thu.html', {'vb': vb})
+
+
+def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
+    # Xác định loại văn bản
+    if loaivanban == 'vanbanden':
+        vanban = get_object_or_404(VanBanDen, id=vanban_id)
+        nhatky = NhatKyCongViec.objects.filter(MaVBDen=vanban).order_by('NgayTao')
+    elif loaivanban == 'vanbandi':
+        vanban = get_object_or_404(VanBanDi, id=vanban_id)
+        nhatky = NhatKyCongViec.objects.filter(MaVBDi=vanban).order_by('NgayTao')
+    else:
+        # Không hợp lệ
+        nhatky = []
+        vanban = None
+
+    context = {
+        'loaivanban': loaivanban,
+        'vanban': vanban,
+        'nhatky': nhatky,
+    }
+    return render(request, 'QLVB/nhat_ky_hoat_dong.html', context)
+
 def ban_hanh_van_ban(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
     today = timezone.now().date()   # Lấy ngày hiện tại (chỉ phần ngày, không có giờ)
@@ -93,7 +143,6 @@ def ban_hanh_van_ban(request, id):
     }
     return render(request, 'vanbandi/ban_hanh_van_ban.html', context)
 
-from .models import ThongBao
 
 def home(request):
     now = timezone.now()

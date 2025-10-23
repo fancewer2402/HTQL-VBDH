@@ -1,7 +1,7 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # =====================
-# 1. Phòng Bans
+# 1. Phòng Ban
 # =====================
 class PhongBan(models.Model):
     TenPhongBan = models.CharField(max_length=100, unique=True)
@@ -45,7 +45,6 @@ class VanBanDen(models.Model):
     NgayBanHanh = models.DateTimeField(null = False)
     NgayDen = models.DateTimeField(null = False)
     NoiDung = models.CharField(max_length = 250)
-    TrangThai = models.CharField(max_length=50, default="Chờ xét duyệt")
     DoKhan = models.CharField( default="BINH THUONG", choices=DOKHAN_CHOICES, max_length=50)
     DoMat = models.CharField( choices=DOMAT_CHOICES, default="BINH THUONG", max_length=50)
     FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True)
@@ -106,4 +105,3 @@ class NhatKyCongViec(models.Model):
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE)
     def __str__(self):
         return self.TieuDe
-
