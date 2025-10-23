@@ -22,7 +22,7 @@ class NhanVien(models.Model):
     VaiTro = models.CharField(max_length=100, choices=VAITRO_CHOICES, null=True, blank=True)
     Email = models.EmailField(unique=True)
     SDT = models.CharField(max_length=10)
-    PhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
+    MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
 
     def __str__(self):
         return self.HoTen
@@ -42,11 +42,12 @@ class VanBanDen(models.Model):
     TrichYeu = models.CharField(null = False, max_length = 250)
     LoaiVBDen = models.CharField(max_length = 100)
     DonViPhatHanh = models.CharField(max_length = 250)
-    NgayBanHanh = models.DateTimeField(null = False)
-    NgayDen = models.DateTimeField(null = False)
-    NoiDung = models.CharField(max_length = 250)
+    NgayBanHanh = models.DateTimeField(null=True, blank=True)
+    NgayDen = models.DateTimeField(null=True, blank=True)
+    NoiDung = models.CharField(max_length = 250,null=True, blank=True)
     DoKhan = models.CharField( default="BINH THUONG", choices=DOKHAN_CHOICES, max_length=50)
     DoMat = models.CharField( choices=DOMAT_CHOICES, default="BINH THUONG", max_length=50)
+    TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True)
     MaNhanVien = models.ForeignKey(NhanVien, on_delete =models.CASCADE)
     MaPhongBan = models.ForeignKey(PhongBan, on_delete = models.CASCADE)
@@ -68,6 +69,7 @@ class VanBanDi(models.Model):
     TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)  # MaNhanVien
+    MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.TrichYeu
@@ -101,7 +103,7 @@ class NhatKyCongViec(models.Model):
     NgayTao = models.DateTimeField(auto_now_add=True)
     HanChot = models.DateTimeField(null = False)
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)
-    MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE)
-    MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE)
+    MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
+    MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
     def __str__(self):
         return self.TieuDe

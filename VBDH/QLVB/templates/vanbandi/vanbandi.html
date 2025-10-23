@@ -123,6 +123,16 @@
     table, th, td {
         border: 1px solid #ddd;
     }
+    .table a {
+      text-decoration: none;
+      color: inherit; /* giữ nguyên màu chữ của text xung quanh */
+    }
+
+    .table a:hover {
+      text-decoration: underline;
+      color: #0d6efd; /* chỉ đổi màu khi hover */
+    }
+
     thead th {
         background-color: #007bff !important;
         color: white !important;
@@ -239,7 +249,7 @@ td:nth-child(1),
             <div class="filter-group">
                 <label>Ngày tạo</label>
                 <div class="filter-inline date-range">
-<input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
+                    <input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
                     <input id="toDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
                 </div>
             </div>
@@ -317,24 +327,26 @@ td:nth-child(1),
             </tr>
             </thead>
             <tbody>
-            {% for vb in danh_sach_vb %}
+            {% for vb in ds_vanbandi %}
             <tr>
                 <!-- STT căn giữa -->
-<td class="text-center">{{ forloop.counter }}</td>
+                <td class="text-center">{{ forloop.counter }}</td>
 
                 <!-- Số ký hiệu căn giữa -->
-                <td class="text-center fw-semibold">{{ vb.so_ky_hieu }}</td>
+                <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
 
                 <!-- Trích yếu căn trái -->
                 <td class="text-start" style="white-space: normal; word-wrap: break-word;">
-                    {{ vb.trich_yeu }}
+                    <a href="{% url 'vanbandi_detail' vb.id %}">
+                        {{ vb.TrichYeu }}
+                    </a>
                 </td>
 
                 <!-- Ngày ban hành căn giữa -->
-                <td class="text-center">{{ vb.ngay_ban_hanh|date:"d/m/Y" }}</td>
+                <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
 
                 <!-- Hình thức căn giữa -->
-                <td class="text-center">{{ vb.hinh_thuc }}</td>
+                <td class="text-center">{{ vb.LoaiVbDi }}</td>
 
                 <!-- Trạng thái căn giữa, đổi tên cột -->
                 <td class="text-center">
@@ -393,7 +405,7 @@ td:nth-child(1),
         {% elif num == 1 %}
         <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
         {% if page_obj.number > 4 %}
-<li class="page-item disabled"><span class="page-link">...</span></li>
+        <li class="page-item disabled"><span class="page-link">...</span></li>
         {% endif %}
         {% elif num == page_obj.paginator.num_pages %}
         {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}

@@ -172,6 +172,16 @@
         white-space: normal;
         word-break: break-word;
     }
+    .table a {
+      text-decoration: none;
+      color: inherit; /* giữ nguyên màu chữ của text xung quanh */
+    }
+
+    .table a:hover {
+      text-decoration: underline;
+      color: #0d6efd; /* chỉ đổi màu khi hover */
+    }
+
 
     /* Hiệu ứng hover */
     tbody tr:hover {
@@ -326,7 +336,7 @@
 
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="" class="btn-create-custom">+ Tạo văn bản đến</a>
+        <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
     </div>
 
     <div class="table-responsive">
@@ -347,7 +357,7 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ vb.SoHieu }}</td>
                 <td class="text-start">
-                    <a href="{% url 'vanbanden' vb.id %}" class="text-decoration-none text-dark fw-medium">
+                    <a href="{% url 'chi_tiet_vb_den' vb.id %}" class="text-decoration-none text-dark fw-medium">
                         {{ vb.TrichYeu }}
                     </a>
                 </td>

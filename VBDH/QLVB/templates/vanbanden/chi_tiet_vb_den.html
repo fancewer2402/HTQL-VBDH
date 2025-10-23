@@ -1,156 +1,174 @@
 {% block content %}
 <style>
-  .container {
-    margin: 30px auto;
-    width: 95%;
-    font-family: Arial, sans-serif;
-  }
-  .btn-blue {
-    background-color: #2b579a;
-    color: #fff;
-    border: none;
-    padding: 6px 15px;
-    border-radius: 3px;
-    font-weight: bold;
-  }
-  .btn-gray {
-    background-color: #dcdcdc;
-    border: 1px solid #aaa;
-    padding: 6px 15px;
-    border-radius: 3px;
-  }
-  .header-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  .title {
+    .container {
+      margin: 30px auto;
+      width: 95%;
+      font-family: Arial, sans-serif;
+    }
+    .btn-blue {
+      background-color: #2b579a;
+      color: #fff;
+      border: none;
+      padding: 6px 15px;
+      border-radius: 3px;
+      font-weight: bold;
+    }
+    .btn-gray {
+      background-color: #dcdcdc;
+      border: 1px solid #aaa;
+      padding: 6px 15px;
+      border-radius: 3px;
+    }
+    .header-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .title {
     border-bottom: 2px solid #1e4e79;
     font-size: 20px;
     font-weight: bold;
     padding-bottom: 5px;
     margin-bottom: 20px;
     color: #1e4e79;
+
+    display: flex;              /* canh hàng ngang */
+    justify-content: space-between;
+    align-items: center;
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
+
+  .title-buttons {
+    display: flex;
+    align-items: center;
   }
-  td {
-    padding: 6px 10px;
-    vertical-align: top;
-  }
-  label {
-    font-weight: bold;
-  }
-  input[type="text"], textarea, select {
-    width: 100%;
-    border: 1px solid #999;
-    padding: 5px;
-    border-radius: 3px;
-  }
-  textarea {
-    height: 60px;
-    resize: none;
-  }
-  .calendar-box {
-    border: 1px solid #999;
-    width: 250px;
-    padding: 10px;
-    margin-left: 15px;
-  }
-  .calendar-title {
-    text-align: center;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  .calendar-days, .calendar-dates {
-    display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    text-align: center;
-    font-size: 13px;
-  }
-  .calendar-days div {
-    font-weight: bold;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 3px;
-  }
-  .calendar-dates div {
-    padding: 3px 0;
-  }
-  .footer-btn {
-    margin-top: 20px;
-  }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    td {
+      padding: 6px 10px;
+      vertical-align: top;
+    }
+    label {
+      font-weight: bold;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      border: 1px solid #999;
+      padding: 5px;
+      border-radius: 3px;
+    }
+    textarea {
+      height: 60px;
+      resize: none;
+    }
+    .calendar-box {
+      border: 1px solid #999;
+      width: 250px;
+      padding: 10px;
+      margin-left: 15px;
+    }
+    .calendar-title {
+      text-align: center;
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    .calendar-days, .calendar-dates {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      text-align: center;
+      font-size: 13px;
+    }
+    .calendar-days div {
+      font-weight: bold;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 3px;
+    }
+    .calendar-dates div {
+      padding: 3px 0;
+    }
+    .footer-btn {
+      margin-top: 20px;
+    }
 </style>
 
 <div class="container">
-  <div class="header-buttons">
-    <div>
-      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
+    <div class="header-buttons">
+        <div>
+            <button class="btn-gray" onclick="window.location.href='{% url 'danh_sach_van_ban_den' %}'">
+                ← Quay lại
+            </button>
+        </div>
+        <div>Trạng thái:</div>
+        <button class="btn-gray" onclick="window.location.href='{% url 'nhatkyhoatdong' 'vanbanden' vb.id %}'">
+            Xem nhật ký hoạt động
+        </button>
+
     </div>
-      <div>Trạng thái:</div>
-     <button class="btn-gray" onclick="window.location.href='{% url 'nhatkyhoatdong' 'vanbanden' vb.id %}'">
-      Xem nhật ký hoạt động
-    </button>
 
-  </div>
+    <div class="title d-flex justify-content-between align-items-center">
+        <span>CHI TIẾT VĂN BẢN ĐẾN</span>
+        <div>
+            <button class="btn-blue me-2" onclick="window.location.href=''">
+                Sửa
+            </button>
+        </div>
+    </div>
 
-  <div class="title">CHI TIẾT VĂN BẢN ĐẾN</div>
-
-  <table>
-    <tr>
-      <td style="width: 20%;"><label>Trích yếu (*):</label></td>
-      <td style="width: 50%;"><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
-      <td rowspan="5" style="width: 30%;" valign="top">
-    </tr>
-    <tr>
-      <td><label>Số ký hiệu (*):</label></td>
-      <td><input type="text" readonly value="{{ vb.SoKyHieu }}"></td>
-    </tr>
-    <tr>
-      <td><label>Loại văn bản:</label></td>
-      <td><input type="text" readonly value="{{ vb.LoaiVanBan }}"></td>
-    </tr>
-    <tr>
-      <td><label>Độ mật:</label></td>
-      <td><input type="text" readonly value="{{ vb.DoMat }}"></td>
-    </tr>
-    <tr>
-      <td><label>Độ khẩn:</label></td>
-      <td><input type="text" readonly value="{{ vb.DoKhan }}"></td>
-    </tr>
-    <tr>
-      <td><label>Đơn vị phát hành (*):</label></td>
-      <td><input type="text" readonly value="{{ vb.CoQuanBanHanh }}"></td>
-    </tr>
-    <tr>
-      <td><label>Ngày phát hành:</label></td>
-      <td><input type="text" readonly value="{{ vb.NgayBanHanh }}"></td>
-    </tr>
-    <tr>
-      <td><label>Ngày đến:</label></td>
-      <td><input type="text" readonly value="{{ vb.NgayDen }}"></td>
-    </tr>
-    <tr>
-      <td><label>Phòng ban:</label></td>
-      <td><input type="text" readonly value="{{ vb.PhongBan }}"></td>
-    </tr>
-    <tr>
-      <td><label>Nội dung:</label></td>
-      <td><textarea readonly>{{ vb.NoiDung }}</textarea></td>
-    </tr>
-    <tr>
-      <td><label>Tệp đính kèm:</label></td>
-      <td>
-        {% if vb.TepDinhKem %}
-          <a href="{{ vb.TepDinhKem.url }}" target="_blank">Xem tệp đính kèm</a>
-        {% else %}
-          <input type="text" readonly value="Không có tệp đính kèm">
-        {% endif %}
-      </td>
-    </tr>
-  </table>
+    <table>
+        <tr>
+            <td style="width: 20%;"><label>Trích yếu (*):</label></td>
+            <td style="width: 50%;"><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
+            <td rowspan="5" style="width: 30%;" valign="top">
+        </tr>
+        <tr>
+            <td><label>Số ký hiệu (*):</label></td>
+            <td><input type="text" readonly value="{{ vb.SoKyHieu }}"></td>
+        </tr>
+        <tr>
+            <td><label>Loại văn bản:</label></td>
+            <td><input type="text" readonly value="{{ vb.LoaiVanBan }}"></td>
+        </tr>
+        <tr>
+            <td><label>Độ mật:</label></td>
+            <td><input type="text" readonly value="{{ vb.DoMat }}"></td>
+        </tr>
+        <tr>
+            <td><label>Độ khẩn:</label></td>
+            <td><input type="text" readonly value="{{ vb.DoKhan }}"></td>
+        </tr>
+        <tr>
+            <td><label>Đơn vị phát hành (*):</label></td>
+            <td><input type="text" readonly value="{{ vb.CoQuanBanHanh }}"></td>
+        </tr>
+        <tr>
+            <td><label>Ngày phát hành:</label></td>
+            <td><input type="text" readonly value="{{ vb.NgayBanHanh }}"></td>
+        </tr>
+        <tr>
+            <td><label>Ngày đến:</label></td>
+            <td><input type="text" readonly value="{{ vb.NgayDen }}"></td>
+        </tr>
+        <tr>
+            <td><label>Phòng ban:</label></td>
+            <td><input type="text" readonly value="{{ vb.PhongBan }}"></td>
+        </tr>
+        <tr>
+            <td><label>Nội dung:</label></td>
+            <td><textarea readonly>{{ vb.NoiDung }}</textarea></td>
+        </tr>
+        <tr>
+            <td><label>Tệp đính kèm:</label></td>
+            <td>
+                {% if vb.TepDinhKem %}
+                <a href="{{ vb.TepDinhKem.url }}" target="_blank">Xem tệp đính kèm</a>
+                {% else %}
+                <input type="text" readonly value="Không có tệp đính kèm">
+                {% endif %}
+            </td>
+        </tr>
+    </table>
 
 
 </div>
