@@ -136,7 +136,7 @@
         vertical-align: top;
         font-size: 15px;
     }
-    td:nth-child(1),
+td:nth-child(1),
     td:nth-child(2),
     td:nth-child(4),
     td:nth-child(5),
@@ -239,7 +239,7 @@
             <div class="filter-group">
                 <label>Ngày tạo</label>
                 <div class="filter-inline date-range">
-                    <input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
+<input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
                     <input id="toDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
                 </div>
             </div>
@@ -320,7 +320,7 @@
             {% for vb in danh_sach_vb %}
             <tr>
                 <!-- STT căn giữa -->
-                <td class="text-center">{{ forloop.counter }}</td>
+<td class="text-center">{{ forloop.counter }}</td>
 
                 <!-- Số ký hiệu căn giữa -->
                 <td class="text-center fw-semibold">{{ vb.so_ky_hieu }}</td>
@@ -393,7 +393,7 @@
         {% elif num == 1 %}
         <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
         {% if page_obj.number > 4 %}
-        <li class="page-item disabled"><span class="page-link">...</span></li>
+<li class="page-item disabled"><span class="page-link">...</span></li>
         {% endif %}
         {% elif num == page_obj.paginator.num_pages %}
         {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
