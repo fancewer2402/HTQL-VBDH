@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import User
 # =====================
 # 1. Phòng Ban
 # =====================
@@ -73,15 +73,18 @@ class VanBanDi(models.Model):
         return self.TrichYeu
 
 class ThongBao(models.Model):
-    TieuDe = models.TextField(null = False)
-    NgayTao = models.DateTimeField(auto_now_add=True)
-    MaNhanVien = models.ForeignKey(NhanVien, on_delete = models.CASCADE)
-    MaVBDen = models.ForeignKey(VanBanDen, on_delete = models.CASCADE)
-    MaVBDi = models.ForeignKey(VanBanDi, on_delete = models.CASCADE)
-    def __str__(self):
-        return self.TieuDe
+   TieuDe = models.TextField(null=False)
+   NoiDung = models.TextField(null=True, blank=True)
+   NgayTao = models.DateTimeField(auto_now_add=True)
+   DaDoc = models.BooleanField(default=False)
+   MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)
+   MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
+   MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
 
-class NhatKyCongVien(models.Model):
+   def __str__(self):
+       return self.TieuDe
+
+class NhatKyCongViec(models.Model):
     class TrangThai(models.TextChoices):
         Choxetduyet = "Chờ xét duyêt", "CHỜ XÉT DUYỆT"
         BiTuChoi = "Bị từ chối", "BỊ TỪ CHỐI"
