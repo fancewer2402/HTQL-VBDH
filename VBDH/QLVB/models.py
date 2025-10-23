@@ -1,7 +1,7 @@
 from django.db import models
 
 # =====================
-# 1. Phòng Ban
+# 1. Phòng Bans
 # =====================
 class PhongBan(models.Model):
     TenPhongBan = models.CharField(max_length=100, unique=True)

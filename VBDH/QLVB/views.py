@@ -7,7 +7,7 @@ from django.db.models import Q
 from django.utils.dateparse import parse_date
 from .models import VanBanDi, VanBanDen, NhanVien
 from datetime import date
-from .models import VanBanDi
+from .models import VanBanDi, VanBanDen
 from django.utils import timezone
 from django.utils import timezone
 from datetime import timedelta

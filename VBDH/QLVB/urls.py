@@ -14,6 +14,6 @@ urlpatterns = [
     path('vanbanden/', views.danh_sach_van_ban_den, name='danh_sach_van_ban_den'),
     path('vanbanden/<int:vb_id>/', views.chi_tiet_vb_den, name='chi_tiet_vb_den'),
     path('vanbandi/ban-hanh/<int:id>/', views.ban_hanh_van_ban, name='ban_hanh_van_ban'),
-    path('notification/read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
+    path('notification/read/<int:id>/', views.mark_notification_read, name='mark_notification_read')
 
 ]
