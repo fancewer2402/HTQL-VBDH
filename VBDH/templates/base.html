@@ -30,7 +30,7 @@
             margin-right: 20px;
         }
 
-        .navbar button {
+        .nav-btn {
             background: linear-gradient(to bottom, #2a6df4, #0050a0);
             border: 1px solid #333;
             color: white;
@@ -38,11 +38,17 @@
             cursor: pointer;
             margin-right: 10px;
             border-radius: 4px;
+            text-decoration: none; /* bỏ underline */
+            font-weight: normal;
+            display: inline-block;
         }
 
-        .navbar button.active {
+        .nav-btn:hover {
             background: #1E90FF;
-            color: #fff;
+        }
+
+        .nav-btn.active {
+            background: #1E90FF;
             font-weight: bold;
         }
 
@@ -176,14 +182,21 @@
 <div class="navbar">
     <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
 
-    <button href="" class="{% block btn_incoming %}{% endblock %}">Văn bản đến</button>
-    <button href="{% url 'vanbandi' %}" class="{% block btn_outgoing %}{% endblock %}">Văn bản đi</button>
+    <a href="{% url 'danh_sach_van_ban_den' %}"
+       class="nav-btn {% if request.path == '/vanbanden/' %}active{% endif %}">
+        Văn bản đến
+    </a>
+
+    <a href="{% url 'vanbandi' %}"
+       class="nav-btn {% if request.path == '/vanbandi/' %}active{% endif %}">
+        Văn bản đi
+    </a>
 
     <!-- Biểu tượng thông báo -->
     <div class="notification" id="notification-btn">
         <i class="fa-solid fa-bell bell"></i>
         {% if notification_count > 0 %}
-            <span class="badge">{{ notification_count }}</span>
+        <span class="badge">{{ notification_count }}</span>
         {% endif %}
 
         <!-- Hộp thông báo -->
@@ -191,42 +204,42 @@
             <h3>Thông báo</h3>
 
             {% if today_notifications or week_notifications or old_notifications %}
-                {% if today_notifications %}
-                <div class="notification-section">
-                    <h4>Hôm nay</h4>
-                    {% for n in today_notifications %}
-                        <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                            <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                        </div>
-                    {% endfor %}
+            {% if today_notifications %}
+            <div class="notification-section">
+                <h4>Hôm nay</h4>
+                {% for n in today_notifications %}
+                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
+                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
                 </div>
-                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
 
-                {% if week_notifications %}
-                <div class="notification-section">
-                    <h4>Tuần này</h4>
-                    {% for n in week_notifications %}
-                        <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                            <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                        </div>
-                    {% endfor %}
+            {% if week_notifications %}
+            <div class="notification-section">
+                <h4>Tuần này</h4>
+                {% for n in week_notifications %}
+                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
+                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
                 </div>
-                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
 
-                {% if old_notifications %}
-                <div class="notification-section">
-                    <h4>Cũ hơn</h4>
-                    {% for n in old_notifications %}
-                        <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                            <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                        </div>
-                    {% endfor %}
+            {% if old_notifications %}
+            <div class="notification-section">
+                <h4>Cũ hơn</h4>
+                {% for n in old_notifications %}
+                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
+                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
                 </div>
-                {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
             {% else %}
-                <div class="notification-section">
-                    <p style="padding:10px; color:#666;">Không có thông báo mới</p>
-                </div>
+            <div class="notification-section">
+                <p style="padding:10px; color:#666;">Không có thông báo mới</p>
+            </div>
             {% endif %}
         </div>
     </div>
@@ -248,21 +261,21 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-    const btn = document.getElementById("notification-btn");
-    const box = document.getElementById("notification-box");
+    document.addEventListener("DOMContentLoaded", function() {
+        const btn = document.getElementById("notification-btn");
+        const box = document.getElementById("notification-box");
 
-    btn.addEventListener("click", function(e) {
-        e.stopPropagation();
-        box.style.display = box.style.display === "block" ? "none" : "block";
-    });
+        btn.addEventListener("click", function(e) {
+            e.stopPropagation();
+            box.style.display = box.style.display === "block" ? "none" : "block";
+        });
 
-    document.addEventListener("click", function(e) {
-        if (!btn.contains(e.target)) {
-            box.style.display = "none";
-        }
+        document.addEventListener("click", function(e) {
+            if (!btn.contains(e.target)) {
+                box.style.display = "none";
+            }
+        });
     });
-});
 </script>
 
 </body>

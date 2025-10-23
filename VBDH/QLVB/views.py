@@ -5,7 +5,7 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.dateparse import parse_date
-from .models import VanBanDi, VanBanDen, NhanVien, ThongBao, PhongBan
+from .models import VanBanDi, VanBanDen, NhanVien, ThongBao, NhatKyCongViec, PhongBan
 from datetime import timedelta, date
 from django.utils import timezone
 
@@ -190,6 +190,109 @@ def mark_notification_read(request, id):
     next_url = request.GET.get('next', '/')
     return redirect(next_url)
 
+def xet_duyet_vb_den(request, vb_id):
+    vanbanden = get_object_or_404(VanBanDen, id=vb_id)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'approve':
+            vanbanden.TrangThai = "Chờ phân công"
+            vanbanden.save()
+            return redirect('phan_cong_nhan_vien_vbden', id=vanbanden.pk)
+
+        elif action == 'reject':
+            vanbanden.TrangThai = "Từ chối"
+            vanbanden.save()
+            return redirect('danh_sach_van_ban_den')
+
+    return render(request, 'vanbanden/xetduyet_vanbanden.html', {'vb': vanbanden})
+
+def phan_cong_nhan_vien_vbden(request, id):
+    # Lấy văn bản đến theo id
+    vb = get_object_or_404(VanBanDen, id=id)
+
+    # Lấy danh sách nhân viên thuộc cùng phòng ban
+    nhanviens = NhanVien.objects.filter(MaPhongBan=vb.MaPhongBan)
+
+    if request.method == "POST":
+        ma_nhanvien_id = request.POST.get("MaNhanVien")
+        tieude = request.POST.get("TieuDe")
+        mota = request.POST.get("MoTa")
+        han_chot = request.POST.get("HanChot")
+        thao_tac = request.POST.get("ThaoTac")
+
+        # Kiểm tra dữ liệu đầu vào
+        if not all([ma_nhanvien_id, tieude, mota, han_chot, thao_tac]):
+            messages.error(request, "⚠️ Vui lòng nhập đầy đủ thông tin trước khi lưu.")
+        else:
+            nhanvien = get_object_or_404(NhanVien, id=ma_nhanvien_id)
+
+            # Tạo nhật ký công việc
+            NhatKyCongViec.objects.create(
+                MaVBDen=vb,
+                MaNhanVien=nhanvien,
+                TieuDe=tieude,
+                MoTa=mota,
+                HanChot=han_chot,
+                ThaoTac=thao_tac,
+                TrangThai=NhatKyCongViec.TrangThai.ChoXacNhan,
+            )
+
+            # Cập nhật trạng thái văn bản
+            vb.TrangThai = "Chờ xác nhận"
+            vb.save()
+
+            messages.success(request, f"✅ Đã phân công xử lý văn bản cho {nhanvien.HoTen}.")
+            return redirect("danh_sach_van_ban_den")
+
+    context = {
+        "vb": vb,
+        "nhanviens": nhanviens,
+    }
+    return render(request, "vanbanden/phancong_vanbanden.html", context)
+
+def xac_nhan_phan_cong_vbden(request, vb_id):
+    """
+    Nhân viên được phân công xác nhận rằng đã nhận xử lý văn bản đến.
+    """
+    vb = get_object_or_404(VanBanDen, id=vb_id)
+
+    # Giả định user đăng nhập là nhân viên
+    nhanvien = getattr(request.user, "nhanvien", None)
+
+    # Tìm nhật ký công việc tương ứng
+    nhatky = NhatKyCongViec.objects.filter(MaVBDen=vb, MaNhanVien=nhanvien).last()
+
+    if request.method == "POST":
+        if request.POST.get("action") == "confirm":
+            if nhatky:
+                nhatky.TrangThai = NhatKyCongViec.TrangThai.DangXuLy
+                nhatky.save()
+            vb.TrangThai = "Chờ xử lý"
+            vb.save()
+            messages.success(request, "✅ Đã xác nhận xử lý văn bản đến.")
+            return redirect("bao_cao_vbden", vb_id=vb.id)
+
+    context = {
+        "vb": vb,
+        "nhanvien": nhanvien,
+    }
+    return render(request, "vanbanden/xacnhan_phancong_vbden.html", context)
+
+def bao_cao_vbden(request, vb_id):
+    """
+    Đánh dấu văn bản đến là 'Hoàn thành'
+    """
+    vb = get_object_or_404(VanBanDen, id=vb_id)
+
+    if request.method == "POST":
+        vb.TrangThai = "Hoàn thành"
+        vb.save()
+        messages.success(request, f"✅ Văn bản '{vb.TrichYeu}' đã được đánh dấu là Hoàn thành.")
+        return redirect('danh_sach_van_ban_den')
+
+    return render(request, "vanbanden/baocao_vbden.html", {"vb": vb})
+  
 def sua_vb_den(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
 
