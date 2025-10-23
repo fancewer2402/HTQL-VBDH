@@ -17,4 +17,7 @@ urlpatterns = [
     path('xetduyetvanbandi/<int:id>/', views.xetduyetvanbandi, name='xetduyetvanbandi'),
     path('<str:loaivanban>/<int:vanban_id>/nhatkyhoatdong/', views.nhat_ky_hoat_dong, name='nhatkyhoatdong'),
     path('phancong/<int:id>/', views.phan_cong_van_thu, name='phancongvanthu'),
+    path('sua/<int:vb_id>/', views.sua_vb_den, name='sua_vb_den'),
+
+
 ]

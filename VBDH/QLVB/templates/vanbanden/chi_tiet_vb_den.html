@@ -3,8 +3,8 @@
   .container {
     margin: 30px auto;
     width: 95%;
-    font-family: Arial, sans-serif;
-  }
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      }
   .btn-blue {
     background-color: #2b579a;
     color: #fff;
@@ -86,15 +86,20 @@
 
 <div class="container">
   <div class="header-buttons">
-    <div>
-      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
-    </div>
-      <div>Trạng thái:</div>
-     <button class="btn-gray" onclick="window.location.href='{% url 'nhatkyhoatdong' 'vanbanden' vb.id %}'">
-      Xem nhật ký hoạt động
-    </button>
-
+  <div>
+    <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
   </div>
+
+  <div style="text-align: right;">
+    <div>Trạng thái:</div>
+    <button class="btn-gray" style="margin-top: 5px;">Xem nhật ký hoạt động</button>
+    <br>
+  <button class="btn-blue" style="margin-top: 8px;"
+          onclick="window.location.href='{% url 'sua_vb_den' vb.id %}'">
+    Sửa văn bản đến
+  </button>
+  </div>
+</div>
 
   <div class="title">CHI TIẾT VĂN BẢN ĐẾN</div>
 
@@ -151,7 +156,5 @@
       </td>
     </tr>
   </table>
-
-
 </div>
 {% endblock %}

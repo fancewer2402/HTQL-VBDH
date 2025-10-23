@@ -326,7 +326,7 @@
 
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="" class="btn-create-custom">+ Tạo văn bản đến</a>
+        <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
     </div>
 
     <div class="table-responsive">
@@ -347,7 +347,7 @@
                 <td>{{ forloop.counter }}</td>
                 <td>{{ vb.SoHieu }}</td>
                 <td class="text-start">
-                    <a href="{% url 'vanbanden' vb.id %}" class="text-decoration-none text-dark fw-medium">
+                    <a href="{% url 'chi_tiet_vb_den' vb.id %}" class="text-decoration-none text-dark fw-medium">
                         {{ vb.TrichYeu }}
                     </a>
                 </td>
@@ -378,66 +378,58 @@
 
 <!-- Phân trang -->
 <!-- Phân trang -->
+<!-- Phân trang -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+
+    <!-- Nút chuyển trang -->
+    <!-- Phân trang -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <!-- Hiển thị phạm vi văn bản -->
+
+
+    <!-- Nút phân trang -->
+    <!-- Phân trang tối giản -->
 <nav aria-label="Page navigation" class="mt-4">
-    <ul class="pagination justify-content-center">
+  <ul class="pagination justify-content-center">
 
-        <!-- Nút đầu -->
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?page=1" aria-label="First" title="Trang đầu">
-                <span aria-hidden="true">&laquo;&laquo;</span>
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous"
-               title="Trang trước">
-                <span aria-hidden="true">&lsaquo;</span>
-            </a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-            <span class="page-link">&laquo;&laquo;</span>
-        </li>
-        <li class="page-item disabled">
-            <span class="page-link">&lsaquo;</span>
-        </li>
-        {% endif %}
+    <!-- Nút trang trước -->
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous" title="Trang trước">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&laquo;</span>
+    </li>
+    {% endif %}
 
-        <!-- Hiển thị các số trang -->
-        {% for num in page_obj.paginator.page_range %}
-        {% if num == page_obj.number %}
-        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-        {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-        {% elif num == 1 %}
-        <li class="page-item"><a class="page-link" href="?page=1">1</a></li>
-        {% if page_obj.number > 4 %}
-        <li class="page-item disabled"><span class="page-link">...</span></li>
-        {% endif %}
-        {% elif num == page_obj.paginator.num_pages %}
-        {% if page_obj.number < page_obj.paginator.num_pages|add:'-3' %}
-        <li class="page-item disabled"><span class="page-link">...</span></li>
-        {% endif %}
-        <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-        {% endif %}
-        {% endfor %}
+    <!-- Hiển thị phạm vi văn bản -->
+    {% with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}
+    <li class="page-item active">
+      <span class="page-link">
+        {{ start }}–{{ end }} / {{ total }}
+      </span>
+    </li>
+    {% endwith %}
 
-        <!-- Nút cuối -->
-        {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
-                <span aria-hidden="true">&rsaquo;</span>
-            </a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last" title="Trang cuối">
-                <span aria-hidden="true">&raquo;&raquo;</span>
-            </a>
-        </li>
-        {% else %}
-        <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
-        <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
-        {% endif %}
-    </ul>
+    <!-- Nút trang sau -->
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&raquo;</span>
+    </li>
+    {% endif %}
+  </ul>
 </nav>
+
+</div>
+</div>
+
 {% endblock %}
