@@ -51,7 +51,7 @@ def sua_vanbandi(request, id):
         vb.SoKyHieu = request.POST.get('SoKyHieu')
         vb.NoiDung = request.POST.get('NoiDung')
         vb.save()
-        return redirect('chitiet_vanbandi', id=vb.id)
+        return redirect('vanbandi_detail', pk=vb.id)  # ✅ Sửa đúng name
 
     return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
 
