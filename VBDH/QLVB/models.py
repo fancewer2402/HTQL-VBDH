@@ -123,7 +123,7 @@ class NhatKyCongViec(models.Model):
         CHO_BAN_HANH = "Chờ ban hành", "CHỜ BAN HÀNH"
         DA_BAN_HANH = "Đã ban hành", "ĐÃ BAN HÀNH"
 
-    PhanCong = models.ForeignKey(PhanCongCongViec, on_delete=models.CASCADE, related_name='nhatky')
+    PhanCong = models.ForeignKey(PhanCongCongViec, on_delete=models.CASCADE, related_name='nhatky', null=True, blank=True)
     ThoiGian = models.DateTimeField(auto_now_add=True)
     ThaoTac = models.TextField()
     TrangThai = models.CharField(max_length=50, choices=TrangThai.choices)
