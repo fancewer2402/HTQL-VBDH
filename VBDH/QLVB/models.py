@@ -45,10 +45,12 @@ class VanBanDen(models.Model):
     NgayBanHanh = models.DateTimeField(null=True, blank=True)
     NgayDen = models.DateTimeField(null=True, blank=True)
     NoiDung = models.CharField(max_length = 250,null=True, blank=True)
+    # YeuCauVBDi = models.
     DoKhan = models.CharField( default="BINH THUONG", choices=DOKHAN_CHOICES, max_length=50)
     DoMat = models.CharField( choices=DOMAT_CHOICES, default="BINH THUONG", max_length=50)
     TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True)
+    # NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete =models.CASCADE)
     MaPhongBan = models.ForeignKey(PhongBan, on_delete = models.CASCADE)
     def __str__(self):
@@ -87,6 +89,30 @@ class ThongBao(models.Model):
    def __str__(self):
        return self.TieuDe
 
+class PhanCongCongViec(models.Model):
+    TieuDe = models.CharField(max_length=100)
+    MoTa = models.TextField(max_length=250)
+    NgayTao = models.DateTimeField(auto_now_add=True)
+    HanChot = models.DateTimeField()
+    NguoiGiao = models.ForeignKey('NhanVien', on_delete=models.CASCADE, related_name='ds_cong_viec_giao')
+    NguoiNhan = models.ForeignKey('NhanVien', on_delete=models.CASCADE, related_name='ds_cong_viec_duoc_giao')
+    VanBanDen = models.ForeignKey('VanBanDen', on_delete=models.CASCADE, null=True, blank=True)
+    VanBanDi = models.ForeignKey('VanBanDi', on_delete=models.CASCADE, null=True, blank=True)
+
+    class TrangThai(models.TextChoices):
+        CHO_XET_DUYET = "Chờ xét duyệt", "CHỜ XÉT DUYỆT"
+        BI_TU_CHOI = "Bị từ chối", "BỊ TỪ CHỐI"
+        CHO_PHAN_CONG = "Chờ phân công", "CHỜ PHÂN CÔNG"
+        CHO_XAC_NHAN = "Chờ xác nhận", "CHỜ XÁC NHẬN"
+        DANG_XU_LY = "Đang xử lý", "ĐANG XỬ LÝ"
+        HOAN_THANH = "Hoàn thành", "HOÀN THÀNH"
+        CHO_BAN_HANH = "Chờ ban hành", "CHỜ BAN HÀNH"
+        DA_BAN_HANH = "Đã ban hành", "ĐÃ BAN HÀNH"
+    TrangThai = models.CharField(max_length=50, choices=TrangThai.choices)
+
+    def __str__(self):
+        return f"{self.TieuDe} ({self.NguoiNhan})"
+
 class NhatKyCongViec(models.Model):
     class TrangThai(models.TextChoices):
         Chothongqua = 'Chờ thông qua'
@@ -110,5 +136,18 @@ class NhatKyCongViec(models.Model):
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
+        CHO_XET_DUYET = "Chờ xét duyệt", "CHỜ XÉT DUYỆT"
+        BI_TU_CHOI = "Bị từ chối", "BỊ TỪ CHỐI"
+        CHO_PHAN_CONG = "Chờ phân công", "CHỜ PHÂN CÔNG"
+        CHO_XAC_NHAN = "Chờ xác nhận", "CHỜ XÁC NHẬN"
+        DANG_XU_LY = "Đang xử lý", "ĐANG XỬ LÝ"
+        HOAN_THANH = "Hoàn thành", "HOÀN THÀNH"
+        CHO_BAN_HANH = "Chờ ban hành", "CHỜ BAN HÀNH"
+        DA_BAN_HANH = "Đã ban hành", "ĐÃ BAN HÀNH"
+
+    PhanCong = models.ForeignKey(PhanCongCongViec, on_delete=models.CASCADE, related_name='nhatky')
+    ThoiGian = models.DateTimeField(auto_now_add=True)
+    ThaoTac = models.TextField()
+
     def __str__(self):
-        return self.TieuDe
+        return f"{self.PhanCong.TieuDe} - {self.TrangThai}"
