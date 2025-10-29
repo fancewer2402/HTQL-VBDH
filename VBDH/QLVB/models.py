@@ -68,7 +68,8 @@ class VanBanDi(models.Model):
     DoKhan = models.CharField(max_length=255, null=True, blank=True)  # DoKhan
     TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
-    MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)  # MaNhanVien
+    MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.SET_NULL, null=True, blank=True)
+  # MaNhanVien
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
@@ -88,9 +89,12 @@ class ThongBao(models.Model):
 
 class NhatKyCongViec(models.Model):
     class TrangThai(models.TextChoices):
+        Chothongqua = 'Chờ thông qua'
+        Tuchoithongqua = 'Từ chối thông qua'
         Choxetduyet = "Chờ xét duyêt", "CHỜ XÉT DUYỆT"
         BiTuChoi = "Bị từ chối", "BỊ TỪ CHỐI"
-        ChoPhanCong = "Chờ phân công", "CHỜ PHÂN CÔNG"
+        DaPheDuyet = "Đã Phê Duyệt", "ĐÃ PHÊ DUYỆT"
+        ChoPhanCong = "Chờ Phân Công", "CHỜ PHÂN CÔNG"
         ChoXacNhan = "Chờ xác nhận", "CHỜ XÁC NHẬN"
         DangXuLy = "Đang xử lý", "ĐANG XỬ LÝ"
         HoanThanh = "Hoàn thành", "HOÀN THÀNH"
@@ -102,6 +106,7 @@ class NhatKyCongViec(models.Model):
     TrangThai = models.CharField(choices=TrangThai.choices, null = False, max_length = 50 )
     NgayTao = models.DateTimeField(auto_now_add=True)
     HanChot = models.DateTimeField(null = False)
+    FileChuKy = models.FileField(upload_to='chuky/', null=True, blank=True)
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
     MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)

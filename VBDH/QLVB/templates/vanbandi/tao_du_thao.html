@@ -61,8 +61,8 @@
 
     <h4 class="mb-0">Tạo dự thảo</h4>
 
-    <button type="submit" form="formVanBan" class="btn btn-success">
-        <i class="fa-solid fa-save me-1"></i> Lưu &amp; Trình ký
+    <button type="submit" form="formVanBan" class="btn btn-primary">
+        <i class="fa-solid fa-paper-plane me-1"></i> Trình duyệt
     </button>
 </nav>
 
@@ -71,7 +71,7 @@
     <div class="form-box">
         <form id="formVanBan" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-
+            <input type="hidden" name="hanh_dong" value="trinh_duyet">
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="SoHieu" class="form-label">Số hiệu</label>

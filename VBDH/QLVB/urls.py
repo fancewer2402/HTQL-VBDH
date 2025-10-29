@@ -16,12 +16,10 @@ urlpatterns = [
     path('suavanbandi/<int:id>/', views.sua_vanbandi, name='sua_vanbandi'),
     path('xetduyetvanbandi/<int:id>/', views.xetduyetvanbandi, name='xetduyetvanbandi'),
     path('<str:loaivanban>/<int:vanban_id>/nhatkyhoatdong/', views.nhat_ky_hoat_dong, name='nhatkyhoatdong'),
-    path('phancong/<int:id>/', views.phan_cong_van_thu, name='phancongvanthu'),
     path('vanbanden/xetduyet/<int:vb_id>/', views.xet_duyet_vb_den, name='xet_duyet_vb_den'),
     path('vanbanden/phancong/<int:id>/', views.phan_cong_nhan_vien_vbden, name='phan_cong_nhan_vien_vbden'),
     path('vanbanden/xacnhan/<int:vb_id>/', views.xac_nhan_phan_cong_vbden, name='xac_nhan_phan_cong_vbden'),
     path('vanbanden/baocao/<int:vb_id>/', views.bao_cao_vbden, name='bao_cao_vbden'),
     path('sua/<int:vb_id>/', views.sua_vb_den, name='sua_vb_den'),
-
-
+    path('vanbandi/<int:vb_id>/thong-qua/', views.trang_thong_qua, name='thong_qua_van_ban'),
 ]
