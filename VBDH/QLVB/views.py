@@ -8,7 +8,8 @@ from django.utils.dateparse import parse_date
 from .models import VanBanDi, VanBanDen, NhanVien, ThongBao, NhatKyCongViec, PhongBan
 from datetime import timedelta, date
 from django.utils import timezone
-
+from .forms import VanBanDiEditForm
+from .forms import VanBanDiForm
 
 def user_login(request):
     if request.method == 'POST':
@@ -46,14 +47,16 @@ def vanbandi_detail(request, pk):
 def sua_vanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
 
-    if request.method == 'POST':
-        vb.TrichYeu = request.POST.get('TrichYeu')
-        vb.SoKyHieu = request.POST.get('SoKyHieu')
-        vb.NoiDung = request.POST.get('NoiDung')
-        vb.save()
-        return redirect('vanbandi_detail', pk=vb.id)  # ✅ Sửa đúng name
+    if request.method == "POST":
+        form = VanBanDiEditForm(request.POST, request.FILES, instance=vb)
+        if form.is_valid():
+            form.save()
+            return redirect("vanbandi_detail", pk=vb.id)
+    else:
+        form = VanBanDiEditForm(instance=vb)
 
-    return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
+    return render(request, "vanbandi/sua_vanbandi.html", {"form": form, "vb": vb})
+
 
 def get_current_nhanvien(request):
     # Nếu bạn chưa map user -> NhanVien, trả về None (đổi logic nếu cần)
@@ -343,5 +346,37 @@ def sua_vb_den(request, vb_id):
         'vb': vb,
         'phongbans': phongbans,
     })
+def tao_vanbandi(request):
+    if request.method == 'POST':
+        form = VanBanDiForm(request.POST, request.FILES)
+        if form.is_valid():
+            vb = form.save(commit=False)
+
+            # Gán nhân viên tạo
+            if hasattr(request.user, 'nhanvien'):
+                vb.MaNhanVien = request.user.nhanvien
+            else:
+                vb.MaNhanVien = None
+
+            # 🔹 Gán trạng thái mặc định
+            vb.TrangThai = "Chờ phê duyệt"
+
+            vb.save()
+
+            # 🔹 Hiển thị thông báo thành công
+            messages.success(request, "✅ Văn bản đã được tạo và đang chờ phê duyệt.")
+
+            # Quay lại trang danh sách
+            return redirect('vanbandi')
+
+        else:
+            # 🔹 Thông báo lỗi nếu form không hợp lệ
+            messages.error(request, "❌ Có lỗi xảy ra. Vui lòng kiểm tra lại biểu mẫu.")
+    else:
+        form = VanBanDiForm()
+
+    return render(request, 'vanbandi/tao_vanbandi.html', {'form': form})
+def vanbandi_list(request):
+    return render(request, 'vanbandi/vanbandi_list.html')
 
 

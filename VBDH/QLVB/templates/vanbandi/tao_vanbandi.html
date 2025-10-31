@@ -1,0 +1,186 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<style>
+  .container {
+    margin: 30px auto;
+    width: 95%;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  .btn-gray {
+    background-color: #dcdcdc;
+    border: 1px solid #aaa;
+    padding: 7px 18px;
+    border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+    display: inline-block;
+    font-weight: normal;
+  }
+
+  .btn-gray:hover {
+    background-color: #cfcfcf;
+  }
+
+  .header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    border-bottom: 2px solid #1e4e79;
+    font-size: 22px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    color: #1e4e79;
+    font-family: "Segoe UI", Arial, sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  td {
+    padding: 8px 10px;
+    vertical-align: top;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  input[type="text"], textarea, select, input[type="file"], input[type="date"] {
+    width: 100%;
+    border: 1px solid #999;
+    padding: 6px;
+    border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  textarea {
+    height: 70px;
+    resize: none;
+  }
+
+  .footer-btn {
+    margin-top: 20px;
+  }
+
+  /* Thông báo */
+  .alert {
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+  }
+
+  .alert-success {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+    color: #155724;
+  }
+
+  .alert-error {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+  }
+</style>
+
+<div class="container">
+  <!-- Thanh trên cùng -->
+  <div class="header-buttons">
+    <div>
+      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
+    </div>
+
+    <div>
+      Trạng thái: <strong style="color: #d9534f;">Chờ phê duyệt</strong>
+    </div>
+
+    <button class="btn-gray">Xem nhật ký hoạt động</button>
+  </div>
+
+  <!-- Thông báo -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Tiêu đề -->
+  <div class="title">
+    TẠO VĂN BẢN ĐI
+    <div>
+      <a href="{% url 'vanbandi' %}" class="btn-gray">Hủy</a>
+      <button type="submit" form="formTao" class="btn-gray">Lưu</button>
+    </div>
+  </div>
+
+  <!-- Form -->
+  <form id="formTao" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+      <tr>
+        <td style="width: 20%;"><label>Trích yếu (*):</label></td>
+        <td style="width: 50%;"><textarea name="TrichYeu" required></textarea></td>
+        <td rowspan="5" style="width: 30%;" valign="top"></td>
+      </tr>
+      <tr>
+        <td><label>Số ký hiệu (*):</label></td>
+        <td><input type="text" name="SoKyHieu" required></td>
+      </tr>
+      <tr>
+        <td><label>Loại văn bản:</label></td>
+        <td><input type="text" name="LoaiVanBan"></td>
+      </tr>
+      <tr>
+        <td><label>Độ mật:</label></td>
+        <td><input type="text" name="DoMat"></td>
+      </tr>
+      <tr>
+        <td><label>Độ khẩn:</label></td>
+        <td><input type="text" name="DoKhan"></td>
+      </tr>
+      <tr>
+        <td><label>Đơn vị phát hành (*):</label></td>
+        <td><input type="text" name="CoQuanBanHanh" required></td>
+      </tr>
+      <tr>
+        <td><label>Ngày phát hành:</label></td>
+        <td><input type="date" name="NgayBanHanh"></td>
+      </tr>
+      <tr>
+        <td><label>Ngày đến:</label></td>
+        <td><input type="date" name="NgayDen"></td>
+      </tr>
+      <tr>
+        <td><label>Phòng ban:</label></td>
+        <td><input type="text" name="PhongBan"></td>
+      </tr>
+      <tr>
+        <td><label>Nội dung:</label></td>
+        <td><textarea name="NoiDung"></textarea></td>
+      </tr>
+      <tr>
+        <td><label>Tệp đính kèm:</label></td>
+        <td><input type="file" name="TepDinhKem"></td>
+      </tr>
+    </table>
+  </form>
+</div>
+{% endblock %}
