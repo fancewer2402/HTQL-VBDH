@@ -5,9 +5,11 @@ from django.contrib.auth import logout
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.dateparse import parse_date
-from .models import VanBanDi, VanBanDen, NhanVien, ThongBao, NhatKyCongViec, PhongBan
+from .models import VanBanDi, VanBanDen, ThongBao, NhatKyCongViec, PhongBan
 from datetime import timedelta, date
 from django.utils import timezone
+from accounts.models import User as NhanVien
+
 
 
 def user_login(request):
@@ -59,7 +61,7 @@ def get_current_nhanvien(request):
     # Nếu bạn chưa map user -> NhanVien, trả về None (đổi logic nếu cần)
     try:
         email = request.user.email
-        return NhanVien.objects.filter(Email=email).first()
+        return NhanVien.objects.filter(email=email).first()
     except Exception:
         return None
 

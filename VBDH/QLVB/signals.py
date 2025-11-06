@@ -1,7 +1,10 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.utils import timezone
-from .models import VanBanDen, VanBanDi, ThongBao, NhanVien
+from .models import VanBanDen, VanBanDi, ThongBao
+from .models import VanBanDi, VanBanDen, ThongBao, PhongBan
+from accounts.models import User as NhanVien
+
 
 # --- VĂN BẢN ĐẾN ---
 

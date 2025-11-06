@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'QLVB',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -59,6 +60,8 @@ STATICFILES_DIRS = [ BASE_DIR / 'static' ]   # thư mục chứa css/js tùy ch�
 # Media (file upload)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+AUTH_USER_MODEL = "accounts.User"
 
 TEMPLATES = [
     {
