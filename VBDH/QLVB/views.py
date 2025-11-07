@@ -40,23 +40,50 @@ def ds_vanbandi(request):
     ds = VanBanDi.objects.all().order_by('-NgayBanHanh')
     return render(request, 'vanbandi/vanbandi.html', {'ds_vanbandi': ds})
 
+
 def vanbandi_detail(request, pk):
-    vb = get_object_or_404(VanBanDi, pk=pk)
-    return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
+    vb = get_object_or_404(VanBanDi, id=pk)
+
+    # ✅ Kiểm tra nếu người dùng đã đăng nhập
+    if request.user.is_authenticated:
+        is_quanly = request.user.groups.filter(name='Quản lý').exists()
+        same_user = (vb.MaNhanVien.Email == request.user.email)
+    else:
+        is_quanly = False
+        same_user = False
+
+    context = {
+        'vb': vb,
+        'is_quanly': is_quanly,
+        'same_user': same_user,
+    }
+    return render(request, 'vanbandi/vanbandi_detail.html', context)
+
+
+# Đảm bảo import VanBanDiEditForm ở đầu file views.py
+# from .forms import VanBanDiEditForm, VanBanDiForm
 
 def sua_vanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
 
     if request.method == "POST":
-        form = VanBanDiEditForm(request.POST, request.FILES, instance=vb)
-        if form.is_valid():
-            form.save()
-            return redirect("vanbandi_detail", pk=vb.id)
-    else:
-        form = VanBanDiEditForm(instance=vb)
+        vb.TrichYeu = request.POST.get("TrichYeu", "")
+        vb.SoHieu = request.POST.get("SoHieu", "")
+        vb.LoaiVbDi = request.POST.get("LoaiVbDi", "")
+        vb.DoMat = request.POST.get("DoMat", "")
+        vb.DoKhan = request.POST.get("DoKhan", "")
+        vb.DonViNhan = request.POST.get("DonViNhan", "")
+        vb.NgayBanHanh = request.POST.get("NgayBanHanh") or None
+        vb.NoiDung = request.POST.get("NoiDung", "")
 
-    return render(request, "vanbandi/sua_vanbandi.html", {"form": form, "vb": vb})
+        if request.FILES.get("FileDinhKem"):
+            vb.FileDinhKem = request.FILES["FileDinhKem"]
 
+        vb.save()
+        messages.success(request, "✅ Cập nhật văn bản đi thành công!")
+        return redirect("vanbandi_detail", pk=vb.id)
+
+    return render(request, "vanbandi/sua_vanbandi.html", {"vb": vb})
 
 def get_current_nhanvien(request):
     # Nếu bạn chưa map user -> NhanVien, trả về None (đổi logic nếu cần)

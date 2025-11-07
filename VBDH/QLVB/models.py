@@ -68,7 +68,7 @@ class VanBanDi(models.Model):
     FileDinhKem = models.FileField(upload_to='vanbandi/', blank=True)
     DoMat = models.CharField(max_length=255, null=True, blank=True)  # DoMat
     DoKhan = models.CharField(max_length=255, null=True, blank=True)  # DoKhan
-    TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
+    TrangThai = models.CharField(max_length=50, default="Chờ phê duyệt", null=True, blank=True)
     NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)  # MaNhanVien
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)

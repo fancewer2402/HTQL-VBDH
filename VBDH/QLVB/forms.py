@@ -1,18 +1,26 @@
 from django import forms
 from .models import VanBanDi
 
+
 class VanBanDiEditForm(forms.ModelForm):
     """Form chỉnh sửa văn bản đi"""
     class Meta:
         model = VanBanDi
         fields = [
-            "SoHieu", "TrichYeu", "NoiDung", "DonViNhan",
-            "Email", "FileDinhKem", "DoMat", "DoKhan"
+            "SoHieu",
+            "TrichYeu",
+            "NoiDung",
+            "DonViNhan",
+            "Email",
+            "FileDinhKem",
+            "DoMat",
+            "DoKhan"
         ]
+
         widgets = {
+            "SoHieu": forms.TextInput(attrs={"class": "form-control"}),
             "TrichYeu": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
             "NoiDung": forms.Textarea(attrs={"rows": 6, "class": "form-control"}),
-            "SoHieu": forms.TextInput(attrs={"class": "form-control"}),
             "DonViNhan": forms.TextInput(attrs={"class": "form-control"}),
             "Email": forms.EmailInput(attrs={"class": "form-control"}),
             "DoMat": forms.TextInput(attrs={"class": "form-control"}),
@@ -21,11 +29,22 @@ class VanBanDiEditForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Nếu cần khóa các trường không được chỉnh
+        # Nếu model có các trường này, bạn có thể khóa lại khi chỉnh sửa
         if "LoaiVbDi" in self.fields:
             self.fields["LoaiVbDi"].disabled = True
         if "NgayBanHanh" in self.fields:
             self.fields["NgayBanHanh"].disabled = True
+
+    def clean_FileDinhKem(self):
+        """Kiểm tra file hợp lệ khi chỉnh sửa"""
+        file = self.cleaned_data.get("FileDinhKem", None)
+        if file:
+            ext = file.name.lower().split('.')[-1]
+            if ext not in ["pdf", "jpg", "png"]:
+                raise forms.ValidationError("Chỉ chấp nhận file .pdf, .jpg hoặc .png.")
+            if file.size > 20 * 1024 * 1024:
+                raise forms.ValidationError("Dung lượng file không vượt quá 20MB.")
+        return file
 
 
 class VanBanDiForm(forms.ModelForm):
@@ -45,6 +64,7 @@ class VanBanDiForm(forms.ModelForm):
             "DoKhan",
             "MaVBDen",
         ]
+
         widgets = {
             "SoHieu": forms.TextInput(attrs={"class": "form-control"}),
             "TrichYeu": forms.Textarea(attrs={"rows": 2, "maxlength": "500", "class": "form-control"}),
@@ -59,11 +79,12 @@ class VanBanDiForm(forms.ModelForm):
         }
 
     def clean_FileDinhKem(self):
+        """Kiểm tra file hợp lệ khi tạo mới"""
         file = self.cleaned_data.get("FileDinhKem", None)
         if file:
             ext = file.name.lower().split('.')[-1]
             if ext not in ["pdf", "jpg", "png"]:
-                raise forms.ValidationError("Chỉ chấp nhận file định dạng .pdf, .jpg, hoặc .png.")
+                raise forms.ValidationError("Chỉ chấp nhận file .pdf, .jpg hoặc .png.")
             if file.size > 20 * 1024 * 1024:
                 raise forms.ValidationError("Dung lượng file không vượt quá 20MB.")
         return file

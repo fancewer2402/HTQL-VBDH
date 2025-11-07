@@ -26,6 +26,4 @@ urlpatterns = [
     path("vanbandi/<int:id>/sua/", views.sua_vanbandi, name="sua_vanbandi"),
     path("vanbandi/tao/", views.tao_vanbandi, name="tao_vanbandi"),
     path('vanbandi/', views.vanbandi_list, name='vanbandi_list'),
-
-
 ]
