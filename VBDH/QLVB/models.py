@@ -73,6 +73,7 @@ class VanBanDi(models.Model):
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.SET_NULL, null=True, blank=True)
   # MaNhanVien
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
+    MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.TrichYeu
@@ -115,27 +116,7 @@ class PhanCongCongViec(models.Model):
 
 class NhatKyCongViec(models.Model):
     class TrangThai(models.TextChoices):
-        Chothongqua = 'Chờ thông qua'
-        Tuchoithongqua = 'Từ chối thông qua'
-        Choxetduyet = "Chờ xét duyêt", "CHỜ XÉT DUYỆT"
-        BiTuChoi = "Bị từ chối", "BỊ TỪ CHỐI"
-        DaPheDuyet = "Đã Phê Duyệt", "ĐÃ PHÊ DUYỆT"
-        ChoPhanCong = "Chờ Phân Công", "CHỜ PHÂN CÔNG"
-        ChoXacNhan = "Chờ xác nhận", "CHỜ XÁC NHẬN"
-        DangXuLy = "Đang xử lý", "ĐANG XỬ LÝ"
-        HoanThanh = "Hoàn thành", "HOÀN THÀNH"
-        ChoBanHanh = "Chờ ban hành", "CHỜ BAN HÀNH"
-        BanHanh = "Đã ban hành", "ĐÃ BAN HÀNH"
-    TieuDe = models.CharField(null = False, max_length = 100)
-    MoTa = models.TextField(max_length = 250)
-    ThaoTac = models.TextField()
-    TrangThai = models.CharField(choices=TrangThai.choices, null = False, max_length = 50 )
-    NgayTao = models.DateTimeField(auto_now_add=True)
-    HanChot = models.DateTimeField(null = False)
-    FileChuKy = models.FileField(upload_to='chuky/', null=True, blank=True)
-    MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.CASCADE)
-    MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
-    MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
+        CHO_THONG_QUA = "Chờ thông qua", "CHỜ THÔNG QUA"
         CHO_XET_DUYET = "Chờ xét duyệt", "CHỜ XÉT DUYỆT"
         BI_TU_CHOI = "Bị từ chối", "BỊ TỪ CHỐI"
         CHO_PHAN_CONG = "Chờ phân công", "CHỜ PHÂN CÔNG"
@@ -148,6 +129,8 @@ class NhatKyCongViec(models.Model):
     PhanCong = models.ForeignKey(PhanCongCongViec, on_delete=models.CASCADE, related_name='nhatky')
     ThoiGian = models.DateTimeField(auto_now_add=True)
     ThaoTac = models.TextField()
+    TrangThai = models.CharField(max_length=50, choices=TrangThai.choices)
+    NguoiThucHien = models.ForeignKey('NhanVien', on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.PhanCong.TieuDe} - {self.TrangThai}"

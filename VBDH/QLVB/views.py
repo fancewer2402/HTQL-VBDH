@@ -8,6 +8,7 @@ from django.utils.dateparse import parse_date
 from .models import VanBanDi, VanBanDen, NhanVien, ThongBao, NhatKyCongViec, PhongBan
 from datetime import timedelta, date
 from django.utils import timezone
+from datetime import datetime
 
 
 
@@ -95,19 +96,26 @@ def chi_tiet_vb_den(request, vb_id):
 
 def tao_du_thao(request):
     """Nhân viên tạo dự thảo và trình duyệt lên Trưởng phòng."""
-    if request.method == "POST":
         # ⚙️ Giả sử nhân viên đang đăng nhập
-        nhanvien = NhanVien.objects.first()  # hoặc: request.user.nhanvien
+    nhanvien = NhanVien.objects.first()  # hoặc: request.user.nhanvien
+
+    count = VanBanDi.objects.count() + 1
+    so_hieu_tu_dong = f"VB-{datetime.now().year}-{count:04d}"
 
         # ✅ Tạo văn bản mới
+
+
+    if request.method == "POST":
         vb = VanBanDi.objects.create(
+            SoHieu=so_hieu_tu_dong,
             TrichYeu=request.POST.get("TrichYeu"),
             NoiDung=request.POST.get("NoiDung"),
-            LoaiVbDi=request.POST.get("LoaiVBDi"),
-            DonViNhan=request.POST.get("DonViSoanThao"),
+            LoaiVbDi=request.POST.get("LoaiVbDi"),
+            DonViNhan=request.POST.get("DonViNhan"),
             FileDinhKem=request.FILES.get("FileDinhKem"),
             MaNhanVien=nhanvien,
-            TrangThai="Chờ thông qua"  # trạng thái đầu tiên
+            TrangThai="Chờ thông qua",  # trạng thái đầu tiên
+            MaPhongBan_id = request.POST.get("MaPhongBan"),
         )
 
         # ✅ Xác định Trưởng phòng của phòng ban nhân viên
@@ -118,19 +126,20 @@ def tao_du_thao(request):
         # ✅ Gửi thông báo hệ thống (không phải email)
         if truong_phong:
             ThongBao.objects.create(
-                NguoiNhan=truong_phong,
+                TieuDe="Trình duyệt dự thảo",
                 NoiDung=f"Nhân viên {nhanvien.HoTen} đã trình duyệt dự thảo '{vb.TrichYeu}'.",
-                LoaiThongBao="Trình duyệt dự thảo",
-                MaVanBan=vb
+                MaNhanVien=truong_phong,  # người nhận thông báo là trưởng phòng
+                MaVBDi=vb
             )
 
-        messages.success(request, "✅ Văn bản đã được trình duyệt cho Trưởng phòng.")
-        return redirect("danh_sach_van_ban_di")  # chuyển về trang danh sách
+        messages.success(request, " Văn bản đã được trình duyệt cho Trưởng phòng.")
+        return redirect("vanbandi")  # chuyển về trang danh sách
 
     # GET → hiển thị form
     phong_ban_list = PhongBan.objects.all()
     return render(request, "vanbandi/tao_du_thao.html", {
         "phong_ban_list": phong_ban_list,
+        "so_hieu_tu_dong": so_hieu_tu_dong,
     })
 
 # Xét duyệt văn bản đi
@@ -168,22 +177,28 @@ def xetduyetvanbandi(request, id):
             vb.save()
 
             # Thông báo đã duyệt cho người tạo văn bản + trưởng phòng
-            msg_duyet = f"✅ Văn bản '{vb.TrichYeu}' đã được phê duyệt."
+            msg_duyet = f" Văn bản '{vb.TrichYeu}' đã được phê duyệt."
             if vb.MaNhanVien:
-                ThongBao.objects.create(MaNhanVien=vb.MaNhanVien, NoiDung=msg_duyet, MaVBDi=vb)
+                ThongBao.objects.create(MaNhanVien=vb.MaNhanVien, TieuDe=msg_duyet,
+                                        NoiDung=msg_duyet, MaVBDi=vb)
             if truong_phong:
-                ThongBao.objects.create(MaNhanVien=truong_phong, NoiDung=msg_duyet, MaVBDi=vb)
+                ThongBao.objects.create(MaNhanVien=truong_phong, TieuDe=msg_duyet,
+                                        NoiDung=msg_duyet, MaVBDi=vb)
 
             # Thông báo phân công cho văn thư
             if van_thu:
                 msg_phancong = (
-                    f"📄 Bạn được phân công xử lý văn bản '{vb.TrichYeu}'. "
+                    f" Bạn được phân công xử lý văn bản '{vb.TrichYeu}'. "
                     f"Hạn cuối: {han_cuoi}. "
                     f"Nội dung: {noi_dung_phan_cong}"
+                    f"Chu Ky: {chu_ky}"
                 )
-                ThongBao.objects.create(MaNhanVien=van_thu, NoiDung=msg_phancong, MaVBDi=vb)
+                ThongBao.objects.create(MaNhanVien=van_thu,
+                                        TieuDe=f" Bạn được phân công xử lý văn bản '{vb.TrichYeu}'. ",
+                                        NoiDung=msg_phancong,
+                                        MaVBDi=vb)
 
-            messages.success(request, "✅ Văn bản đã được phê duyệt và phân công thành công.")
+            messages.success(request, " Văn bản đã được phê duyệt và phân công thành công.")
 
         elif action == "tuchoi":
             # Từ chối thì không cần chữ ký, văn thư, hạn cuối
@@ -191,13 +206,15 @@ def xetduyetvanbandi(request, id):
             vb.LyDoTuChoi = ly_do
             vb.save()
 
-            msg_tuchoi = f"❌ Văn bản '{vb.TrichYeu}' bị từ chối. Lý do: {ly_do or 'Không ghi rõ'}"
+            msg_tuchoi = f" Văn bản '{vb.TrichYeu}' bị từ chối. Lý do: {ly_do or 'Không ghi rõ'}"
             if vb.MaNhanVien:
-                ThongBao.objects.create(MaNhanVien=vb.MaNhanVien, NoiDung=msg_tuchoi, MaVBDi=vb)
+                ThongBao.objects.create(MaNhanVien=vb.MaNhanVien,TieuDe=msg_tuchoi,
+                                        NoiDung=f" Lý do: {ly_do or 'Không ghi rõ'}", MaVBDi=vb)
             if truong_phong:
-                ThongBao.objects.create(MaNhanVien=truong_phong, NoiDung=msg_tuchoi, MaVBDi=vb)
+                ThongBao.objects.create(MaNhanVien=truong_phong, TieuDe=msg_tuchoi,
+                                        NoiDung=f" Lý do: {ly_do or 'Không ghi rõ'}",MaVBDi=vb)
 
-            messages.warning(request, "❌ Văn bản đã bị từ chối.")
+            messages.warning(request, " Văn bản đã bị từ chối.")
 
         return redirect('vanbandi')  # quay về danh sách văn bản đi
 
@@ -205,7 +222,6 @@ def xetduyetvanbandi(request, id):
         "vb": vb,
         "vanthus": vanthus,
     })
-
 
 def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
     # Xác định loại văn bản
@@ -459,13 +475,13 @@ def trang_thong_qua(request, vb_id):
 
             # 🔔 Gửi thông báo cho quản lý đã chọn
             ThongBao.objects.create(
-                TieuDe="Thông báo văn bản đi",
-                NoiDung=f"📄 Trưởng phòng {truong_phong.HoTen} trình duyệt văn bản đi '{vb.TrichYeu}'.",
+                TieuDe=" văn bản đi",
+                NoiDung=f" Trưởng phòng {truong_phong.HoTen} trình duyệt văn bản đi '{vb.TrichYeu}'.",
                 MaNhanVien=quan_ly,
                 MaVBDi=vb
             )
 
-            messages.success(request, f"✅ Văn bản '{vb.TrichYeu}' đã được trình duyệt. Trạng thái: Chờ phê duyệt.")
+            messages.success(request, f" Văn bản '{vb.TrichYeu}' đã được trình duyệt. Trạng thái: Chờ phê duyệt.")
 
         elif action == "tuchoi":
             vb.TrangThai = "Từ chối thông qua"

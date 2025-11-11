@@ -25,6 +25,6 @@ urlpatterns = [
     path('vanbandi/<int:vb_id>/thong-qua/', views.trang_thong_qua, name='thong_qua_van_ban'),
 
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
-
+    path('notification/<int:id>/read/', views.mark_notification_read, name='mark_notification_read'),
 
 ]
