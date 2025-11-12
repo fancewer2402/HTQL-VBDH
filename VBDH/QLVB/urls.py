@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib import admin
 from . import views
+# from ..VBDH import urls
 
 urlpatterns = [
     path('login/', views.user_login, name='login'),
@@ -24,6 +25,9 @@ urlpatterns = [
     path('vanbanden/baocao/<int:vb_id>/', views.bao_cao_vbden, name='bao_cao_vbden'),
     path('sua/<int:vb_id>/', views.sua_vb_den, name='sua_vb_den'),
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
+    path("vanbandi/<int:id>/sua/", views.sua_vanbandi, name="sua_vanbandi"),
+    path("vanbandi/tao/", views.tao_vanbandi, name="tao_vanbandi"),
+    path('vanbandi/', views.vanbandi_list, name='vanbandi_list'),
     path('thongbao/doc/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
 
     # THÊM DÒNG NÀY – BẮT BUỘC!

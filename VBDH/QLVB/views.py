@@ -1,5 +1,4 @@
-# views.py
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect , get_object_or_404
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
@@ -16,6 +15,8 @@ from django.contrib.auth.decorators import login_required
 # Đăng nhập
 import os
 from django.db import transaction
+from .forms import VanBanDiEditForm
+from .forms import VanBanDiForm
 
 def user_login(request):
     if request.method == 'POST':
@@ -129,19 +130,49 @@ def ds_vanbandi(request):
 
 @login_required(login_url='/login/')
 def vanbandi_detail(request, pk):
-    vb = get_object_or_404(VanBanDi, pk=pk)
-    return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
+    vb = get_object_or_404(VanBanDi, id=pk)
+
+    # ✅ Kiểm tra nếu người dùng đã đăng nhập
+    if request.user.is_authenticated:
+        is_quanly = request.user.groups.filter(name='Quản lý').exists()
+        same_user = (vb.MaNhanVien.Email == request.user.email)
+    else:
+        is_quanly = False
+        same_user = False
+
+    context = {
+        'vb': vb,
+        'is_quanly': is_quanly,
+        'same_user': same_user,
+    }
+    return render(request, 'vanbandi/vanbandi_detail.html', context)
+
+
+# Đảm bảo import VanBanDiEditForm ở đầu file views.py
+# from .forms import VanBanDiEditForm, VanBanDiForm
 
 
 def sua_vanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
-    if request.method == 'POST':
-        vb.TrichYeu = request.POST.get('TrichYeu')
-        vb.SoHieu = request.POST.get('SoHieu', vb.SoHieu)  # Sửa: dùng SoHieu
-        vb.NoiDung = request.POST.get('NoiDung')
+
+    if request.method == "POST":
+        vb.TrichYeu = request.POST.get("TrichYeu", "")
+        vb.SoHieu = request.POST.get("SoHieu", "")
+        vb.LoaiVbDi = request.POST.get("LoaiVbDi", "")
+        vb.DoMat = request.POST.get("DoMat", "")
+        vb.DoKhan = request.POST.get("DoKhan", "")
+        vb.DonViNhan = request.POST.get("DonViNhan", "")
+        vb.NgayBanHanh = request.POST.get("NgayBanHanh") or None
+        vb.NoiDung = request.POST.get("NoiDung", "")
+
+        if request.FILES.get("FileDinhKem"):
+            vb.FileDinhKem = request.FILES["FileDinhKem"]
+
         vb.save()
-        return redirect('vanbandi_detail', pk=vb.id)
-    return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
+        messages.success(request, "✅ Cập nhật văn bản đi thành công!")
+        return redirect("vanbandi_detail", pk=vb.id)
+
+    return render(request, "vanbandi/sua_vanbandi.html", {"vb": vb})
 
 @login_required(login_url='/login/')
 def get_current_nhanvien(request):
@@ -149,7 +180,6 @@ def get_current_nhanvien(request):
         return NhanVien.objects.filter(email=request.user.email).first()
     except Exception:
         return None
-
 
 def danh_sach_van_ban_den(request):
     van_ban_list = VanBanDen.objects.all().order_by('-NgayDen')
