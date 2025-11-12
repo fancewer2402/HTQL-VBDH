@@ -1,0 +1,445 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Danh sách văn bản đến{% endblock %}
+
+{% block content %}
+<style>
+    body, input, select, button {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 13px;
+    }
+
+    /* ====== BỘ LỌC ====== */
+    .container {
+        display: flex;
+        justify-content: center;
+    }
+
+    .filter-box {
+        border: 1px solid #ddd;
+        padding: 20px;
+        border-radius: 6px;
+        background-color: #f9f9f9;
+        max-width: 850px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 10px;
+        width: 100%;
+    }
+
+    .filter-row.first {
+        justify-content: center;
+    }
+
+    .filter-row.second {
+        justify-content: flex-start;
+        align-items: flex-start;
+        margin-left: 241px; /* Căn thẳng với "Ngày nhận" */
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .filter-group label {
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+
+    .filter-inline input,
+    .filter-inline select,
+    .filter-group select,
+    .filter-group input {
+        height: 28px;
+        min-width: 180px;
+        padding: 4px 8px;
+        box-sizing: border-box;
+        font-size: 13px;
+        align-self: center;
+    }
+
+    .filter-inline.date-range {
+        display: flex;
+        gap: 14px;
+    }
+
+    .filter-inline.date-range input {
+        flex: 1;
+    }
+
+    .btn-loc {
+        height: 28px;
+        padding: 0 30px;
+        font-size: 13px;
+        margin-top: 16px;
+        margin-left: -21px;
+        align-self: flex-start;
+    }
+
+    .btn-group {
+        margin-left: 20px;
+        margin-top: 4px;
+    }
+
+    .search-btn-container {
+        margin-top: 4px;
+    }
+
+    /* ====== NÚT TẠO ====== */
+    .btn-create-custom {
+        font-family: 'Times New Roman', Times, serif;
+        font-size: 16px;
+        font-weight: bold;
+        border: 1px solid #0d6efd;
+        color: #0d6efd;
+        background-color: #ffffff;
+        padding: 8px 22px;
+        border-radius: 6px;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+    .btn-create-custom:hover {
+        background-color: #e9f2ff;
+        color: #0a58ca;
+    }
+
+    /* ====== BẢNG ====== */
+    .table-container {
+        width: 100%;
+        overflow-x: auto;
+        margin-top: 20px;
+    }
+
+    /* Toàn bảng */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        margin: 0 auto;
+    }
+
+    /* Viền */
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+
+    /* Header */
+    thead th {
+        background-color: #007bff;
+        color: white;
+        font-weight: 600;
+        text-align: center;
+        font-size: 15.5px;
+        padding: 10px;
+        vertical-align: middle;
+        white-space: nowrap;
+    }
+
+    /* Ô dữ liệu */
+    td {
+        padding: 10px 12px;
+        font-size: 15px;
+        vertical-align: middle;
+    }
+
+    /* Căn lề từng cột */
+    td:nth-child(1), /* STT */
+    td:nth-child(2), /* Số ký hiệu */
+    td:nth-child(5), /* Loại văn bản */
+    td:nth-child(6)  /* Trạng thái */
+    {
+        text-align: center;
+    }
+
+    /* Cột Trích yếu */
+    td:nth-child(3) {
+        text-align: justify;
+        white-space: normal;
+        word-break: break-word;
+    }
+    td:nth-child(4) {
+        text-align: justify;
+        white-space: normal;
+        word-break: break-word;
+    }
+    .table a {
+      text-decoration: none;
+      color: inherit; /* giữ nguyên màu chữ của text xung quanh */
+    }
+
+    .table a:hover {
+      text-decoration: underline;
+      color: #0d6efd; /* chỉ đổi màu khi hover */
+    }
+
+
+    /* Hiệu ứng hover */
+    tbody tr:hover {
+        background-color: #f8faff;
+        transition: background-color 0.2s ease-in-out;
+    }
+
+    /* Khi không có kết quả */
+    #noResult {
+        margin-top: 15px;
+        color: red;
+        font-weight: bold;
+        text-align: center;
+        display: none;
+    }
+
+    /* ====== PHÂN TRANG ====== */
+    .pagination {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        flex-wrap: wrap !important;
+        margin-top: 25px !important;
+        gap: 5px !important;
+    }
+
+    .pagination li {
+        display: inline-block !important;
+        visibility: visible !important;
+    }
+
+    .page-item {
+        margin: 2px !important;
+    }
+
+    .page-link {
+        color: #0d6efd !important;
+        border: 1px solid #ddd !important;
+        border-radius: 6px !important;
+        padding: 6px 12px !important;
+        font-size: 14px !important;
+        min-width: 38px !important;
+        text-align: center !important;
+        background-color: #fff !important;
+        transition: all 0.2s ease !important;
+    }
+
+    .page-link:hover {
+        background-color: #e9f2ff !important;
+        color: #0a58ca !important;
+        border-color: #0d6efd !important;
+    }
+
+    .page-item.active .page-link {
+        background-color: #0d6efd !important;
+        color: white !important;
+        border-color: #0d6efd !important;
+        font-weight: 600 !important;
+        cursor: default !important;
+    }
+
+    .page-item.disabled .page-link {
+        background-color: #f1f1f1 !important;
+        color: #999 !important;
+        border-color: #ddd !important;
+        cursor: not-allowed !important;
+    }
+
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2>Danh sách văn bản đến</h2>
+</div>
+
+<div class="container mt-3">
+    <div class="filter-box">
+        <!-- Dòng 1 -->
+        <div class="filter-row first">
+            <div class="filter-group">
+                <label>Tìm kiếm</label>
+                <div class="filter-inline">
+                    <input id="searchInput" type="text" class="form-control" placeholder="Nhập số ký hiệu, trích yếu">
+                </div>
+                <div class="search-btn-container">
+                    <button id="searchBtn" class="btn btn-success btn-search">Tìm kiếm</button>
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Ngày nhận</label>
+                <div class="filter-inline date-range">
+                    <input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
+                    <input id="toDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
+                </div>
+            </div>
+
+            <div class="filter-group">
+                <label>Loại văn bản</label>
+                <select id="docType" class="form-select">
+                    <option value="">Chọn loại văn bản</option>
+                    <option>Công văn</option>
+                    <option>Thông báo</option>
+                    <option>Quyết định</option>
+                    <option>Tờ trình</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Dòng 2 -->
+        <div class="filter-row second">
+            <div class="filter-group">
+                <label>Cơ quan ban hành</label>
+                <input id="agency" type="text" class="form-control" placeholder="Nhập cơ quan ban hành">
+            </div>
+
+            <div class="filter-group">
+                <label>Trạng thái</label>
+                <select id="status" class="form-select">
+                    <option value="">Tất cả</option>
+                    <option>Đã xử lý</option>
+                    <option>Chưa xử lý</option>
+                </select>
+            </div>
+
+            <div class="btn-group">
+                <button id="filterBtn" class="btn btn-primary btn-loc">Lọc</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#fromDate", { dateFormat: "d/m/Y" });
+    flatpickr("#toDate", { dateFormat: "d/m/Y" });
+
+    document.getElementById('filterBtn').addEventListener('click', () => {
+        alert('Đã áp dụng bộ lọc!');
+    });
+
+    document.getElementById('searchBtn').addEventListener('click', () => {
+        const value = document.getElementById('searchInput').value.trim();
+        if(value === '') {
+            alert('Vui lòng nhập từ khóa cần tìm kiếm!');
+        } else {
+            alert('Đang tìm kiếm: ' + value);
+        }
+    });
+</script>
+
+<div class="page-container">
+    <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
+        <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle text-center">
+            <thead class="table-primary">
+            <tr>
+                <th style="width: 5%;">STT</th>
+                <th style="width: 15%;">Số ký hiệu</th>
+                <th style="width: 35%;">Trích yếu</th>
+                <th style="width: 20%;">Cơ quan ban hành</th>
+                <th style="width: 15%;">Loại văn bản</th>
+                <th style="width: 10%;">Trạng thái</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for vb in van_ban_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ vb.SoHieu }}</td>
+                <td class="text-start">
+                    <a href="{% url 'chi_tiet_vb_den' vb.id %}" class="text-decoration-none text-dark fw-medium">
+                        {{ vb.TrichYeu }}
+                    </a>
+                </td>
+                <td>{{ vb.DonViPhatHanh }}</td>
+                <td>{{ vb.LoaiVBDen }}</td>
+                <td>
+                    {% if vb.NhatKyCongVien_set.exists %}
+                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">
+                            {{ vb.NhatKyCongVien_set.last.TrangThai }}
+                        </span>
+                    {% else %}
+                    <span class="text-muted">Chưa xử lý</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    Không có kết quả
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+</div>
+
+<!-- Phân trang -->
+<!-- Phân trang -->
+<!-- Phân trang -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+
+    <!-- Nút chuyển trang -->
+    <!-- Phân trang -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <!-- Hiển thị phạm vi văn bản -->
+
+
+    <!-- Nút phân trang -->
+    <!-- Phân trang tối giản -->
+<nav aria-label="Page navigation" class="mt-4">
+  <ul class="pagination justify-content-center">
+
+    <!-- Nút trang trước -->
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous" title="Trang trước">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&laquo;</span>
+    </li>
+    {% endif %}
+
+    <!-- Hiển thị phạm vi văn bản -->
+    {% with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}
+    <li class="page-item active">
+      <span class="page-link">
+        {{ start }}–{{ end }} / {{ total }}
+      </span>
+    </li>
+    {% endwith %}
+
+    <!-- Nút trang sau -->
+    {% if page_obj.has_next %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&raquo;</span>
+    </li>
+    {% endif %}
+  </ul>
+</nav>
+
+</div>
+</div>
+
+{% endblock %}

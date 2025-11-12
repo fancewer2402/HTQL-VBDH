@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo dự thảo</title>
+
+    <!-- ✅ Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ✅ Font Awesome (icon) -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <!-- ✅ Custom CSS (nếu bạn có file style.css) -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 🔹 Navbar chứa nút quay lại + tiêu đề + nút lưu */
+        .navbar-custom {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom h4 {
+            color: #0d6efd;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .container-form {
+            padding: 30px 50px;
+        }
+
+        .form-box {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<!-- 🔹 Thanh điều hướng trên cùng -->
+<nav class="navbar navbar-custom d-flex justify-content-between align-items-center">
+    <a href="" class="btn btn-outline-primary btn-sm">
+        <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
+    </a>
+
+    <h4 class="mb-0">Tạo dự thảo</h4>
+
+    <button type="submit" form="formVanBan" class="btn btn-success">
+        <i class="fa-solid fa-save me-1"></i> Lưu &amp; Trình ký
+    </button>
+</nav>
+
+<!-- 🔹 Nội dung chính -->
+<div class="container-form">
+    <div class="form-box">
+        <form id="formVanBan" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="SoHieu" class="form-label">Số hiệu</label>
+                    <input type="text" id="SoHieu" name="SoHieu" class="form-control"
+                           value="{{ so_hieu_tu_dong }}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="MaPhongBan" class="form-label">Phòng ban</label>
+                    <select id="MaPhongBan" name="MaPhongBan" class="form-select" required>
+                        <option value="">-- Chọn phòng ban --</option>
+                        {% for pb in phong_ban_list %}
+                        <option value="{{ pb.id }}">{{ pb.TenPhongBan }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="TrichYeu" class="form-label">Trích yếu *</label>
+                <textarea id="TrichYeu" name="TrichYeu" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="LoaiVBDi" class="form-label">Loại văn bản *</label>
+                    <input type="text" id="LoaiVBDi" name="LoaiVBDi" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="MaVanBanDen" class="form-label">Mã văn bản đến</label>
+                    <select id="MaVanBanDen" name="MaVanBanDen" class="form-select">
+                        <option value="">-- Danh sách yêu cầu --</option>
+                        {% for nv in danh_sach_yeu_cau_list %}
+                        <option value="{{ vb.id }}">{{ vb.Ma }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="DonViSoanThao" class="form-label">Đơn vị soạn thảo *</label>
+                    <input type="text" id="DonViSoanThao" name="DonViSoanThao" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="NgaySoanThao" class="form-label">Ngày soạn thảo *</label>
+                    <input type="date" id="NgaySoanThao" name="NgaySoanThao" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="NoiDung" class="form-label">Nội dung</label>
+                <textarea id="NoiDung" name="NoiDung" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="FileDinhKem" class="form-label">Tệp đính kèm</label>
+                <div class="border rounded p-3 text-center bg-light">
+                    <input type="file" id="FileDinhKem" name="FileDinhKem" class="form-control">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ✅ Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
