@@ -94,6 +94,7 @@ class VanBanDi(models.Model):
     NgayTao = models.DateTimeField(auto_now_add=True)
     MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
+    MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.TrichYeu
@@ -159,4 +160,4 @@ class NhatKyCongViec(models.Model):
     NguoiThucHien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.PhanCong.TieuDe if self.PhanCong else 'N/A'} - {self.get_TrangThai_display()}"
+        return f"{self.PhanCong.TieuDe} - {self.TrangThai}"
