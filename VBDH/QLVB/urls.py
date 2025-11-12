@@ -4,6 +4,9 @@ from . import views
 
 urlpatterns = [
     path('login/', views.user_login, name='login'),
+    path('logout/', views.user_logout, name='logout'),
+
+    # path('', views.danh_sach_van_ban_den, name='danh_sach_van_ban_den'),
     path('taovanbanden/', views.them_van_ban, name='them_van_ban'),
     path('vanbandi/', views.ds_vanbandi, name='vanbandi'),  # ← ĐÃ SỬA: ds_vanbandi
     path('vanbandi/<int:pk>/', views.vanbandi_detail, name='vanbandi_detail'),
@@ -21,6 +24,7 @@ urlpatterns = [
     path('vanbanden/baocao/<int:vb_id>/', views.bao_cao_vbden, name='bao_cao_vbden'),
     path('sua/<int:vb_id>/', views.sua_vb_den, name='sua_vb_den'),
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
+    path('thongbao/doc/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
 
     # THÊM DÒNG NÀY – BẮT BUỘC!
     path('thongbao/read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),

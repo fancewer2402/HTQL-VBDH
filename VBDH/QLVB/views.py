@@ -1,17 +1,19 @@
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.contrib.auth import authenticate, login
-from django.contrib.auth import logout
+from django.contrib.auth import authenticate, login, logout
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.dateparse import parse_date
+from datetime import timedelta, datetime, date
 from django.utils import timezone
 from django.core.mail import EmailMessage
 from django.conf import settings
-from datetime import timedelta, date
 from .models import VanBanDi, VanBanDen, ThongBao, NhatKyCongViec, PhongBan
 from accounts.models import User as NhanVien
+from django.contrib.auth.decorators import login_required
+
+# Đăng nhập
 import os
 from django.db import transaction
 
@@ -23,6 +25,10 @@ def user_login(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            next_url = request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            return redirect('danh_sach_van_ban_den')
             if user.groups.filter(name='Quản lý').exists():
                 return redirect('dashboard_quanly')
             elif user.groups.filter(name='Văn thư').exists():
@@ -31,18 +37,23 @@ def user_login(request):
                 return redirect('dashboard_nhanvien')
         else:
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
+
     return render(request, 'QLVB/login.html')
 
+# Đăng xuất
+@login_required(login_url='/login/')
+def user_logout(request):
+    logout(request)
+    return redirect('login')
 
 def tra_cuu_van_ban(request):
     return render(request, 'QLVB/tra_cuu_van_ban.html')
 
-
+@login_required(login_url='/login/')
 def them_van_ban(request):
     return render(request, 'vanbanden/create.html')
 
-
-
+@login_required(login_url='/login/')
 def ds_vanbandi(request):
     # Lấy tất cả văn bản đi
     vanbandi_list = VanBanDi.objects.all().order_by('-NgayBanHanh')
@@ -116,6 +127,7 @@ def ds_vanbandi(request):
     return render(request, 'vanbandi/vanbandi.html', context)
 
 
+@login_required(login_url='/login/')
 def vanbandi_detail(request, pk):
     vb = get_object_or_404(VanBanDi, pk=pk)
     return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
@@ -123,17 +135,15 @@ def vanbandi_detail(request, pk):
 
 def sua_vanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
-
     if request.method == 'POST':
         vb.TrichYeu = request.POST.get('TrichYeu')
         vb.SoHieu = request.POST.get('SoHieu', vb.SoHieu)  # Sửa: dùng SoHieu
         vb.NoiDung = request.POST.get('NoiDung')
         vb.save()
         return redirect('vanbandi_detail', pk=vb.id)
-
     return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
 
-
+@login_required(login_url='/login/')
 def get_current_nhanvien(request):
     try:
         return NhanVien.objects.filter(email=request.user.email).first()
@@ -224,28 +234,27 @@ def chi_tiet_vb_den(request, vb_id):
         'total_vb': total_vb
     })
 
-
+@login_required(login_url='/login/')
 def tao_du_thao(request):
     return render(request, 'vanbandi/tao_du_thao.html')
 
-
+@login_required(login_url='/login/')
 def xetduyetvanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
-
     if request.method == "POST":
         if 'duyet' in request.POST:
             vb.TrangThai = "Đã duyệt"
             vb.save()
             return redirect('phancong_vanthu', id=vb.id)
-
     return render(request, 'vanbandi/xetduyetvanbandi.html', {'vb': vb})
 
+@login_required(login_url='/login/')
 
 def phan_cong_van_thu(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
     return render(request, 'vanbandi/phan_cong_van_thu.html', {'vb': vb})
 
-
+@login_required(login_url='/login/')
 def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
     if loaivanban == 'vanbanden':
         vanban = get_object_or_404(VanBanDen, id=vanban_id)
@@ -256,7 +265,6 @@ def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
     else:
         nhatky = []
         vanban = None
-
     context = {
         'loaivanban': loaivanban,
         'vanban': vanban,
@@ -386,7 +394,6 @@ def home(request):
     week_notifications = ThongBao.objects.filter(NgayTao__gte=start_of_week, NgayTao__lt=now.date())
     old_notifications = ThongBao.objects.filter(NgayTao__lt=start_of_week)
     notification_count = ThongBao.objects.count()
-
     context = {
         'today_notifications': today_notifications,
         'week_notifications': week_notifications,
@@ -399,11 +406,9 @@ def home(request):
 def global_notifications(request):
     now = timezone.now()
     start_of_week = now - timedelta(days=now.weekday())
-
     today_notifications = ThongBao.objects.filter(NgayTao__date=now.date())
     week_notifications = ThongBao.objects.filter(NgayTao__gte=start_of_week, NgayTao__lt=now.date())
     old_notifications = ThongBao.objects.filter(NgayTao__lt=start_of_week)
-
     return {
         'today_notifications': today_notifications,
         'week_notifications': week_notifications,
@@ -411,6 +416,7 @@ def global_notifications(request):
         'notification_count': ThongBao.objects.count()
     }
 
+@login_required(login_url='/login/')
 
 def mark_notification_read(request, id):
     thongbao = get_object_or_404(ThongBao, id=id)
@@ -419,10 +425,10 @@ def mark_notification_read(request, id):
     next_url = request.GET.get('next', '/')
     return redirect(next_url)
 
+@login_required(login_url='/login/')
 
 def xet_duyet_vb_den(request, vb_id):
     vanbanden = get_object_or_404(VanBanDen, id=vb_id)
-
     if request.method == 'POST':
         action = request.POST.get('action')
         if action == 'approve':
@@ -433,21 +439,19 @@ def xet_duyet_vb_den(request, vb_id):
             vanbanden.TrangThai = "Từ chối"
             vanbanden.save()
             return redirect('danh_sach_van_ban_den')
-
     return render(request, 'vanbanden/xetduyet_vanbanden.html', {'vb': vanbanden})
 
+@login_required(login_url='/login/')
 
 def phan_cong_nhan_vien_vbden(request, id):
     vb = get_object_or_404(VanBanDen, id=id)
     nhanviens = NhanVien.objects.filter(MaPhongBan=vb.MaPhongBan)
-
     if request.method == "POST":
         ma_nhanvien_id = request.POST.get("MaNhanVien")
         tieude = request.POST.get("TieuDe")
         mota = request.POST.get("MoTa")
         han_chot = request.POST.get("HanChot")
         thao_tac = request.POST.get("ThaoTac")
-
         if not all([ma_nhanvien_id, tieude, mota, han_chot, thao_tac]):
             messages.error(request, "Vui lòng nhập đầy đủ thông tin.")
         else:
@@ -469,6 +473,7 @@ def phan_cong_nhan_vien_vbden(request, id):
     return render(request, "vanbanden/phancong_vanbanden.html", {"vb": vb, "nhanviens": nhanviens})
 
 
+@login_required(login_url='/login/')
 def xac_nhan_phan_cong_vbden(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
     nhanvien = get_current_nhanvien(request)
@@ -486,6 +491,7 @@ def xac_nhan_phan_cong_vbden(request, vb_id):
     return render(request, "vanbanden/xacnhan_phancong_vbden.html", {"vb": vb, "nhanvien": nhanvien})
 
 
+@login_required(login_url='/login/')
 def bao_cao_vbden(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
     if request.method == "POST":
@@ -495,11 +501,11 @@ def bao_cao_vbden(request, vb_id):
         return redirect('danh_sach_van_ban_den')
     return render(request, "vanbanden/baocao_vbden.html", {"vb": vb})
 
+@login_required(login_url='/login/')
 
 def sua_vb_den(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
     phongbans = PhongBan.objects.all()
-
     if request.method == 'POST':
         vb.SoHieu = request.POST.get('SoHieu')
         vb.TrichYeu = request.POST.get('TrichYeu')
