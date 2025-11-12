@@ -1,248 +1,164 @@
 {% block content %}
 <style>
-    /* Cấu trúc chung */
-    .container {
-        margin: 30px auto;
-        width: 95%;
-        font-family: "Segoe UI", Arial, sans-serif;
-        font-size: 14px;
-    }
+  .container {
+    margin: 30px auto;
+    width: 95%;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
 
-    /* Nút Xám (Dùng cho tất cả các nút hành động, không icon) */
-    .btn-gray {
-        background-color: #dcdcdc;
-        border: 1px solid #aaa;
-        padding: 7px 18px;
-        border-radius: 3px;
-        font-family: "Segoe UI", Arial, sans-serif;
-        font-size: 14px;
-        cursor: pointer;
-        transition: background-color 0.3s;
-    }
-    .btn-gray:hover { background-color: #ccc; }
+  /* Nút xám (dùng cho cả Hủy và Lưu thay đổi) */
+  .btn-gray {
+    background-color: #dcdcdc;
+    border: 1px solid #aaa;
+    padding: 7px 18px;
+    border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+    display: inline-block;
+    font-weight: normal;
+  }
 
-    /* Thanh tiêu đề */
-    .header-buttons {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 15px;
-    }
-    /* Chỉnh sửa Title Section để chứa các nút hành động (Sửa/Quay lại/Lưu) */
-    .title-section {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 2px solid #1e4e79;
-        margin-bottom: 20px;
-        padding-bottom: 5px;
-    }
-    .title {
-        font-size: 22px;
-        font-weight: bold;
-        color: #1e4e79;
-    }
-    /* Group chứa các nút hành động ở góc phải */
-    .action-buttons {
-        display: flex;
-        gap: 10px; /* Khoảng cách giữa các nút */
-    }
+  .btn-gray:hover {
+    background-color: #cfcfcf;
+  }
 
-    /* Bảng và trường nhập liệu */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: "Segoe UI", Arial, sans-serif;
-        font-size: 14px;
-    }
-    td {
-        padding: 8px 10px;
-        vertical-align: top;
-    }
-    label {
-        font-weight: bold;
-    }
+  .header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
 
-    /* Trường nhập liệu (Input/Textarea/Select) */
-    input[type="text"], textarea, select {
-        width: 100%;
-        border: 1px solid #999;
-        padding: 6px;
-        border-radius: 3px;
-        font-family: "Segoe UI", Arial, sans-serif;
-        font-size: 14px;
-        box-sizing: border-box;
-        transition: border-color 0.3s, background-color 0.3s;
-        background-color: #fff; /* Nền trắng khi chỉnh sửa */
-    }
+  .title {
+    border-bottom: 2px solid #1e4e79;
+    font-size: 22px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    color: #1e4e79;
+    font-family: "Segoe UI", Arial, sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
 
-    /* Thiết lập cho trường READONLY */
-    .form-field[readonly] {
-        background-color: #f9f9f9;
-        border: 1px solid #aaa;
-        cursor: default;
-    }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
 
-    /* Các style phụ khác */
-    textarea {
-        height: 70px;
-        resize: vertical;
-    }
+  td {
+    padding: 8px 10px;
+    vertical-align: top;
+  }
 
-    /* Đã loại bỏ .footer-btn vì nút đã được di chuyển */
-    .hidden {
-        display: none;
-    }
+  label {
+    font-weight: bold;
+  }
 
-    #fileUploadContainer {
-        padding-top: 5px;
-        border-top: 1px dashed #ccc;
-        margin-top: 5px;
-    }
-    #id_tepdinhkem {
-        border: none;
-        padding: 0;
-    }
+  input[type="text"], textarea, select, input[type="file"] {
+    width: 100%;
+    border: 1px solid #999;
+    padding: 6px;
+    border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  textarea {
+    height: 70px;
+    resize: none;
+  }
+
+  .footer-btn {
+    margin-top: 20px;
+  }
 </style>
 
 <div class="container">
-    <div class="header-buttons">
-        <div>
-            <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
-        </div>
-        <div>Trạng thái:</div>
-        <button class="btn-gray">Xem nhật ký hoạt động</button>
+  <!-- Thanh trên cùng -->
+  <div class="header-buttons">
+    <div>
+      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
     </div>
+    <div>Trạng thái:</div>
+    <button class="btn-gray">Xem nhật ký hoạt động</button>
+  </div>
 
-    <form id="vanBanForm" method="POST" action="{% url 'sua_vanbandi' vb.id %}" enctype="multipart/form-data">
-        <div class="title-section">
-            <div class="title" id="formTitle">CHI TIẾT VĂN BẢN ĐI</div>
+  <!-- Tiêu đề + 2 nút -->
+  <div class="title">
+    SỬA VĂN BẢN ĐI
+    <div>
+      <a href="{% url 'vanbandi_detail' vb.id %}" class="btn-gray">Hủy</a>
+      <button type="submit" form="formSua" class="btn-gray">Lưu thay đổi</button>
+    </div>
+  </div>
 
-            <div class="action-buttons">
-                <button type="button" class="btn-gray hidden" id="cancelButton" onclick="cancelEditMode()">Quay lại</button>
-                <button type="submit" class="btn-gray hidden" id="saveButton">Lưu</button>
-
-                <button type="button" class="btn-gray" id="editButton" onclick="toggleEditMode()">Sửa văn bản đi</button>
-            </div>
-
-        </div>
-
-        <table>
-            <tr>
-                <td style="width: 20%;"><label for="id_trichyeu">Trích yếu (*):</label></td>
-                <td style="width: 50%;">
-                    <textarea name="trichyeu" id="id_trichyeu" class="form-field" readonly>{{ vb.TrichYeu }}</textarea>
-                </td>
-                <td rowspan="5" style="width: 30%;" valign="top"></td>
-            </tr>
-            <tr>
-                <td><label for="id_sokyhieu">Số ký hiệu (*):</label></td>
-                <td><input type="text" name="sokyhieu" id="id_sokyhieu" class="form-field" readonly value="{{ vb.SoKyHieu }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_loaivanban">Loại văn bản:</label></td>
-                <td><input type="text" name="loaivanban" id="id_loaivanban" class="form-field" readonly value="{{ vb.LoaiVanBan }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_domat">Độ mật:</label></td>
-                <td><input type="text" name="domat" id="id_domat" class="form-field" readonly value="{{ vb.DoMat }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_dokhan">Độ khẩn:</label></td>
-                <td><input type="text" name="dokhan" id="id_dokhan" class="form-field" readonly value="{{ vb.DoKhan }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_coquanbanhanh">Đơn vị phát hành (*):</label></td>
-                <td><input type="text" name="coquanbanhanh" id="id_coquanbanhanh" class="form-field" readonly value="{{ vb.CoQuanBanHanh }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_ngaybanhanh">Ngày phát hành:</label></td>
-                <td><input type="text" name="ngaybanhanh" id="id_ngaybanhanh" class="form-field" readonly value="{{ vb.NgayBanHanh }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_ngayden">Ngày đến:</label></td>
-                <td><input type="text" name="ngayden" id="id_ngayden" class="form-field" readonly value="{{ vb.NgayDen }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_phongban">Phòng ban:</label></td>
-                <td><input type="text" name="phongban" id="id_phongban" class="form-field" readonly value="{{ vb.PhongBan }}"></td>
-            </tr>
-            <tr>
-                <td><label for="id_noidung">Nội dung:</label></td>
-                <td><textarea name="noidung" id="id_noidung" class="form-field" readonly>{{ vb.NoiDung }}</textarea></td>
-            </tr>
-            <tr>
-                <td><label>Tệp đính kèm:</label></td>
-                <td>
-                    <span id="currentFile">
-                        {% if vb.TepDinhKem %}
-                            <a href="{{ vb.TepDinhKem.url }}" target="_blank">Xem tệp đính kèm hiện tại</a>
-                            <input type="hidden" name="existing_tepdinhkem" value="{{ vb.TepDinhKem }}">
-                        {% else %}
-                            <input type="text" readonly value="Không có tệp đính kèm">
-                        {% endif %}
-                    </span>
-                    <div id="fileUploadContainer" class="hidden">
-                        <label for="id_tepdinhkem" style="font-weight: normal;">Tải lên tệp mới:</label>
-                        <input type="file" name="tepdinhkem" id="id_tepdinhkem">
-                        <small style="display: block; color: #555;">(Nếu chọn tệp mới, tệp cũ sẽ bị ghi đè)</small>
-                    </div>
-                </td>
-            </tr>
-        </table>
-
-        </form>
+  <!-- Form -->
+  <form id="formSua" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+      <tr>
+        <td style="width: 20%;"><label>Trích yếu (*):</label></td>
+        <td style="width: 50%;"><textarea name="TrichYeu">{{ vb.TrichYeu }}</textarea></td>
+        <td rowspan="5" style="width: 30%;" valign="top"></td>
+      </tr>
+      <tr>
+        <td><label>Số ký hiệu (*):</label></td>
+        <td><input type="text" name="SoKyHieu" value="{{ vb.SoKyHieu }}"></td>
+      </tr>
+      <tr>
+        <td><label>Loại văn bản:</label></td>
+        <td><input type="text" name="LoaiVanBan" value="{{ vb.LoaiVanBan }}"></td>
+      </tr>
+      <tr>
+        <td><label>Độ mật:</label></td>
+        <td><input type="text" name="DoMat" value="{{ vb.DoMat }}"></td>
+      </tr>
+      <tr>
+        <td><label>Độ khẩn:</label></td>
+        <td><input type="text" name="DoKhan" value="{{ vb.DoKhan }}"></td>
+      </tr>
+      <tr>
+        <td><label>Đơn vị phát hành (*):</label></td>
+        <td><input type="text" name="CoQuanBanHanh" value="{{ vb.CoQuanBanHanh }}"></td>
+      </tr>
+      <tr>
+        <td><label>Ngày phát hành:</label></td>
+        <td><input type="text" name="NgayBanHanh" value="{{ vb.NgayBanHanh }}"></td>
+      </tr>
+      <tr>
+        <td><label>Ngày đến:</label></td>
+        <td><input type="text" name="NgayDen" value="{{ vb.NgayDen }}"></td>
+      </tr>
+      <tr>
+        <td><label>Phòng ban:</label></td>
+        <td><input type="text" name="PhongBan" value="{{ vb.PhongBan }}"></td>
+      </tr>
+      <tr>
+        <td><label>Nội dung:</label></td>
+        <td><textarea name="NoiDung">{{ vb.NoiDung }}</textarea></td>
+      </tr>
+      <tr>
+        <td><label>Tệp đính kèm:</label></td>
+        <td>
+          {% if vb.TepDinhKem %}
+            <p>
+              📎 <a href="{{ vb.TepDinhKem.url }}" target="_blank" style="text-decoration:none; color:#1e4e79;">
+                Xem tệp hiện tại
+              </a>
+            </p>
+          {% endif %}
+          <input type="file" name="TepDinhKem">
+        </td>
+      </tr>
+    </table>
+  </form>
 </div>
-
-<script>
-    const formTitle = document.getElementById('formTitle');
-    const formFields = document.querySelectorAll('.form-field');
-    const editButton = document.getElementById('editButton');
-    const cancelButton = document.getElementById('cancelButton');
-    const saveButton = document.getElementById('saveButton');
-    const fileUploadContainer = document.getElementById('fileUploadContainer');
-    const currentFileDisplay = document.getElementById('currentFile');
-
-    /**
-     * Chuyển đổi giữa chế độ Xem (readonly) và Sửa (editable).
-     */
-    function toggleEditMode() {
-        // Chuyển sang chế độ Sửa (Edit Mode)
-        formFields.forEach(field => {
-            field.removeAttribute('readonly');
-            field.style.border = '1px solid #999';
-            field.style.backgroundColor = '#fff';
-        });
-
-        // Ẩn/hiện các nút
-        editButton.classList.add('hidden');
-        cancelButton.classList.remove('hidden');
-        saveButton.classList.remove('hidden');
-
-        formTitle.textContent = 'SỬA VĂN BẢN ĐI';
-        fileUploadContainer.classList.remove('hidden');
-        currentFileDisplay.classList.add('hidden');
-    }
-
-    /**
-     * Huỷ bỏ chỉnh sửa và quay về chế độ Xem
-     */
-    function cancelEditMode() {
-        // Đặt lại các trường về readonly
-        formFields.forEach(field => {
-            field.setAttribute('readonly', 'readonly');
-            field.style.border = '1px solid #aaa';
-            field.style.backgroundColor = '#f9f9f9';
-        });
-
-        // Ẩn/hiện các nút
-        editButton.classList.remove('hidden');
-        cancelButton.classList.add('hidden');
-        saveButton.classList.add('hidden');
-
-        formTitle.textContent = 'CHI TIẾT VĂN BẢN ĐI'; // Trở về tiêu đề ban đầu
-        fileUploadContainer.classList.add('hidden');
-        currentFileDisplay.classList.remove('hidden');
-    }
-</script>
 {% endblock %}
