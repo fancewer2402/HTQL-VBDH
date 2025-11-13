@@ -7,7 +7,6 @@
     font-size: 14px;
   }
 
-  /* Nút xám (dùng cho cả Hủy và Lưu thay đổi) */
   .btn-gray {
     background-color: #dcdcdc;
     border: 1px solid #aaa;
@@ -62,7 +61,7 @@
     font-weight: bold;
   }
 
-  input[type="text"], textarea, select, input[type="file"] {
+  input[type="text"], input[type="email"], input[type="date"], textarea, select, input[type="file"] {
     width: 100%;
     border: 1px solid #999;
     padding: 6px;
@@ -75,47 +74,41 @@
     height: 70px;
     resize: none;
   }
-
-  .footer-btn {
-    margin-top: 20px;
-  }
 </style>
 
 <div class="container">
   <!-- Thanh trên cùng -->
   <div class="header-buttons">
-    <div>
-      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
-    </div>
-    <div>Trạng thái:</div>
-    <button class="btn-gray">Xem nhật ký hoạt động</button>
+    <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
+    <div><strong>Trạng thái:</strong> {{ vb.TrangThai }}</div>
+    <a href="{% url 'nhatkyhoatdong' 'vanbandi' vb.id %}" class="btn-gray">Xem nhật ký hoạt động</a>
   </div>
 
-  <!-- Tiêu đề + 2 nút -->
-  <div class="title">
-    SỬA VĂN BẢN ĐI
-    <div>
-      <a href="{% url 'vanbandi_detail' vb.id %}" class="btn-gray">Hủy</a>
-      <button type="submit" form="formSua" class="btn-gray">Lưu thay đổi</button>
-    </div>
-  </div>
-
-  <!-- Form -->
+  <!-- Form bao toàn bộ phần nội dung -->
   <form id="formSua" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+    <!-- Tiêu đề + nút hành động -->
+    <div class="title">
+      SỬA VĂN BẢN ĐI
+      <div>
+        <a href="{% url 'vanbandi_detail' vb.id %}" class="btn-gray">Hủy</a>
+        <button type="submit" class="btn-gray">Lưu thay đổi</button>
+      </div>
+    </div>
+
     <table>
       <tr>
         <td style="width: 20%;"><label>Trích yếu (*):</label></td>
         <td style="width: 50%;"><textarea name="TrichYeu">{{ vb.TrichYeu }}</textarea></td>
-        <td rowspan="5" style="width: 30%;" valign="top"></td>
+        <td rowspan="6" style="width: 30%;" valign="top"></td>
       </tr>
       <tr>
         <td><label>Số ký hiệu (*):</label></td>
-        <td><input type="text" name="SoKyHieu" value="{{ vb.SoKyHieu }}"></td>
+        <td><input type="text" name="SoHieu" value="{{ vb.SoHieu }}"></td>
       </tr>
       <tr>
         <td><label>Loại văn bản:</label></td>
-        <td><input type="text" name="LoaiVanBan" value="{{ vb.LoaiVanBan }}"></td>
+        <td><input type="text" name="LoaiVbDi" value="{{ vb.LoaiVbDi }}"></td>
       </tr>
       <tr>
         <td><label>Độ mật:</label></td>
@@ -126,20 +119,12 @@
         <td><input type="text" name="DoKhan" value="{{ vb.DoKhan }}"></td>
       </tr>
       <tr>
-        <td><label>Đơn vị phát hành (*):</label></td>
-        <td><input type="text" name="CoQuanBanHanh" value="{{ vb.CoQuanBanHanh }}"></td>
+        <td><label>Đơn vị nhận (*):</label></td>
+        <td><input type="text" name="DonViNhan" value="{{ vb.DonViNhan }}"></td>
       </tr>
       <tr>
         <td><label>Ngày phát hành:</label></td>
-        <td><input type="text" name="NgayBanHanh" value="{{ vb.NgayBanHanh }}"></td>
-      </tr>
-      <tr>
-        <td><label>Ngày đến:</label></td>
-        <td><input type="text" name="NgayDen" value="{{ vb.NgayDen }}"></td>
-      </tr>
-      <tr>
-        <td><label>Phòng ban:</label></td>
-        <td><input type="text" name="PhongBan" value="{{ vb.PhongBan }}"></td>
+        <td><input type="date" name="NgayBanHanh" value="{{ vb.NgayBanHanh|date:'Y-m-d' }}"></td>
       </tr>
       <tr>
         <td><label>Nội dung:</label></td>
@@ -148,14 +133,10 @@
       <tr>
         <td><label>Tệp đính kèm:</label></td>
         <td>
-          {% if vb.TepDinhKem %}
-            <p>
-              📎 <a href="{{ vb.TepDinhKem.url }}" target="_blank" style="text-decoration:none; color:#1e4e79;">
-                Xem tệp hiện tại
-              </a>
-            </p>
+          {% if vb.FileDinhKem %}
+            <p>📎 <a href="{{ vb.FileDinhKem.url }}" target="_blank" style="text-decoration:none; color:#1e4e79;">Xem tệp hiện tại</a></p>
           {% endif %}
-          <input type="file" name="TepDinhKem">
+          <input type="file" name="FileDinhKem">
         </td>
       </tr>
     </table>

@@ -23,8 +23,14 @@ urlpatterns = [
     path('vanbanden/baocao/<int:vb_id>/', views.bao_cao_vbden, name='bao_cao_vbden'),
     path('sua_van_ban_den/<int:vb_id>/', views.sua_van_ban_den, name='sua_vb_den'),
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
+<<<<<<< HEAD
     path('create/', views.tao_van_ban_den, name='van_ban_den_create'),
     path('<int:vb_id>/edit/', views.sua_van_ban_den, name='van_ban_den_update'),
     path('mark-notification-read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
 
+=======
+    path("vanbandi/<int:id>/sua/", views.sua_vanbandi, name="sua_vanbandi"),
+    path("vanbandi/tao/", views.tao_vanbandi, name="tao_vanbandi"),
+    path('vanbandi/', views.vanbandi_list, name='vanbandi_list'),
+>>>>>>> 7c60d542c1276cc3b32265b285a016f95abd40f8
 ]
