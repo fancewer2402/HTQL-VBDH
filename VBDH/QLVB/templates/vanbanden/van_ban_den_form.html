@@ -1,0 +1,204 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }} | Quản lý văn bản</title>
+
+    <style>
+        /* CSS CỦA TRANG CHI TIẾT ĐÃ ĐƯỢC SAO CHÉP */
+        .container {
+            margin: 30px auto;
+            width: 95%;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .btn-blue {
+            background-color: #2b579a;
+            color: #fff;
+            border: none;
+            padding: 6px 15px;
+            border-radius: 3px;
+            font-weight: bold;
+            cursor: pointer; /* Thêm cursor pointer */
+        }
+        .btn-gray {
+            background-color: #dcdcdc;
+            border: 1px solid #aaa;
+            padding: 6px 15px;
+            border-radius: 3px;
+            text-decoration: none;
+            display: inline-block;
+            cursor: pointer; /* Thêm cursor pointer */
+        }
+        .header-buttons {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .title {
+            border-bottom: 2px solid #1e4e79;
+            font-size: 20px;
+            font-weight: bold;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            color: #1e4e79;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 6px 10px;
+            vertical-align: top;
+        }
+        label {
+            font-weight: bold;
+        }
+        /* Style chung cho input, textarea, select */
+        input[type="text"], input[type="datetime-local"], select, textarea {
+            width: 100%;
+            border: 1px solid #999;
+            padding: 5px;
+            border-radius: 3px;
+            box-sizing: border-box;
+            font-size: 14px; /* Đồng bộ font size */
+        }
+        textarea {
+            height: 60px;
+            resize: none;
+        }
+        .footer-btn {
+            margin-top: 20px;
+            text-align: right;
+        }
+        /* Cải tiến hiển thị lỗi */
+        .errorlist {
+            color: red;
+            font-size: 12px;
+            margin: 5px 0 0 0;
+            padding: 0;
+            list-style: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <form method="post" enctype="multipart/form-data" action="{{ action_url }}" id="vanBanForm">
+        {% csrf_token %}
+
+        <div class="header-buttons">
+            <div>
+                 <a href="{% url 'danh_sach_van_ban_den' %}" class="btn-gray">
+                    ← Quay lại danh sách
+                 </a>
+            </div>
+
+            {% if not is_new %}
+                <div>Trạng thái: **{{ van_ban_den.TrangThai|default:"Chưa rõ" }}**</div>
+                <button class="btn-gray" onclick="window.location.href='{% url 'nhatkyhoatdong' 'vanbanden' van_ban_den.pk %}'" type="button">
+                    Xem nhật ký hoạt động
+                </button>
+            {% else %}
+                 <div></div>
+            {% endif %}
+        </div>
+
+        <div class="title">
+            <span>{{ title }}</span>
+        </div>
+
+        <table>
+            <tr>
+                <td style="width: 20%;">{{ form.TrichYeu.label_tag }}</td>
+                <td style="width: 50%;">{{ form.TrichYeu }} {{ form.TrichYeu.errors }}</td>
+                <td rowspan="14" style="width: 30%;" valign="top">
+                    </td>
+            </tr>
+            <tr>
+                <td>{{ form.SoHieu.label_tag }}</td>
+                <td>{{ form.SoHieu }} {{ form.SoHieu.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.LoaiVBDen.label_tag }}</td>
+                <td>{{ form.LoaiVBDen }} {{ form.LoaiVBDen.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.DoMat.label_tag }}</td>
+                <td>{{ form.DoMat }} {{ form.DoMat.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.DoKhan.label_tag }}</td>
+                <td>{{ form.DoKhan }} {{ form.DoKhan.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.DonViPhatHanh.label_tag }}</td>
+                <td>{{ form.DonViPhatHanh }} {{ form.DonViPhatHanh.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.NgayBanHanh.label_tag }}</td>
+                <td>{{ form.NgayBanHanh }} {{ form.NgayBanHanh.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.NgayDen.label_tag }}</td>
+                <td>{{ form.NgayDen }} {{ form.NgayDen.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.MaPhongBan.label_tag }}</td>
+                <td>{{ form.MaPhongBan }} {{ form.MaPhongBan.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.MaNhanVien.label_tag }}</td>
+                <td>{{ form.MaNhanVien }} {{ form.MaNhanVien.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.NguoiNhanTrinhKy.label_tag }}</td>
+                <td>{{ form.NguoiNhanTrinhKy }} {{ form.NguoiNhanTrinhKy.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.NoiDung.label_tag }}</td>
+                <td>{{ form.NoiDung }} {{ form.NoiDung.errors }}</td>
+            </tr>
+            <tr>
+                <td>{{ form.FileDinhKem.label_tag }}</td>
+                <td>
+                    {% if not is_new and van_ban_den.FileDinhKem %}
+                        <div class="file-box-display" style="border: none; padding: 0;">
+                            File hiện tại: <a href="{{ van_ban_den.FileDinhKem.url }}" target="_blank" style="font-weight: normal; text-decoration: underline;">
+                                {{ van_ban_den.FileDinhKem.name|cut:"vanbanden/" }}
+                            </a>
+                        </div>
+                        <div style="margin-top: 5px;">
+                            {{ form.FileDinhKem }}
+                             {% if form.FileDinhKem.initial_text %}
+                                <label style="font-weight: normal; margin-top: 5px;">
+                                    {{ form.FileDinhKem.clear_checkbox }} {{ form.FileDinhKem.clear_checkbox_label }}
+                                </label>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        {{ form.FileDinhKem }}
+                    {% endif %}
+                    {{ form.FileDinhKem.errors }}
+                </td>
+            </tr>
+
+
+
+        </table>
+
+        <div class="footer-btn">
+            <button type="submit" class="btn-blue">
+                {% if is_new %}Lưu và Tạo mới{% else %}Lưu và Cập nhật{% endif %}
+            </button>
+            <a href="{% url 'danh_sach_van_ban_den' %}" class="btn-gray">Hủy</a>
+        </div>
+    </form>
+</div>
+</body>
+</html>

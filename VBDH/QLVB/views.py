@@ -78,17 +78,25 @@ def danh_sach_van_ban_den(request):
 # def chi_tiet_van_ban_den(request, id):
 #     vb = get_object_or_404(VanBanDen, id=id)
 #     return render(request, 'QLVB/chi_tiet_vb_den.html', {'vb': vb})
-
+import os
 def chi_tiet_vb_den(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
     vb_truoc = VanBanDen.objects.filter(id__lt=vb.id).order_by('-id').first()
     vb_sau = VanBanDen.objects.filter(id__gt=vb.id).order_by('id').first()
     total_vb = VanBanDen.objects.count()
+
+    # NEW: Xử lý tên file để loại bỏ đường dẫn gốc
+    file_display_name = None
+    if vb.FileDinhKem:
+        # Sử dụng os.path.basename để lấy tên tệp tin từ đường dẫn đầy đủ
+        file_display_name = os.path.basename(vb.FileDinhKem.name)
+
     return render(request, 'vanbanden/chi_tiet_vb_den.html', {
         'vb': vb,
         'vb_truoc': vb_truoc,
         'vb_sau': vb_sau,
-        'total_vb': total_vb
+        'total_vb': total_vb,
+        'file_display_name': file_display_name,  # THÊM BIẾN NÀY VÀO CONTEXT
     })
 
 def tao_du_thao(request):
@@ -292,56 +300,119 @@ def bao_cao_vbden(request, vb_id):
         return redirect('danh_sach_van_ban_den')
 
     return render(request, "vanbanden/baocao_vbden.html", {"vb": vb})
-  
-def sua_vb_den(request, vb_id):
-    vb = get_object_or_404(VanBanDen, id=vb_id)
 
-    # Lấy list phòng ban để hiển thị select trong form
-    phongbans = PhongBan.objects.all()
+from .forms import VanBanDenForm
+from django.urls import reverse
+
+import datetime
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
+def sua_van_ban_den(request, vb_id):
+    van_ban_den = get_object_or_404(VanBanDen, pk=vb_id)
 
     if request.method == 'POST':
-        # Gán đúng tên trường theo model của bạn
-        vb.SoHieu = request.POST.get('SoHieu')  # trước: SoKyHieu
-        vb.TrichYeu = request.POST.get('TrichYeu')
-        vb.LoaiVBDen = request.POST.get('LoaiVBDen')  # trước: LoaiVanBan
-        vb.DonViPhatHanh = request.POST.get('DonViPhatHanh')  # trước: CoQuanBanHanh
+        form = VanBanDenForm(request.POST, request.FILES, instance=van_ban_den)
 
-        # Xử lý ngày (form gửi 'YYYY-MM-DD')
-        ngay_bh = request.POST.get('NgayBanHanh')
-        ngay_den = request.POST.get('NgayDen')
-        try:
-            vb.NgayBanHanh = datetime.strptime(ngay_bh, '%Y-%m-%d')
-        except (TypeError, ValueError):
-            vb.NgayBanHanh = vb.NgayBanHanh  # giữ nguyên nếu không hợp lệ
+        if form.is_valid():
+            # 1. Lưu đường dẫn file cũ TRƯỚC khi lưu form
+            # Dùng 'getattr' để an toàn hơn
+            old_file = van_ban_den.FileDinhKem
+            old_file_path = getattr(old_file, 'path', None) if old_file else None
 
-        try:
-            vb.NgayDen = datetime.strptime(ngay_den, '%Y-%m-%d')
-        except (TypeError, ValueError):
-            vb.NgayDen = vb.NgayDen
+            # 2. Lưu form: Django sẽ xử lý mọi thay đổi (bao gồm cập nhật file mới hoặc xóa file)
+            new_instance = form.save()
 
-        # Độ khẩn / độ mật (nếu bạn dùng choices)
-        vb.DoKhan = request.POST.get('DoKhan', vb.DoKhan)
-        vb.DoMat = request.POST.get('DoMat', vb.DoMat)
+            # 3. Kiểm tra và XÓA file vật lý cũ (Chỉ khi có sự thay đổi trên trường FileDinhKem)
+            # Kiểm tra xem trường FileDinhKem CÓ được thay đổi trong form hay không
+            is_file_changed = 'FileDinhKem' in form.changed_data
 
-        # Phòng ban — ở form ta sẽ gửi MaPhongBan (id)
-        phongban_id = request.POST.get('MaPhongBan')
-        if phongban_id:
-            try:
-                vb.MaPhongBan = PhongBan.objects.get(id=int(phongban_id))
-            except (PhongBan.DoesNotExist, ValueError):
-                # nếu id không đúng, giữ nguyên hoặc đặt None tùy model
-                pass
+            # Nếu trường FileDinhKem thay đổi VÀ file cũ tồn tại vật lý, thì xóa file cũ.
+            if is_file_changed and old_file_path and os.path.exists(old_file_path):
+                try:
+                    os.remove(old_file_path)
+                except Exception as e:
+                    # Ghi log lỗi nếu không xóa được file (nhưng không chặn lưu)
+                    print(f"Lỗi khi xóa file cũ: {e}")
 
-        # Nội dung
-        vb.NoiDung = request.POST.get('NoiDung', vb.NoiDung)
+                    # Mọi thay đổi khác của các ô nhập liệu đã được form.save() xử lý.
+            messages.success(request, f"Đã cập nhật văn bản đến '{new_instance.TrichYeu}' thành công.")
+            return redirect('chi_tiet_van_ban_den', pk=new_instance.pk)
 
-        vb.save()
-        return redirect('chi_tiet_vb_den', vb_id=vb.id)
+        else:
+            # 2. Xử lý khi form không hợp lệ
+            messages.error(request, "Có lỗi xảy ra khi cập nhật form. Vui lòng kiểm tra lại các trường.")
+            # Form sẽ được render lại với dữ liệu POST và lỗi.
+    else:
+        form = VanBanDenForm(instance=van_ban_den)
 
-    # GET: render form, truyền vb và danh sách phòng ban
-    return render(request, 'vanbanden/sua_van_ban_den.html', {
-        'vb': vb,
-        'phongbans': phongbans,
-    })
+    context = {
+        'form': form,
+        'title': f'Chỉnh Sửa Văn Bản Đến: {van_ban_den.TrichYeu}',
+        'action_url': request.path,
+        'is_new': False,
+        'van_ban_den': van_ban_den,
+    }
+    return render(request, 'vanbanden/van_ban_den_form.html', context)
+from django.utils import timezone
+from .models import NhanVien, PhongBan, VanBanDen, DOKHAN_CHOICES, DOMAT_CHOICES
+from django.contrib.auth.decorators import login_required
 
 
+
+def tao_van_ban_den(request):
+    if request.method == 'POST':
+        form = VanBanDenForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            van_ban_den_instance = form.save()
+            messages.success(request, f"Đã tạo mới văn bản đến '{van_ban_den_instance.TrichYeu}' thành công.")
+            return redirect('chi_tiet_vb_den', vb_id=van_ban_den_instance.pk)
+        else:
+            messages.error(request, "Có lỗi xảy ra khi tạo form. Vui lòng kiểm tra lại các trường.")
+
+    else:
+        form = VanBanDenForm()
+
+    context = {
+        'form': form,
+        'title': 'Tạo Mới Văn Bản Đến',
+        'action_url': request.path,
+        'is_new': True,
+    }
+    return render(request, 'vanbanden/van_ban_den_form.html', context)
+def sua_van_ban_den(request, vb_id):
+    van_ban_den = get_object_or_404(VanBanDen, pk=vb_id)
+
+    if request.method == 'POST':
+        # Lấy file cũ TRƯỚC khi khởi tạo form
+        old_file = van_ban_den.FileDinhKem
+        old_file_path = getattr(old_file, 'path', None) if old_file and old_file.name else None
+
+        form = VanBanDenForm(request.POST, request.FILES, instance=van_ban_den)
+
+        if form.is_valid():
+            # 1. Lưu form (Django tự động lưu file mới/cập nhật trường)
+            new_instance = form.save()
+
+            # 2. Cleanup file cũ (nếu có thay đổi)
+            is_file_changed = 'FileDinhKem' in form.changed_data
+            if is_file_changed and old_file_path and os.path.exists(old_file_path):
+                os.remove(old_file_path)
+
+            messages.success(request, f"Đã cập nhật văn bản đến '{new_instance.TrichYeu}' thành công.")
+            return redirect('chi_tiet_vb_den', vb_id=new_instance.pk)
+
+        else:
+            messages.error(request, "Có lỗi xảy ra khi cập nhật form. Vui lòng kiểm tra lại các trường.")
+    else:
+        form = VanBanDenForm(instance=van_ban_den)
+
+    context = {
+        'form': form,
+        'title': f'Chỉnh Sửa Văn Bản Đến: {van_ban_den.TrichYeu}',
+        'action_url': request.path,
+        'is_new': False,
+        'van_ban_den': van_ban_den,
+    }
+    return render(request, 'vanbanden/van_ban_den_form.html', context)

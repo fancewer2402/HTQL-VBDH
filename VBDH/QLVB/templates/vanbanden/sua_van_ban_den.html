@@ -2,18 +2,14 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Sửa văn bản đến</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sửa Văn Bản Đến - {{ vb.SoHieu }}</title>
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
+    /* CSS được giữ nguyên từ trang chi tiết để đảm bảo đồng nhất giao diện */
     .container {
       margin: 30px auto;
       width: 95%;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .btn-blue {
@@ -48,6 +44,9 @@
       padding-bottom: 5px;
       margin-bottom: 20px;
       color: #1e4e79;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
     table {
@@ -67,81 +66,166 @@
     input[type="text"],
     input[type="date"],
     textarea,
-    select {
+    select,
+    input[type="file"] {
       width: 100%;
       border: 1px solid #999;
       padding: 5px;
       border-radius: 3px;
       font-size: 14px;
+      box-sizing: border-box;
     }
 
     textarea {
       height: 60px;
       resize: none;
     }
+
+    input[type="date"] {
+      padding: 5px;
+    }
+
+    .file-current-link {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="header-buttons">
-      <div>
-        <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
-      </div>
 
-      <div style="text-align: right;">
-        <button type="submit" form="formSuaVB" class="btn-blue" style="margin-top: 8px;">💾 Lưu</button>
-        <button class="btn-gray" style="margin-top: 5px;" onclick="window.history.back()">Hủy</button>
-      </div>
+<div class="container">
+  <div class="header-buttons">
+    <div>
+      <button class="btn-gray" onclick="window.location.href='{% url 'chi_tiet_vb_den' vb.id %}'">
+        ← Quay lại
+      </button>
     </div>
-
-    <div class="title">SỬA VĂN BẢN ĐẾN</div>
-
-    <form id="formSuaVB" method="post">
-      {% csrf_token %}
-      <table>
-        <tr>
-          <td style="width: 20%;"><label>Trích yếu (*):</label></td>
-          <td style="width: 50%;"><textarea name="TrichYeu">{{ vb.TrichYeu }}</textarea></td>
-        </tr>
-        <tr>
-          <td><label>Số ký hiệu (*):</label></td>
-          <td><input type="text" name="SoKyHieu" value="{{ vb.SoKyHieu }}"></td>
-        </tr>
-        <tr>
-          <td><label>Loại văn bản:</label></td>
-          <td><input type="text" name="LoaiVanBan" value="{{ vb.LoaiVanBan }}"></td>
-        </tr>
-        <tr>
-          <td><label>Độ mật:</label></td>
-          <td><input type="text" name="DoMat" value="{{ vb.DoMat }}"></td>
-        </tr>
-        <tr>
-          <td><label>Độ khẩn:</label></td>
-          <td><input type="text" name="DoKhan" value="{{ vb.DoKhan }}"></td>
-        </tr>
-        <tr>
-          <td><label>Đơn vị phát hành (*):</label></td>
-          <td><input type="text" name="CoQuanBanHanh" value="{{ vb.CoQuanBanHanh }}"></td>
-        </tr>
-        <tr>
-          <td><label>Ngày phát hành:</label></td>
-          <td><input type="date" name="NgayBanHanh" value="{{ vb.NgayBanHanh|date:'Y-m-d' }}"></td>
-        </tr>
-        <tr>
-          <td><label>Ngày đến:</label></td>
-          <td><input type="date" name="NgayDen" value="{{ vb.NgayDen|date:'Y-m-d' }}"></td>
-        </tr>
-        <tr>
-          <td><label>Phòng ban:</label></td>
-          <td><input type="text" name="PhongBan" value="{{ vb.PhongBan }}"></td>
-        </tr>
-        <tr>
-          <td><label>Nội dung:</label></td>
-          <td><textarea name="NoiDung">{{ vb.NoiDung }}</textarea></td>
-        </tr>
-      </table>
-    </form>
+    <div>Trạng thái: **{{ vb.TrangThai|default:"Chưa rõ" }}**</div>
+    <button class="btn-gray" onclick="window.location.href='{% url 'nhatkyhoatdong' 'vanbanden' vb.id %}'">
+      Xem nhật ký hoạt động
+    </button>
   </div>
+
+  <div class="title">
+    <span>SỬA VĂN BẢN ĐẾN</span>
+    <div>
+      <button type="submit" form="formSuaVB" class="btn-blue" style="background-color: #0078d4;">💾 Lưu</button>
+      <button type="button" class="btn-gray" onclick="window.location.href='{% url 'chi_tiet_vb_den' vb.id %}'">Hủy</button>
+    </div>
+  </div>
+
+  <form id="formSuaVB" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <table>
+      <tr>
+        <td style="width: 20%;"><label>Trích yếu (*):</label></td>
+        <td style="width: 50%;"><textarea name="TrichYeu">{{ vb.TrichYeu }}</textarea></td>
+        <td rowspan="10" style="width: 30%;" valign="top"></td>
+      </tr>
+      <tr>
+        <td><label>Số hiệu (*):</label></td>
+        <td><input type="text" name="SoHieu" value="{{ vb.SoHieu }}"></td>
+      </tr>
+      <tr>
+        <td><label>Loại văn bản:</label></td>
+        <td><input type="text" name="LoaiVBDen" value="{{ vb.LoaiVBDen }}"></td>
+      </tr>
+      <tr>
+        <td><label>Độ mật:</label></td>
+        <td>
+          <select name="DoMat">
+            {% for value, label in do_mat_choices %}
+              <option value="{{ value }}" {% if vb.DoMat|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Độ khẩn:</label></td>
+        <td>
+          <select name="DoKhan">
+            {% for value, label in do_khan_choices %}
+              <option value="{{ value }}" {% if vb.DoKhan|stringformat:"s" == value|stringformat:"s" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      <tr>
+        <td><label>Đơn vị phát hành (*):</label></td>
+        <td><input type="text" name="DonViPhatHanh" value="{{ vb.DonViPhatHanh }}"></td>
+      </tr>
+      <tr>
+        <td><label>Ngày phát hành:</label></td>
+        <td><input type="date" name="NgayBanHanh" value="{{ vb.NgayBanHanh|date:'Y-m-d' }}"></td>
+      </tr>
+      <tr>
+        <td><label>Ngày đến:</label></td>
+        <td><input type="date" name="NgayDen" value="{{ vb.NgayDen|date:'Y-m-d' }}"></td>
+      </tr>
+      <tr>
+        <td><label>Phòng ban:</label></td>
+        <td>
+          <select name="MaPhongBan">
+            {% for phongban in phong_ban_list %}
+              <option value="{{ phongban.id }}" {% if vb.MaPhongBan.id == phongban.id %}selected{% endif %}>{{ phongban.TenPhongBan }}</option>
+            {% endfor %}
+            {% if not phong_ban_list %}
+              <option value="{{ vb.MaPhongBan.id }}" selected>{{ vb.MaPhongBan.TenPhongBan|default:vb.MaPhongBan }}</option>
+            {% endif %}
+          </select>
+        </td>
+      </tr>
+ <tr>
+<tr>
+  <td><label>Tệp đính kèm:</label></td>
+  <td>
+    <div style="border: 1px solid #999; border-radius: 3px; padding: 5px; background-color: #f9f9f9;">
+      {% if vb.FileDinhKem %}
+        <div id="currentFile" style="display: flex; align-items: center; justify-content: space-between;">
+          <div>
+            📎 <a href="{{ vb.FileDinhKem.url }}" target="_blank">
+              {{ vb.FileDinhKem.name|cut:"vanbanden/" }}
+            </a>
+          </div>
+          <button type="button" class="btn-gray" style="margin-left:10px;" onclick="deleteFile()">🗑 Xóa tệp</button>
+        </div>
+        <div id="fileInputContainer" style="display:none; margin-top:5px;">
+          <input type="file" name="FileDinhKem" id="fileInput" style="width:100%;">
+          <button type="button" class="btn-gray" style="margin-top:5px;" onclick="cancelFileChange()">Hủy</button>
+        </div>
+      {% else %}
+        <input type="file" name="FileDinhKem" id="fileInput" style="width:100%;">
+      {% endif %}
+    </div>
+  </td>
+</tr>
+
+<script>
+function deleteFile() {
+  // Ẩn file hiện tại, hiển thị input để chọn file mới
+  document.getElementById('currentFile').style.display = 'none';
+  document.getElementById('fileInputContainer').style.display = 'block';
+
+  // Tạo hidden input để server biết cần xóa file
+  let input = document.createElement('input');
+  input.type = 'hidden';
+  input.name = 'delete_file';
+  input.value = '1';
+  document.getElementById('formSuaVB').appendChild(input);
+}
+
+function cancelFileChange() {
+  document.getElementById('fileInputContainer').style.display = 'none';
+  document.getElementById('currentFile').style.display = 'flex';
+  // Xóa hidden input delete_file nếu có
+  let delInput = document.querySelector('input[name="delete_file"]');
+  if (delInput) delInput.remove();
+}
+</script>
+
+    </table>
+  </form>
+</div>
+
 </body>
 </html>

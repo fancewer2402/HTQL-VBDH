@@ -9,7 +9,6 @@ class PhongBan(models.Model):
 
     def __str__(self):
         return self.TenPhongBan
-
 class NhanVien(models.Model):
     VAITRO_CHOICES = [
         ('NV', 'Nhân Viên'),
@@ -23,7 +22,6 @@ class NhanVien(models.Model):
     Email = models.EmailField(unique=True)
     SDT = models.CharField(max_length=10)
     MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE, related_name='nhan_viens')
-
     def __str__(self):
         return self.HoTen
 
@@ -36,10 +34,10 @@ DOMAT_CHOICES  = [
     ('MAT', "Mật"),
     ('BINH THUONG', 'Bình thường')
 ]
-
+from django.contrib.auth import get_user_model
 class VanBanDen(models.Model):
-    SoHieu = models.CharField(null = False, max_length = 100)
-    TrichYeu = models.CharField(null = False, max_length = 250)
+    SoHieu = models.CharField(null = True, max_length = 100)
+    TrichYeu = models.CharField(null = False, max_length = 500)
     LoaiVBDen = models.CharField(max_length = 100)
     DonViPhatHanh = models.CharField(max_length = 250)
     NgayBanHanh = models.DateTimeField(null=True, blank=True)
@@ -52,7 +50,16 @@ class VanBanDen(models.Model):
     FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True)
     # NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete =models.CASCADE)
+
     MaPhongBan = models.ForeignKey(PhongBan, on_delete = models.CASCADE)
+    NguoiNhanTrinhKy = models.ForeignKey(
+        NhanVien,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='vanbanden_trinhky'
+    )
+
     def __str__(self):
         return self.TrichYeu
 

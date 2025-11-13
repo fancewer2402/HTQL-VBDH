@@ -21,7 +21,10 @@ urlpatterns = [
     path('vanbanden/phancong/<int:id>/', views.phan_cong_nhan_vien_vbden, name='phan_cong_nhan_vien_vbden'),
     path('vanbanden/xacnhan/<int:vb_id>/', views.xac_nhan_phan_cong_vbden, name='xac_nhan_phan_cong_vbden'),
     path('vanbanden/baocao/<int:vb_id>/', views.bao_cao_vbden, name='bao_cao_vbden'),
-    path('sua/<int:vb_id>/', views.sua_vb_den, name='sua_vb_den'),
+    path('sua_van_ban_den/<int:vb_id>/', views.sua_van_ban_den, name='sua_vb_den'),
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
+    path('create/', views.tao_van_ban_den, name='van_ban_den_create'),
+    path('<int:vb_id>/edit/', views.sua_van_ban_den, name='van_ban_den_update'),
+    path('mark-notification-read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
 
 ]

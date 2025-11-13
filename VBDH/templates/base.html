@@ -229,11 +229,7 @@
             {% if old_notifications %}
             <div class="notification-section">
                 <h4>Cũ hơn</h4>
-                {% for n in old_notifications %}
-                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                </div>
-                {% endfor %}
+
             </div>
             {% endif %}
             {% else %}
