@@ -15,6 +15,134 @@ from accounts.models import User as NhanVien
 import os
 from django.db import transaction
 
+from django.core.mail import EmailMultiAlternatives  # ← DÙNG CÁI NÀY ĐỂ GỬI HTML
+from django.utils.html import strip_tags
+
+
+@transaction.atomic
+def ban_hanh_van_ban(request, id):
+   vb = get_object_or_404(VanBanDi, id=id)
+   today = timezone.now().date()
+
+
+   if request.method == "POST":
+       if "cancel" in request.POST:
+           messages.info(request, "Đã hủy ban hành văn bản.")
+           return redirect("vanbandi")
+
+
+       if "banhanh" in request.POST:
+           try:
+               email_nguoi_nhan = request.POST.get("Email", "").strip()
+               if not email_nguoi_nhan:
+                   messages.error(request, "Vui lòng nhập email người nhận.")
+                   return render(request, "vanbandi/ban_hanh_van_ban.html", {"vb": vb, "today": today})
+
+
+               # === TẠO SỐ HIỆU TỰ ĐỘNG ===
+               if not vb.SoHieu or vb.SoHieu.strip() == "":
+                   count = VanBanDi.objects.count() + 1
+                   vb.SoHieu = f"{count}/CV-PCDL/{today.year}"
+
+
+               # === CẬP NHẬT DỮ LIỆU ===
+               vb.Email = email_nguoi_nhan
+               vb.DoMat = request.POST.get("DoMat", vb.DoMat)
+               vb.DoKhan = request.POST.get("DoKhan", vb.DoKhan)
+               vb.NgayBanHanh = today
+               vb.TrangThai = "Đã ban hành"
+               vb.save()
+
+
+               # === NỘI DUNG EMAIL ===
+               subject = f"[Văn bản đi] {vb.SoHieu} - {vb.TrichYeu}"
+
+
+               html_content = f"""
+               <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                   <div style="background: #2b579a; color: white; padding: 15px; text-align: center;">
+                       <h2 style="margin: 0;">CÔNG TY ĐIỆN LỰC ĐẮK LẮK</h2>
+                   </div>
+                   <div style="padding: 20px;">
+                       <h3 style="color: #2b579a;">Kính gửi Quý cơ quan,</h3>
+                       <p><strong>Văn bản đã được ban hành:</strong></p>
+                       <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Số hiệu:</strong></td><td style="padding: 8px;">{vb.SoHieu}</td></tr>
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Trích yếu:</strong></td><td style="padding: 8px;">{vb.TrichYeu}</td></tr>
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Ngày ban hành:</strong></td><td style="padding: 8px;">{today.strftime('%d/%m/%Y')}</td></tr>
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Độ khẩn:</strong></td><td style="padding: 8px;">{vb.get_DoKhan_display()}</td></tr>
+                           <tr><td style="padding: 8px;"><strong>Độ mật:</strong></td><td style="padding: 8px;">{vb.get_DoMat_display()}</td></tr>
+                       </table>
+                       <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #2b579a; margin: 15px 0;">
+                           <strong>Nội dung:</strong><br>
+                           {vb.NoiDung.replace(chr(10), '<br>')}
+                       </div>
+                       <p><em>Trân trọng,<br><strong>Hệ thống Quản lý Văn bản - PC Đắk Lắk</strong></em></p>
+                   </div>
+                   <div style="background: #f1f1f1; padding: 10px; text-align: center; font-size: 12px; color: #666;">
+                       Email tự động từ hệ thống QLVB - Vui lòng không trả lời.
+                   </div>
+               </div>
+               """
+
+
+               text_content = strip_tags(html_content)  # Phiên bản text
+
+
+               # === GỬI EMAIL HTML + TEXT ===
+               email = EmailMultiAlternatives(
+                   subject=subject,
+                   body=text_content,
+                   from_email=settings.DEFAULT_FROM_EMAIL,  # Dùng settings
+                   to=[email_nguoi_nhan],
+               )
+               email.attach_alternative(html_content, "text/html")
+
+
+               # === ĐÍNH KÈM FILE (nếu có) ===
+               if vb.FileDinhKem and os.path.exists(vb.FileDinhKem.path):
+                   email.attach_file(vb.FileDinhKem.path)
+
+
+               try:
+                   email.send()
+                   messages.success(request, f"ĐÃ BAN HÀNH + GỬI EMAIL THÀNH CÔNG đến: <strong>{email_nguoi_nhan}</strong>")
+               except Exception as e:
+                   messages.warning(request, f"Đã ban hành nhưng <strong>gửi email thất bại</strong>: {str(e)}")
+                   print(f"[EMAIL ERROR] {e}")
+
+
+               # === TẠO THÔNG BÁO NỘI BỘ ===
+               ThongBao.objects.create(
+                   TieuDe=f"Văn bản '{vb.TrichYeu}' đã ban hành",
+                   NoiDung=f"Số hiệu: {vb.SoHieu} | Gửi đến: {email_nguoi_nhan}",
+                   MaNhanVien=vb.MaNhanVien,
+                   MaVBDi=vb,
+               )
+
+
+               # === CẬP NHẬT PHÂN CÔNG + NHẬT KÝ ===
+               phancong = PhanCongCongViec.objects.filter(VanBanDi=vb).first()
+               if phancong:
+                   phancong.TrangThai = PhanCongCongViec.TrangThai.DA_BAN_HANH
+                   phancong.save()
+                   NhatKyCongViec.objects.create(
+                       PhanCong=phancong,
+                       ThaoTac=f"Ban hành văn bản đi số {vb.SoHieu}",
+                       TrangThai=PhanCongCongViec.TrangThai.DA_BAN_HANH,
+                       NguoiThucHien=vb.MaNhanVien
+                   )
+
+
+               return redirect("vanbandi")
+
+
+           except Exception as e:
+               messages.error(request, f"Lỗi hệ thống: {str(e)}")
+
+
+   return render(request, "vanbandi/ban_hanh_van_ban.html", {"vb": vb, "today": today})
+
 def user_login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
