@@ -117,7 +117,7 @@
         cursor: not-allowed !important;
     }
 
-    /* ====== TRA CỨU VĂN BẢN (MỚI) ====== */
+    /* ====== TRA CỨU VĂN BẢN ====== */
     .search-container {
         max-width: 750px;
         margin: 30px auto 0;
@@ -243,7 +243,6 @@
         </div>
     </div>
 
-    <!-- Hàng 3 -->
     <div class="button-row">
         <button id="filterBtn" class="btn-search">🔍 Tìm kiếm</button>
     </div>
@@ -258,77 +257,79 @@
 <!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="" class="btn-create-custom">+ Tạo văn bản đi</a>
+        <!-- ✅ Nút tạo văn bản đi -->
+        <a href="{% url 'tao_du_thao' %}" class="btn-create-custom">+ Tạo văn bản đi</a>
     </div>
 
     <div class="table-responsive">
         <table class="table table-hover table-bordered align-middle">
             <thead class="table-primary text-center">
-            <tr>
-                <th style="width: 60px;">STT</th>
-                <th style="width: 180px;">Số ký hiệu văn bản</th>
-                <th>Trích yếu</th>
-                <th style="width: 150px;">Ngày ban hành</th>
-                <th style="width: 150px;">Loại văn bản</th>
-                <th style="width: 140px;">Trạng thái</th>
-            </tr>
+                <tr>
+                    <th style="width: 60px;">STT</th>
+                    <th style="width: 180px;">Số ký hiệu văn bản</th>
+                    <th>Trích yếu</th>
+                    <th style="width: 150px;">Ngày ban hành</th>
+                    <th style="width: 150px;">Loại văn bản</th>
+                    <th style="width: 140px;">Trạng thái</th>
+                </tr>
             </thead>
             <tbody>
-            {% for vb in ds_vanbandi %}
-            <tr>
-                <td class="text-center">{{ forloop.counter }}</td>
-                <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
-                <td class="text-start">
-                    <a href="{% url 'vanbandi_detail' vb.id %}">{{ vb.TrichYeu }}</a>
-                </td>
-                <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
-                <td class="text-center">{{ vb.LoaiVbDi }}</td>
-                <td class="text-center">
-                    {% if vb.trang_thai == 'đã duyệt' %}
-                        <span class="badge bg-success">Đã duyệt</span>
-                    {% elif vb.trang_thai == 'chờ duyệt' %}
-                        <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                    {% elif vb.trang_thai == 'từ chối' %}
-                        <span class="badge bg-danger">Từ chối</span>
-                    {% else %}
-                        <span class="badge bg-secondary">Không xác định</span>
-                    {% endif %}
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center text-muted py-4">Không có kết quả</td>
-            </tr>
-            {% endfor %}
+                {% for vb in ds_vanbandi %}
+                <tr>
+                    <td class="text-center">{{ forloop.counter }}</td>
+                    <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
+                    <td class="text-start">
+                        <a href="{% url 'vanbandi_detail' vb.id %}">{{ vb.TrichYeu }}</a>
+                    </td>
+                    <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
+                    <td class="text-center">{{ vb.LoaiVbDi }}</td>
+                    <td class="text-center">
+                        {% if vb.trang_thai == 'đã duyệt' %}
+                            <span class="badge bg-success">Đã duyệt</span>
+                        {% elif vb.trang_thai == 'chờ duyệt' %}
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        {% elif vb.trang_thai == 'từ chối' %}
+                            <span class="badge bg-danger">Từ chối</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Không xác định</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center text-muted py-4">Không có kết quả</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
 
+<!-- PHÂN TRANG -->
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
-        <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
         {% else %}
-        <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
-        <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
         {% endif %}
 
         {% for num in page_obj.paginator.page_range %}
             {% if num == page_obj.number %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
             {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-            <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
             {% endif %}
         {% endfor %}
 
         {% if page_obj.has_next %}
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
-        <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a></li>
         {% else %}
-        <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
-        <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
         {% endif %}
     </ul>
 </nav>

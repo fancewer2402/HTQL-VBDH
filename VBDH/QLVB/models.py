@@ -63,11 +63,19 @@ class VanBanDi(models.Model):
     NgayTao = models.DateTimeField(auto_now_add=True)
     MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
-
+    PhongBan = models.ForeignKey(PhongBan, on_delete=models.SET_NULL, null=True, blank=False)
+    NgaySoanThao = models.DateField(auto_now_add=False, null=True, blank=True)
     def __str__(self):
         return self.TrichYeu
 
-
+    def save(self, *args, **kwargs):
+        # Nếu chưa có số hiệu thì tự sinh
+        if not self.SoHieu:
+            last_vb = VanBanDi.objects.order_by('-id').first()
+            next_id = 1 if not last_vb else last_vb.id + 1
+            year = timezone.now().year
+            self.SoHieu = f"VBĐ-{year}-{next_id:03d}"
+        super().save(*args, **kwargs)
 # =====================
 # 4. Thông báo
 # =====================

@@ -9,6 +9,8 @@ from .models import VanBanDi, VanBanDen, ThongBao, NhatKyCongViec, PhongBan
 from datetime import timedelta, date
 from django.utils import timezone
 from accounts.models import User as NhanVien
+from .forms import VanBanDiForm
+
 
 
 
@@ -93,10 +95,37 @@ def chi_tiet_vb_den(request, vb_id):
         'total_vb': total_vb
     })
 
-def tao_du_thao(request):
-    # Trả về template taoduthao.html
-    return render(request, 'vanbandi/tao_du_thao.html')
 
+def tao_du_thao(request):
+    from .models import PhongBan, VanBanDen  # đảm bảo import đúng model
+
+    phong_ban_list = PhongBan.objects.all()
+    danh_sach_yeu_cau_list = VanBanDen.objects.all()
+    so_hieu_tu_dong = f"VBD{VanBanDi.objects.count() + 1}"  # tự động số hiệu
+
+    if request.method == "POST":
+        form = VanBanDiForm(request.POST, request.FILES)
+        if form.is_valid():
+            vanban = form.save(commit=False)
+            vanban.TrangThai = "Chờ phê duyệt"  # gán trạng thái
+            vanban.NgaySoanThao = form.cleaned_data.get('NgaySoanThao') or timezone.now().date()
+            vanban.save()
+            messages.success(request, "Tạo dự thảo thành công!")
+            return redirect('taoduthao')  # reload lại trang để hiển thị toast
+        else:
+            messages.error(request, "Có lỗi xảy ra. Vui lòng kiểm tra lại thông tin.")
+    else:
+        form = VanBanDiForm()
+
+    context = {
+        'form': form,
+        'so_hieu_tu_dong': so_hieu_tu_dong,
+        'phong_ban_list': phong_ban_list,
+        'danh_sach_yeu_cau_list': danh_sach_yeu_cau_list,
+        'today': timezone.now().date(),  # để template dùng default
+    }
+
+    return render(request, "vanbandi/tao_du_thao.html", context)
 # Xét duyệt văn bản đi
 def xetduyetvanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
