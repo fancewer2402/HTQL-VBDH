@@ -92,19 +92,21 @@
 <div class="container">
   <form method="POST">
     {% csrf_token %}
+
     <div class="header-buttons">
-      <button class="btn-gray" type="button" onclick="window.history.back()">← Quay lại</button>
-      <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Đã phê duyệt" }}</span></div>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-gray" type="button" onclick="window.history.back()">Hủy</button>
-        <button class="btn-blue" type="submit">Phân công</button>
+      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'vanbandi' %}'">← Quay lại</button>
+      <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Chờ thông qua" }}</span></div>
+      <div class="footer-btn">
+        <button type="submit" name="action" value="thongqua" class="btn-blue">Thông qua</button>
+        <button type="submit" name="action" value="tuchoi" class="btn-gray" formnovalidate >Từ chối</button>
       </div>
     </div>
 
-    <div class="title">PHÂN CÔNG VĂN THƯ</div>
+    <div class="title">THÔNG QUA VĂN BẢN</div>
 
     <table>
       <tr>
+        <!-- Cột trái -->
         <!-- Cột trái: thông tin văn bản -->
         <td style="width: 65%;">
           <table style="width:100%;">
@@ -153,27 +155,25 @@
           </table>
         </td>
 
-        <!-- Cột phải: phân công -->
+        <!-- Cột phải -->
         <td class="right-panel">
+            <div class="field-group">
+                <label>Chữ ký(*)</label>
+                <input type="file" name="chu_ky" accept=".png,.jpg,.jpeg,.pdf" required>
+              </div>
           <div class="field-group">
-            <label>Văn thư (*)</label>
-            <select name="van_thu" required>
-              <option value="">-- Danh sách văn thư --</option>
-              {% for nv in danh_sach_van_thu %}
-                <option value="{{ nv.id }}">{{ nv.ho_ten }}</option>
-              {% endfor %}
-            </select>
+            <label>Lý do từ chối (Nếu có):</label>
+            <textarea name="ly_do_tu_choi" placeholder="Nhập lý do nếu từ chối..."></textarea>
           </div>
-
-          <div class="field-group">
-            <label>Nội dung phân công</label>
-            <textarea name="noi_dung_phan_cong" required>{{ vb.NoiDungPhanCong }}</textarea>
-          </div>
-
-          <div class="field-group">
-            <label>Hạn cuối (*) </label>
-            <input type="datetime-local" name="han_cuoi" required>
-          </div>
+            <div class="field-group">
+              <label>Quản lý đảm nhận (*):</label>
+              <select name="quan_ly_chon" required>
+                <option value="">-- Chọn quản lý --</option>
+                {% for ql in danh_sach_quan_ly %}
+                  <option value="{{ ql.id }}">{{ ql.HoTen }}</option>
+                {% endfor %}
+              </select>
+            </div>
         </td>
       </tr>
     </table>

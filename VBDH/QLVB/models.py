@@ -164,4 +164,3 @@ class NhatKyCongViec(models.Model):
 
    def __str__(self):
        return f"{self.PhanCong.TieuDe} - {self.TrangThai}"
-
