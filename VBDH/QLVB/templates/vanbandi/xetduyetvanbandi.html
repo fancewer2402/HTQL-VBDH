@@ -94,7 +94,7 @@
     {% csrf_token %}
 
     <div class="header-buttons">
-      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'vanbandi' %}'">← Quay lại</button>
+      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'chi_tiet_vb' vb.id %}'">← Quay lại</button>
       <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Chờ phê duyệt" }}</span></div>
       <div>
         <button type="submit" name="action" value="pheduyet" class="btn-blue">Phê duyệt</button>

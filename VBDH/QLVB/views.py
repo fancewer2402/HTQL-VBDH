@@ -104,7 +104,10 @@ def tao_du_thao(request):
 
         # ✅ Tạo văn bản mới
 
-
+    danh_sach_yeu_cau_list = VanBanDen.objects.filter(
+        TrangThai='Đang xử lý',
+        YeuCauVBDi=1  # chỉ lấy những văn bản có yêu cầu
+    )
     if request.method == "POST":
         vb = VanBanDi.objects.create(
             SoHieu=so_hieu_tu_dong,
@@ -140,6 +143,7 @@ def tao_du_thao(request):
     return render(request, "vanbandi/tao_du_thao.html", {
         "phong_ban_list": phong_ban_list,
         "so_hieu_tu_dong": so_hieu_tu_dong,
+        "danh_sach_yeu_cau_list" : danh_sach_yeu_cau_list,
     })
 
 # Xét duyệt văn bản đi
@@ -216,7 +220,7 @@ def xetduyetvanbandi(request, id):
 
             messages.warning(request, " Văn bản đã bị từ chối.")
 
-        return redirect('vanbandi')  # quay về danh sách văn bản đi
+        return redirect('chi_tiet_vb', vb.id)  # quay về danh sách văn bản đi
 
     return render(request, "vanbandi/xetduyetvanbandi.html", {
         "vb": vb,
@@ -497,6 +501,6 @@ def trang_thong_qua(request, vb_id):
 
             messages.warning(request, f"❌ Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
 
-        return redirect("vanbandi")
+        return redirect('chi_tiet_vb', vb.id)
     return render(request, "vanbandi/thongqua.html", {"vb": vb, "danh_sach_quan_ly": danh_sach_quan_ly})
 

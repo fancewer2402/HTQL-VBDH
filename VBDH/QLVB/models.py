@@ -45,12 +45,12 @@ class VanBanDen(models.Model):
     NgayBanHanh = models.DateTimeField(null=True, blank=True)
     NgayDen = models.DateTimeField(null=True, blank=True)
     NoiDung = models.CharField(max_length = 250,null=True, blank=True)
-    # YeuCauVBDi = models.
+    YeuCauVBDi = models.IntegerField(default=0)
     DoKhan = models.CharField( default="BINH THUONG", choices=DOKHAN_CHOICES, max_length=50)
     DoMat = models.CharField( choices=DOMAT_CHOICES, default="BINH THUONG", max_length=50)
     TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True)
-    # NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
+    NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete =models.CASCADE)
     MaPhongBan = models.ForeignKey(PhongBan, on_delete = models.CASCADE)
     def __str__(self):
