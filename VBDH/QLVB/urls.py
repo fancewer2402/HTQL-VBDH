@@ -23,7 +23,6 @@ urlpatterns = [
     path('suavanbandi/<int:id>/', views.sua_vanbandi, name='sua_vanbandi'),
     path('xetduyetvanbandi/<int:id>/', views.xetduyetvanbandi, name='xetduyetvanbandi'),
     path('taoduthao/', views.tao_du_thao, name='tao_du_thao'),
-    path('vanbandi/tao/', views.tao_vanbandi, name='tao_vanbandi'),
     path('vanbandi/<int:id>/sua/', views.sua_vanbandi, name='sua_vanbandi'),  # trùng tên, giữ 1
     path('vanbandi/<int:vb_id>/thong-qua/', views.trang_thong_qua, name='thong_qua_van_ban'),
 
