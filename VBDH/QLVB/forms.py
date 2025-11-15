@@ -1,61 +1,90 @@
 from django import forms
-from django.utils import timezone
-from .models import VanBanDi, PhongBan, VanBanDen
+from .models import VanBanDi
 
-class VanBanDiForm(forms.ModelForm):
-    # Thêm trường Mã văn bản đến
-    MaVBDen = forms.ModelChoiceField(
-        queryset=VanBanDen.objects.all(),
-        required=False,
-        empty_label="-- Danh sách yêu cầu --",
-        label="Mã văn bản đến"
-    )
 
+class VanBanDiEditForm(forms.ModelForm):
+    """Form chỉnh sửa văn bản đi"""
     class Meta:
         model = VanBanDi
         fields = [
-            'PhongBan',       # Phòng ban
-            'TrichYeu',       # Trích yếu
-            'LoaiVbDi',       # Loại văn bản đi
-            'DonViNhan',      # Đơn vị nhận
-            'MaVBDen',        # Mã văn bản đến
-            'NoiDung',        # Nội dung
-            'Email',          # Email
-            'FileDinhKem',    # File đính kèm
-            'DoMat',          # Độ mật
-            'DoKhan',         # Độ khẩn
-            'TrangThai',      # Trạng thái
-            'NgaySoanThao',   # Ngày soạn thảo
+            "SoHieu",
+            "TrichYeu",
+            "NoiDung",
+            "DonViNhan",
+            "Email",
+            "FileDinhKem",
+            "DoMat",
+            "DoKhan"
         ]
 
         widgets = {
-            'NoiDung': forms.Textarea(attrs={'rows': 5}),
-            'Email': forms.EmailInput(attrs={'placeholder': 'Nhập email người nhận'}),
-            'DoMat': forms.TextInput(attrs={'placeholder': 'Ví dụ: Bình thường, Mật'}),
-            'DoKhan': forms.TextInput(attrs={'placeholder': 'Ví dụ: Thường, Khẩn'}),
-            'NgaySoanThao': forms.DateInput(attrs={'type': 'date'}),
+            "SoHieu": forms.TextInput(attrs={"class": "form-control"}),
+            "TrichYeu": forms.Textarea(attrs={"rows": 3, "class": "form-control"}),
+            "NoiDung": forms.Textarea(attrs={"rows": 6, "class": "form-control"}),
+            "DonViNhan": forms.TextInput(attrs={"class": "form-control"}),
+            "Email": forms.EmailInput(attrs={"class": "form-control"}),
+            "DoMat": forms.TextInput(attrs={"class": "form-control"}),
+            "DoKhan": forms.TextInput(attrs={"class": "form-control"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Nếu model có các trường này, bạn có thể khóa lại khi chỉnh sửa
+        if "LoaiVbDi" in self.fields:
+            self.fields["LoaiVbDi"].disabled = True
+        if "NgayBanHanh" in self.fields:
+            self.fields["NgayBanHanh"].disabled = True
 
-        # Dropdown Phòng ban
-        self.fields['PhongBan'].queryset = PhongBan.objects.all()
-        self.fields['PhongBan'].empty_label = "-- Chọn phòng ban --"
+    def clean_FileDinhKem(self):
+        """Kiểm tra file hợp lệ khi chỉnh sửa"""
+        file = self.cleaned_data.get("FileDinhKem", None)
+        if file:
+            ext = file.name.lower().split('.')[-1]
+            if ext not in ["pdf", "jpg", "png"]:
+                raise forms.ValidationError("Chỉ chấp nhận file .pdf, .jpg hoặc .png.")
+            if file.size > 20 * 1024 * 1024:
+                raise forms.ValidationError("Dung lượng file không vượt quá 20MB.")
+        return file
 
-        # Mặc định ngày soạn thảo là hôm nay nếu tạo mới
-        if not self.instance.pk:
-            self.fields['NgaySoanThao'].initial = timezone.now().date()
 
-        # Ẩn trường trạng thái, đặt mặc định là "Chờ phê duyệt"
-        self.fields['TrangThai'].widget = forms.HiddenInput()
-        self.fields['TrangThai'].initial = "Chờ phê duyệt"
+class VanBanDiForm(forms.ModelForm):
+    """Form tạo mới văn bản đi"""
+    class Meta:
+        model = VanBanDi
+        fields = [
+            "SoHieu",
+            "TrichYeu",
+            "LoaiVbDi",
+            "DonViNhan",
+            "Email",
+            "NoiDung",
+            "FileDinhKem",
+            "NgayBanHanh",
+            "DoMat",
+            "DoKhan",
+            "MaVBDen",
+        ]
 
-    def save(self, commit=True):
-        instance = super().save(commit=False)
-        # Đảm bảo trạng thái luôn là Chờ phê duyệt khi tạo mới
-        if not instance.TrangThai:
-            instance.TrangThai = "Chờ phê duyệt"
-        if commit:
-            instance.save()
-        return instance
+        widgets = {
+            "SoHieu": forms.TextInput(attrs={"class": "form-control"}),
+            "TrichYeu": forms.Textarea(attrs={"rows": 2, "maxlength": "500", "class": "form-control"}),
+            "LoaiVbDi": forms.TextInput(attrs={"class": "form-control"}),
+            "DonViNhan": forms.TextInput(attrs={"class": "form-control"}),
+            "Email": forms.EmailInput(attrs={"class": "form-control"}),
+            "NoiDung": forms.Textarea(attrs={"rows": 4, "class": "form-control"}),
+            "NgayBanHanh": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "DoMat": forms.TextInput(attrs={"class": "form-control"}),
+            "DoKhan": forms.TextInput(attrs={"class": "form-control"}),
+            "MaVBDen": forms.Select(attrs={"class": "form-control"}),
+        }
+
+    def clean_FileDinhKem(self):
+        """Kiểm tra file hợp lệ khi tạo mới"""
+        file = self.cleaned_data.get("FileDinhKem", None)
+        if file:
+            ext = file.name.lower().split('.')[-1]
+            if ext not in ["pdf", "jpg", "png"]:
+                raise forms.ValidationError("Chỉ chấp nhận file .pdf, .jpg hoặc .png.")
+            if file.size > 20 * 1024 * 1024:
+                raise forms.ValidationError("Dung lượng file không vượt quá 20MB.")
+        return file

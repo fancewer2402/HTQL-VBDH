@@ -21,12 +21,12 @@
         border: 1px solid #ddd;
     }
     .table a {
-      text-decoration: none;
-      color: inherit;
+        text-decoration: none;
+        color: inherit;
     }
     .table a:hover {
-      text-decoration: underline;
-      color: #0d6efd;
+        text-decoration: underline;
+        color: #0d6efd;
     }
     thead th {
         background-color: #007bff !important;
@@ -203,45 +203,54 @@
 <!-- ========== TRA CỨU VĂN BẢN ========== -->
 <div class="search-container">
     <div class="search-title">Tra cứu văn bản</div>
-
-    <!-- Hàng 1 -->
-    <div class="form-row">
-        <div class="form-group">
-            <label>Từ khóa</label>
-            <input id="searchInput" type="text" class="form-control" placeholder="Số ký hiệu, trích yếu...">
-        </div>
-        <div class="form-group">
-            <label>Đơn vị ban hành</label>
-            <input id="agency" type="text" class="form-control" placeholder="Nhập đơn vị ban hành">
-        </div>
-    </div>
-
-    <!-- Hàng 2 -->
-    <div class="form-row">
-        <div class="form-group">
-            <label>Ngày tạo</label>
-            <div class="date-range">
-                <input id="fromDate" type="text" class="form-control" placeholder="Từ ngày">
-                <input id="toDate" type="text" class="form-control" placeholder="Đến ngày">
+    <form method="get" action="{% url 'vanbandi' %}">
+        <!-- Hàng 1 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Từ khóa</label>
+                <input name="keyword" id="searchInput" type="text" class="form-control"
+                       value="{{ keyword }}" placeholder="Số ký hiệu, trích yếu...">
+            </div>
+            <div class="form-group">
+                <label>Đơn vị ban hành</label>
+                <input name="agency" id="agency" type="text" class="form-control"
+                       value="{{ agency }}" placeholder="Nhập đơn vị ban hành">
             </div>
         </div>
-        <div class="form-group">
-            <label>Phòng ban</label>
-            <select id="department" class="form-select">
-                <option value="">-- Chọn phòng ban --</option>
-            </select>
+
+        <!-- Hàng 2 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Ngày tạo</label>
+                <div class="date-range">
+                    <input name="from_date" id="fromDate" type="text" class="form-control"
+                           value="{{ from_date }}" placeholder="Từ ngày">
+                    <input name="to_date" id="toDate" type="text" class="form-control"
+                           value="{{ to_date }}" placeholder="Đến ngày">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Phòng ban</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="">-- Chọn phòng ban --</option>
+                    {% for pb in phongban_list %}
+                        <option value="{{ pb.id }}" {% if pb.id|stringformat:"s" == department %}selected{% endif %}>
+                            {{ pb.TenPhongBan }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Hình thức văn bản</label>
+                <select name="doc_type" id="docType" class="form-select">
+                    <option value="">-- Loại văn bản --</option>
+                    <option {% if doc_type == "Công văn" %}selected{% endif %}>Công văn</option>
+                    <option {% if doc_type == "Thông báo" %}selected{% endif %}>Thông báo</option>
+                    <option {% if doc_type == "Quyết định" %}selected{% endif %}>Quyết định</option>
+                    <option {% if doc_type == "Tờ trình" %}selected{% endif %}>Tờ trình</option>
+                </select>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Hình thức văn bản</label>
-            <select id="docType" class="form-select">
-                <option value="">-- Loại văn bản --</option>
-                <option>Công văn</option>
-                <option>Thông báo</option>
-                <option>Quyết định</option>
-                <option>Tờ trình</option>
-            </select>
-        </div>
-    </div>
 
     <div class="button-row">
         <button id="filterBtn" class="btn-search">🔍 Tìm kiếm</button>
@@ -250,15 +259,13 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    flatpickr("#fromDate", { dateFormat: "d/m/Y" });
-    flatpickr("#toDate", { dateFormat: "d/m/Y" });
+    flatpickr("#fromDate, #toDate", { dateFormat: "d/m/Y" });
 </script>
 
 <!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <!-- ✅ Nút tạo văn bản đi -->
-        <a href="{% url 'tao_du_thao' %}" class="btn-create-custom">+ Tạo văn bản đi</a>
+        <a href="{% url 'tao_vanbandi' %}" class="btn-create-custom">+ Tạo văn bản đi</a>
     </div>
 
     <div class="table-responsive">
@@ -334,4 +341,12 @@
     </ul>
 </nav>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    flatpickr("#fromDate, #toDate", {
+        dateFormat: "d/m/Y",
+        locale: { firstDayOfWeek: 1 }
+    });
+});
+</script>
 {% endblock %}
