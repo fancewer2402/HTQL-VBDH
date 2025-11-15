@@ -1,163 +1,144 @@
+<!-- templates/vanbandi/ban_hanh_van_ban.html -->
 {% block content %}
 <style>
-  .container {
-    margin: 30px auto;
-    width: 95%;
-    font-family: Arial, sans-serif;
-
-  }
-  .btn-blue {
-    background-color: #2b579a;
-    color: #fff;
-    border: none;
-    padding: 6px 15px;
-    border-radius: 3px;
-    font-weight: bold;
-    cursor: pointer;
-  }
-  .btn-blue:hover { background-color: #1e4e79; }
-  .btn-gray {
-    background-color: #dcdcdc;
-    border: 1px solid #aaa;
-    padding: 6px 15px;
-    border-radius: 3px;
-    cursor: pointer;
-  }
-  .header-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
-  .title {
-    border-bottom: 2px solid #1e4e79;
-    font-size: 20px;
-    font-weight: bold;
-    padding-bottom: 5px;
-    margin-bottom: 20px;
-    color: #1e4e79;
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  td {
-    padding: 6px 10px;
-    vertical-align: top;
-  }
-  label {
-    font-weight: bold;
-  }
-  input[type="text"], textarea, select {
-    width: 90%;
-    border: 1px solid #999;
-    padding: 5px;
-    border-radius: 3px;
-  }
-  textarea {
-    height: 60px;
-    resize: none;
-  }
-  .right-panel {
-    border-left: 1px solid #ccc;
-    padding-left: 20px;
-    width: 30%;
-  }
-  .field-group {
-    margin-bottom: 15px;
-  }
-  .field-group label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
+.container { margin: 30px auto; width: 95%; font-family: Arial, sans-serif; }
+.btn-blue { background-color: #2b579a; color: #fff; border: none; padding: 6px 15px; border-radius: 3px; font-weight: bold; cursor: pointer; }
+.btn-blue:hover { background-color: #1e4e79; }
+.btn-gray { background-color: #dcdcdc; border: 1px solid #aaa; padding: 6px 15px; border-radius: 3px; cursor: pointer; }
+.header-buttons { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.title { border-bottom: 2px solid #1e4e79; font-size: 20px; font-weight: bold; padding-bottom: 5px; margin-bottom: 20px; color: #1e4e79; }
+table { width: 100%; border-collapse: collapse; }
+td { padding: 6px 10px; vertical-align: top; }
+label { font-weight: bold; }
+input[type="text"], textarea, select { width: 90%; border: 1px solid #999; padding: 5px; border-radius: 3px; }
+textarea { height: 60px; resize: none; }
+.right-panel { border-left: 1px solid #ccc; padding-left: 20px; width: 30%; }
+.field-group { margin-bottom: 15px; }
+.field-group label { display: block; font-weight: bold; margin-bottom: 4px; }
 </style>
 
+
+
+
 <div class="container">
-  <form method="POST">
-    {% csrf_token %}
-    <div class="header-buttons">
-      <div><button class="btn-gray" type="button" onclick="window.history.back()">← Quay lại</button></div>
-      <div>Trạng thái: <b>{{ vb.TrangThai|default:"Chưa ban hành" }}</b></div>
-      <div style="display: flex; gap: 10px;">
-        <button class="btn-gray" type="button" onclick="window.history.back()">Hủy</button>
-        <button class="btn-blue" type="submit">Ban hành</button>
+<form method="POST">
+{% csrf_token %}
+<div class="header-buttons">
+  <div>
+    <button type="button" class="btn-gray" onclick="history.back()">Quay lại</button>
+  </div>
+  <div>Trạng thái: <b>{{ vb.TrangThai|default:"Chưa ban hành" }}</b></div>
+  <div style="display: flex; gap: 10px;">
+    <button class="btn-gray" name="cancel" type="submit">Hủy</button>
+    <button class="btn-blue" name="banhanh" type="submit">Ban hành</button>
+  </div>
+</div>
+
+
+
+
+<div class="title">BAN HÀNH VĂN BẢN ĐI</div>
+
+
+
+
+<table>
+  <tr>
+    <td style="width: 65%;">
+      <table style="width:100%;">
+        <tr>
+          <td style="width:30%;"><label>Trích yếu (*):</label></td>
+          <td><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
+        </tr>
+        <tr>
+          <td><label>Số ký hiệu:</label></td>
+          <td><input type="text" readonly value="{{ vb.SoHieu|default:"(Tự động sinh)" }}"></td>
+        </tr>
+        <tr>
+          <td><label>Loại văn bản:</label></td>
+          <td><input type="text" readonly value="{{ vb.LoaiVbDi }}"></td>
+        </tr>
+        <tr>
+          <td><label>Đơn vị tiếp nhận (*):</label></td>
+          <td><input type="text" readonly value="{{ vb.DonViNhan }}"></td>
+        </tr>
+        <tr>
+          <td><label>Phòng ban:</label></td>
+          <td><input type="text" readonly value="{{ vb.MaNhanVien.MaPhongBan.TenPhongBan }}"></td>
+        </tr>
+        <tr>
+          <td><label>Nội dung:</label></td>
+          <td><textarea readonly>{{ vb.NoiDung }}</textarea></td>
+        </tr>
+
+
+
+
+        <!-- PHẦN TỆP ĐÍNH KÈM – ĐÃ SỬA THÀNH Ô TEXTBOX -->
+        <tr>
+          <td><label>Tệp đính kèm:</label></td>
+          <td>
+            {% if vb.FileDinhKem %}
+              <input type="text" readonly value="{{ vb.FileDinhKem.name }}"
+                     style="width:90%; border:1px solid #28a745; background:#e8f5e8; color:#28a745; font-weight:bold;">
+              <br>
+              <a href="{{ vb.FileDinhKem.url }}" target="_blank"
+                 style="font-size:12px; color:#0066cc; text-decoration:underline;">Xem tệp</a>
+            {% else %}
+              <input type="text" readonly value="Không có tệp đính kèm"
+                     style="width:90%; border:1px solid #dc3545; background:#fff5f5; color:#dc3545;">
+            {% endif %}
+          </td>
+        </tr>
+      </table>
+    </td>
+
+
+
+
+    <!-- CỘT PHẢI – GIỮ NGUYÊN 100% -->
+    <td class="right-panel">
+      <div class="field-group">
+        <label>Độ mật:</label>
+        <select name="DoMat">
+          <option value="">-- Chọn độ mật --</option>
+          <option value="BINH THUONG" {% if vb.DoMat == "BINH THUONG" %}selected{% endif %}>Bình thường</option>
+          <option value="MAT" {% if vb.DoMat == "MAT" %}selected{% endif %}>Mật</option>
+          <option value="TOI MAT" {% if vb.DoMat == "TOI MAT" %}selected{% endif %}>Tối mật</option>
+        </select>
       </div>
-    </div>
 
-    <div class="title">BAN HÀNH VĂN BẢN ĐI</div>
 
-    <table>
-      <tr>
-        <!-- Bên trái -->
-        <td style="width: 65%;">
-          <table style="width:100%;">
-            <tr>
-              <td style="width:30%;"><label>Trích yếu (*):</label></td>
-              <td><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
-            </tr>
-            <tr>
-              <td><label>Số ký hiệu (*):</label></td>
-              <td><input type="text" readonly value="{{ vb.SoHieu }}"></td>
-            </tr>
-            <tr>
-              <td><label>Loại văn bản:</label></td>
-              <td><input type="text" readonly value="{{ vb.LoaiVbDi }}"></td>
-            </tr>
-            <tr>
-              <td><label>Đơn vị phát hành (*):</label></td>
-              <td><input type="text" readonly value="{{ vb.DonViNhan }}"></td>
-            </tr>
-            <tr>
-              <td><label>Phòng ban:</label></td>
-              <td><input type="text" readonly value="{{ vb.PhongBan }}"></td>
-            </tr>
-            <tr>
-              <td><label>Nội dung:</label></td>
-              <td><textarea readonly>{{ vb.NoiDung }}</textarea></td>
-            </tr>
-            <tr>
-              <td><label>Tệp đính kèm:</label></td>
-              <td>
-                {% if vb.TepDinhKem %}
-                  <a href="{{ vb.TepDinhKem.url }}" target="_blank">Xem tệp đính kèm</a>
-                {% else %}
-                  <input type="text" readonly value="Không có tệp đính kèm">
-                {% endif %}
-              </td>
-            </tr>
-          </table>
-        </td>
 
-        <!-- Bên phải: Các trường mới -->
-        <td class="right-panel">
-          <div class="field-group">
-            <label>Độ mật:</label>
-            <select name="DoMat">
-              <option value="">-- Chọn độ mật --</option>
-              <option value="Thường">Thường</option>
-              <option value="Mật">Mật</option>
-              <option value="Tối mật">Tối mật</option>
-            </select>
-          </div>
 
-          <div class="field-group">
-            <label>Độ khẩn:</label>
-            <select name="DoKhan">
-              <option value="">-- Chọn độ khẩn --</option>
-              <option value="Bình thường">Bình thường</option>
-              <option value="Khẩn">Khẩn</option>
-              <option value="Hỏa tốc">Hỏa tốc</option>
-            </select>
-          </div>
+      <div class="field-group">
+        <label>Độ khẩn:</label>
+        <select name="DoKhan">
+          <option value="">-- Chọn độ khẩn --</option>
+          <option value="BINH THUONG" {% if vb.DoKhan == "BINH THUONG" %}selected{% endif %}>Bình thường</option>
+          <option value="KHAN" {% if vb.DoKhan == "KHAN" %}selected{% endif %}>Khẩn</option>
+          <option value="HOA TOC" {% if vb.DoKhan == "HOA TOC" %}selected{% endif %}>Hỏa tốc</option>
+        </select>
+      </div>
 
-          <div class="field-group">
-            <label>Ngày ban hành:</label>
-            <input type="text" readonly value="{{ today|date:'d/m/Y' }}">
-          </div>
-        </td>
-      </tr>
-    </table>
-  </form>
+
+
+
+      <div class="field-group">
+        <label>Ngày ban hành:</label>
+        <input type="text" readonly value="{{ today|date:'d/m/Y' }}">
+      </div>
+
+
+
+
+      <div class="field-group">
+        <label>Email người nhận (*):</label>
+        <input type="text" name="Email" value="{{ vb.Email }}" required>
+      </div>
+    </td>
+  </tr>
+</table>
+</form>
 </div>
 {% endblock %}
