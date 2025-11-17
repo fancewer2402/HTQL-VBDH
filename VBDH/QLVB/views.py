@@ -139,7 +139,6 @@ def ds_vanbandi(request):
 
 
 
-
 def vanbandi_detail(request, pk):
    vb = get_object_or_404(VanBanDi, pk=pk)
    return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
@@ -257,7 +256,6 @@ def danh_sach_van_ban_den(request):
    return render(request, 'vanbanden/danh_sach_van_ban_den.html', context)
 
 
-
 def chi_tiet_vb_den(request, vb_id):
    vb = get_object_or_404(VanBanDen, id=vb_id)
    vb_truoc = VanBanDen.objects.filter(id__lt=vb.id).order_by('-id').first()
@@ -281,15 +279,11 @@ def tao_du_thao(request):
 
 def xetduyetvanbandi(request, id):
    vb = get_object_or_404(VanBanDi, id=id)
-
-
    if request.method == "POST":
        if 'duyet' in request.POST:
            vb.TrangThai = "Đã duyệt"
            vb.save()
            return redirect('phancong_vanthu', id=vb.id)
-
-
    return render(request, 'vanbandi/xetduyetvanbandi.html', {'vb': vb})
 
 
@@ -298,9 +292,6 @@ def xetduyetvanbandi(request, id):
 def phan_cong_van_thu(request, id):
    vb = get_object_or_404(VanBanDi, id=id)
    return render(request, 'vanbandi/phan_cong_van_thu.html', {'vb': vb})
-
-
-
 
 def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
    if loaivanban == 'vanbanden':
@@ -564,7 +555,6 @@ def phan_cong_nhan_vien_vbden(request, id):
 
 
 
-
 def xac_nhan_phan_cong_vbden(request, vb_id):
    vb = get_object_or_404(VanBanDen, id=vb_id)
    nhanvien = get_current_nhanvien(request)
@@ -582,7 +572,6 @@ def xac_nhan_phan_cong_vbden(request, vb_id):
 
 
    return render(request, "vanbanden/xacnhan_phancong_vbden.html", {"vb": vb, "nhanvien": nhanvien})
-
 
 
 

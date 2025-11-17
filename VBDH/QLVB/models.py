@@ -8,14 +8,11 @@ from django.conf import settings
 # 1. Phòng Ban
 # =====================
 class PhongBan(models.Model):
-   TenPhongBan = models.CharField(max_length=100, unique=True)
-   Email = models.EmailField(unique=True)
+    TenPhongBan = models.CharField(max_length=100, unique=True)
+    Email = models.EmailField(unique=True)
 
-
-   def __str__(self):
-       return self.TenPhongBan
-
-
+    def __str__(self):
+        return self.TenPhongBan
 
 
 # =====================
@@ -27,14 +24,11 @@ DOKHAN_CHOICES = [
    ('HOA TOC', 'Hỏa tốc'),  # Thêm Hỏa tốc
 ]
 
-
 DOMAT_CHOICES = [
    ('MAT', 'Mật'),
    ('TOI MAT', 'Tối mật'),  # Thêm Tối mật
    ('BINH THUONG', 'Bình thường'),
 ]
-
-
 
 
 class VanBanDen(models.Model):
@@ -150,6 +144,8 @@ class ThongBao(models.Model):
        return self.TieuDe
 
 
+    def __str__(self):
+        return self.TieuDe
 
 
 # =====================
