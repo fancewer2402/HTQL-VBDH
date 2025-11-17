@@ -71,7 +71,7 @@ class VanBanDi(models.Model):
     TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
     NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
     MaNhanVien = models.ForeignKey(NhanVien, on_delete=models.SET_NULL, null=True, blank=True)
-  # MaNhanVien
+    YeuCauVBDi = models.IntegerField(choices=[(0, 'Không yêu cầu'), (1, 'Có yêu cầu')], default=0)
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
     MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE)
 

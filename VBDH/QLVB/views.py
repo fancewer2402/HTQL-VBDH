@@ -129,7 +129,7 @@ def tao_du_thao(request):
         # ✅ Gửi thông báo hệ thống (không phải email)
         if truong_phong:
             ThongBao.objects.create(
-                TieuDe="Trình duyệt dự thảo",
+                TieuDe=f"Nhân viên {nhanvien.HoTen}Trình duyệt dự thảo",
                 NoiDung=f"Nhân viên {nhanvien.HoTen} đã trình duyệt dự thảo '{vb.TrichYeu}'.",
                 MaNhanVien=truong_phong,  # người nhận thông báo là trưởng phòng
                 MaVBDi=vb
@@ -220,7 +220,7 @@ def xetduyetvanbandi(request, id):
 
             messages.warning(request, " Văn bản đã bị từ chối.")
 
-        return redirect('chi_tiet_vb', vb.id)  # quay về danh sách văn bản đi
+        return redirect('vanbandi_detail', vb.id)  # quay về danh sách văn bản đi
 
     return render(request, "vanbandi/xetduyetvanbandi.html", {
         "vb": vb,
@@ -479,8 +479,8 @@ def trang_thong_qua(request, vb_id):
 
             # 🔔 Gửi thông báo cho quản lý đã chọn
             ThongBao.objects.create(
-                TieuDe=" văn bản đi",
-                NoiDung=f" Trưởng phòng {truong_phong.HoTen} trình duyệt văn bản đi '{vb.TrichYeu}'.",
+                TieuDe=f" Trưởng phòng {truong_phong.HoTen} trình duyệt văn bản '{vb.TrichYeu}'.",
+                NoiDung=f" Trưởng phòng {truong_phong.HoTen} trình duyệt văn bản '{vb.TrichYeu}'.",
                 MaNhanVien=quan_ly,
                 MaVBDi=vb
             )
@@ -493,14 +493,14 @@ def trang_thong_qua(request, vb_id):
 
             if vb.MaNhanVien and truong_phong:
                 ThongBao.objects.create(
-                    TieuDe="Dự thảo bị từ chối",
-                    NoiDung=f"❌ Dự thảo '{vb.TrichYeu}' bị từ chối bởi Trưởng phòng {truong_phong.HoTen}. "
+                    TieuDe=f"Dự thảo '{vb.TrichYeu}' bị từ chối",
+                    NoiDung=f" Dự thảo '{vb.TrichYeu}' bị từ chối bởi Trưởng phòng {truong_phong.HoTen}. "
                             f"Lý do: {ly_do or 'Không ghi rõ'}",
                     MaNhanVien=vb.MaNhanVien,
                     MaVBDi=vb)
 
-            messages.warning(request, f"❌ Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
+            messages.warning(request, f" Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
 
-        return redirect('chi_tiet_vb', vb.id)
+        return redirect('vanbandi_detail', vb.id)
     return render(request, "vanbandi/thongqua.html", {"vb": vb, "danh_sach_quan_ly": danh_sach_quan_ly})
 

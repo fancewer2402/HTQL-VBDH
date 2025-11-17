@@ -112,12 +112,12 @@
                         <option value="Hồ sơ thương mại">Hồ sơ thương mại </option>
                     </select>
                 </div>
-            </div>
+
                 <div class="col-md-6">
                     <label for="MaVanBanDen" class="form-label">Mã văn bản đến</label>
                     <select id="MaVanBanDen" name="MaVanBanDen" class="form-select">
                         <option value="">-- Danh sách yêu cầu --</option>
-                        {% for nv in danh_sach_yeu_cau_list %}
+                        {% for vb in danh_sach_yeu_cau_list %}
                         <option value="{{ vb.id }}">{{ vb.SoHieu  }}</option>
                         {% endfor %}
                     </select>
