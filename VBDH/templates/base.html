@@ -2,280 +2,290 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Quản lý văn bản{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Quản lý văn bản{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background: #fff;
-        }
+  <style>
+      body {
+          font-family: Arial, sans-serif;
+          margin: 20px;
+          background: #fff;
+      }
 
-        /* Thanh menu */
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: flex-start;
-            background: #f8f8f8;
-            padding: 10px 15px;
-            border-bottom: 1px solid #ccc;
-        }
+      /* Thanh menu */
+      .navbar {
+          display: flex;
+          align-items: center;
+          justify-content: flex-start;
+          background: #f8f8f8;
+          padding: 10px 15px;
+          border-bottom: 1px solid #ccc;
+      }
 
-        .navbar img.logo {
-            height: 50px;
-            margin-right: 20px;
-        }
+      .navbar img.logo {
+          height: 50px;
+          margin-right: 20px;
+      }
 
-        .nav-btn {
-            background: linear-gradient(to bottom, #2a6df4, #0050a0);
-            border: 1px solid #333;
-            color: white;
-            padding: 10px 25px;
-            cursor: pointer;
-            margin-right: 10px;
-            border-radius: 4px;
-            text-decoration: none; /* bỏ underline */
-            font-weight: normal;
-            display: inline-block;
-        }
+      .nav-btn {
+          background: linear-gradient(to bottom, #2a6df4, #0050a0);
+          border: 1px solid #333;
+          color: white;
+          padding: 10px 25px;
+          cursor: pointer;
+          margin-right: 10px;
+          border-radius: 4px;
+          text-decoration: none;
+          font-weight: normal;
+          display: inline-block;
+      }
 
-        .nav-btn:hover {
-            background: #1E90FF;
-        }
+      .nav-btn:hover {
+          background: #1E90FF;
+      }
 
-        .nav-btn.active {
-            background: #1E90FF;
-            font-weight: bold;
-        }
+      .nav-btn.active {
+          background: #1E90FF;
+          font-weight: bold;
+      }
 
-        /* Biểu tượng thông báso */
-        .notification {
-            margin-left: auto;
-            position: relative;
-            cursor: pointer;
-        }
+      /* Biểu tượng thông báo */
+      .notification {
+          margin-left: auto;
+          position: relative;
+          cursor: pointer;
+      }
 
-        .notification .bell {
-            font-size: 22px;
-            color: #333;
-        }
+      .notification .bell {
+          font-size: 22px;
+          color: #333;
+      }
 
-        .notification .badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: red;
-            color: white;
-            font-size: 11px;
-            border-radius: 50%;
-            padding: 2px 5px;
-        }
+      .notification .badge {
+          position: absolute;
+          top: -5px;
+          right: -5px;
+          background: red;
+          color: white;
+          font-size: 11px;
+          border-radius: 50%;
+          padding: 2px 5px;
+      }
 
-        /* Popup thông báo */
-        .notification-box {
-            display: none;
-            position: absolute;
-            right: 0;
-            top: 35px;
-            width: 320px;
-            background: #fff;
-            border: 1px solid #007bff;
-            border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            z-index: 1000;
-            max-height: 400px;
-            overflow-y: auto;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* font Segoe UI */
+      /* Popup thông báo */
+      .notification-box {
+          display: none;
+          position: absolute;
+          right: 0;
+          top: 35px;
+          width: 320px;
+          background: #fff;
+          border: 1px solid #007bff;
+          border-radius: 6px;
+          box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+          z-index: 1000;
+          max-height: 400px;
+          overflow-y: auto;
+          font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
 
-        }
+      .notification-box h3 {
+          background-color: #f8f8f8;
+          color: #001f80;
+          padding: 10px;
+          margin: 0;
+          font-size: 16px;
+          font-weight: bold;
+          border-bottom: 1px solid #ccc;
+      }
 
-        .notification-box h3 {
-            background-color: #f8f8f8;
-            color: #001f80;
-            padding: 10px;
-            margin: 0;
-            font-size: 16px;
-            font-weight: bold;
-            border-bottom: 1px solid #ccc;
-        }
+      .notification-section {
+          padding: 10px;
+      }
 
-        .notification-section {
-            padding: 10px;
-        }
+      .notification-section h4 {
+          color: #001f80;
+          margin-bottom: 5px;
+          font-size: 14px;
+      }
 
-        .notification-section h4 {
-            color: #001f80;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
+      .notification-item {
+          font-size: 14px;
+          padding: 8px 0;
+          border-bottom: 1px solid #ddd;
+      }
 
-        .notification-item {
-            font-size: 14px;
-            padding: 8px 0;
-            border-bottom: 1px solid #ddd;
-        }
+      .notification-item:last-child {
+          border-bottom: none;
+      }
 
-        .notification-item:last-child {
-            border-bottom: none;
-        }
+      .notification-item.unread {
+          font-weight: normal;
+      }
 
-        .notification-item.unread {
-            font-weight: normal;
+      .notification-item a {
+          text-decoration: none;
+          color: inherit;
+          display: block;
+      }
 
-        }
+      .logout {
+         position: relative;
+         display: inline-block;
+         margin-left: 15px;
+      }
 
-        .notification-item a {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
+     .logout-icon {
+         font-size: 22px;
+         color: #333;
+         cursor: pointer;
+     }
 
-        .logout {
-           position: relative;
-           display: inline-block;
-           margin-left: 15px;
-        }
+     .logout-button {
+         position: absolute;
+         top: 100%;
+         left: 50%;
+         transform: translateX(-50%);
+         background-color: #000;
+         color: white;
+         padding: 8px 14px;
+         border-radius: 4px;
+         text-decoration: none;
+         font-size: 14px;
+         opacity: 0;
+         pointer-events: none;
+         transition: opacity 0.3s ease;
+         white-space: nowrap;
+         z-index: 1000;
+     }
 
-       .logout-icon {
-           font-size: 22px;
-           color: #333;
-           cursor: pointer;
-       }
+     .logout:hover .logout-button {
+         opacity: 1;
+         pointer-events: auto;
+     }
 
-       .logout-button {
-           position: absolute;
-           top: 100%;
-           left: 50%;
-           transform: translateX(-50%);
-           background-color: #000;
-           color: white;
-           padding: 8px 14px;
-           border-radius: 4px;
-           text-decoration: none;
-           font-size: 14px;
-           opacity: 0;
-           pointer-events: none;
-           transition: opacity 0.3s ease;
-           white-space: nowrap;
-           z-index: 1000;
-       }
-
-       .logout:hover .logout-button {
-           opacity: 1;
-           pointer-events: auto;
-       }
-
-        hr {
-            border: none;
-            border-top: 1px solid #000;
-            margin: 10px 0;
-        }
-    </style>
+      hr {
+          border: none;
+          border-top: 1px solid #000;
+          margin: 10px 0;
+      }
+  </style>
 </head>
 <body>
 
 <!-- Thanh menu -->
 <div class="navbar">
-    <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
+  <img src="{% static 'images/logo.png' %}" alt="Logo" class="logo">
 
-    <a href="{% url 'danh_sach_van_ban_den' %}"
-       class="nav-btn {% if request.path == '/vanbanden/' %}active{% endif %}">
-        Văn bản đến
-    </a>
+  <a href="{% url 'danh_sach_van_ban_den' %}"
+     class="nav-btn {% if request.path == '/vanbanden/' %}active{% endif %}">
+      Văn bản đến
+  </a>
 
-    <a href="{% url 'vanbandi' %}"
-       class="nav-btn {% if request.path == '/vanbandi/' %}active{% endif %}">
-        Văn bản đi
-    </a>
+  <a href="{% url 'vanbandi' %}"
+     class="nav-btn {% if request.path == '/vanbandi/' %}active{% endif %}">
+      Văn bản đi
+  </a>
 
-    <!-- Biểu tượng thông báo -->
-    <div class="notification" id="notification-btn">
-        <i class="fa-solid fa-bell bell"></i>
-        {% if notification_count > 0 %}
-        <span class="badge">{{ notification_count }}</span>
-        {% endif %}
+  <!-- Biểu tượng thông báo -->
+  <div class="notification" id="notification-btn">
+      <i class="fa-solid fa-bell bell"></i>
+      {% if notification_count > 0 %}
+      <span class="badge">{{ notification_count }}</span>
+      {% endif %}
 
-        <!-- Hộp thông báo -->
-        <div class="notification-box" id="notification-box">
-            <h3>Thông báo</h3>
+      <!-- Hộp thông báo -->
+      <div class="notification-box" id="notification-box">
+          <h3>Thông báo</h3>
 
-            {% if today_notifications or week_notifications or old_notifications %}
-            {% if today_notifications %}
-            <div class="notification-section">
-                <h4>Hôm nay</h4>
-                {% for n in today_notifications %}
-                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+          {% if today_notifications or week_notifications or old_notifications %}
+          {% if today_notifications %}
+          <div class="notification-section">
+              <h4>Hôm nay</h4>
+              {% for n in today_notifications %}
+              <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
+                  <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
+              </div>
+              {% endfor %}
+          </div>
+          {% endif %}
 
-            {% if week_notifications %}
-            <div class="notification-section">
-                <h4>Tuần này</h4>
-                {% for n in week_notifications %}
-                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
+          {% if week_notifications %}
+          <div class="notification-section">
+              <h4>Tuần này</h4>
+              {% for n in week_notifications %}
+              <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
+                  <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
+              </div>
+              {% endfor %}
+          </div>
+          {% endif %}
 
-            {% if old_notifications %}
-            <div class="notification-section">
-                <h4>Cũ hơn</h4>
-                {% for n in old_notifications %}
-                <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
-                    <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
-                </div>
-                {% endfor %}
-            </div>
-            {% endif %}
-            {% else %}
-            <div class="notification-section">
-                <p style="padding:10px; color:#666;">Không có thông báo mới</p>
-            </div>
-            {% endif %}
-        </div>
-    </div>
+          {% if old_notifications %}
+          <div class="notification-section">
+              <h4>Cũ hơn</h4>
+              {% for n in old_notifications %}
+              <div class="notification-item {% if not n.DaDoc %}unread{% endif %}">
+                  <a href="{% url 'mark_notification_read' n.id %}?next={{ n.url }}">{{ n.TieuDe }}</a>
+              </div>
+              {% endfor %}
+          </div>
+          {% endif %}
+          {% else %}
+          <div class="notification-section">
+              <p style="padding:10px; color:#666;">Không có thông báo mới</p>
+          </div>
+          {% endif %}
+      </div>
+  </div>
 
-    <!-- Biểu tượng đăng xuất -->
-    <div class="logout">
-        <div class="logout-area">
-            <i class="fa-solid fa-right-from-bracket logout-icon"></i>
-            <a href="{% url 'login' %}" class="logout-button">Đăng xuất</a>
-        </div>
-    </div>
+  <!-- Biểu tượng đăng xuất -->
+  <div class="logout">
+      <div class="logout-area">
+          <i class="fa-solid fa-right-from-bracket logout-icon"></i>
+          <a href="{% url 'login' %}" class="logout-button">Đăng xuất</a>
+      </div>
+  </div>
 </div>
 
 <hr>
 
+<!-- THÔNG BÁO TOÀN CỤC (messages) – ĐÃ THÊM -->
+{% if messages %}
+<div class="container mt-3">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+        {{ message|safe }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
 <!-- Nội dung -->
 <div class="content">
-    {% block content %}{% endblock %}
+  {% block content %}{% endblock %}
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
-        const btn = document.getElementById("notification-btn");
-        const box = document.getElementById("notification-box");
+  document.addEventListener("DOMContentLoaded", function() {
+      const btn = document.getElementById("notification-btn");
+      const box = document.getElementById("notification-box");
 
-        btn.addEventListener("click", function(e) {
-            e.stopPropagation();
-            box.style.display = box.style.display === "block" ? "none" : "block";
-        });
+      btn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          box.style.display = box.style.display === "block" ? "none" : "block";
+      });
 
-        document.addEventListener("click", function(e) {
-            if (!btn.contains(e.target)) {
-                box.style.display = "none";
-            }
-        });
-    });
+      document.addEventListener("click", function(e) {
+          if (!btn.contains(e.target)) {
+              box.style.display = "none";
+          }
+      });
+  });
 </script>
 
 </body>
