@@ -1,0 +1,197 @@
+{% block content %}
+<style>
+  .container {
+    margin: 30px auto;
+    width: 95%;
+    font-family: Arial, sans-serif;
+  }
+
+  .btn-blue {
+    background-color: #2b579a;
+    color: #fff;
+    border: none;
+    padding: 6px 15px;
+    border-radius: 3px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  .btn-blue:hover { background-color: #1e4e79; }
+
+  .btn-gray {
+    background-color: #dcdcdc;
+    border: 1px solid #aaa;
+    padding: 6px 15px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    border-bottom: 2px solid #1e4e79;
+    font-size: 20px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    color: #1e4e79;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  td {
+    padding: 6px 10px;
+    vertical-align: top;
+  }
+
+  input[type="text"], textarea, select {
+    width: 95%;
+    border: 1px solid #999;
+    padding: 5px;
+    border-radius: 3px;
+  }
+  textarea {
+    height: 60px;
+    resize: none;
+  }
+
+  .right-panel {
+    border-left: 1px solid #ccc;
+    padding-left: 20px;
+    width: 35%;
+  }
+
+  .field-group {
+    margin-bottom: 15px;
+  }
+
+  .field-group label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+  }
+
+  .status {
+    color: #dca300;
+    font-weight: bold;
+  }
+
+  td label {
+  font-weight: bold;
+  color: #000;
+}
+</style>
+
+<div class="container">
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="header-buttons">
+      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'vanbandi' %}'">← Quay lại</button>
+      <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Chờ phê duyệt" }}</span></div>
+      <div>
+        <button type="submit" name="action" value="pheduyet" class="btn-blue">Phê duyệt</button>
+          <button type="submit" name="action" value="tuchoi" class="btn-gray" formnovalidate>Từ chối</button>
+      </div>
+    </div>
+
+    <div class="title">XÉT DUYỆT VĂN BẢN</div>
+
+    <table>
+      <tr>
+        <!-- Cột trái: thông tin văn bản -->
+        <td style="width: 65%;">
+          <table style="width:100%;">
+            <tr>
+              <td style="width:30%;"><label>Trích yếu (*):</label></td>
+              <td><input type="text" readonly value="{{ vb.TrichYeu }}"></td>
+            </tr>
+            <tr>
+              <td><label>Số hiệu (*):</label></td>
+              <td><input type="text" readonly value="{{ vb.SoHieu }}"></td>
+            </tr>
+            <tr>
+              <td><label>Loại văn bản:</label></td>
+              <td><input type="text" readonly value="{{ vb.LoaiVanBan }}"></td>
+            </tr>
+            <tr>
+              <td><label>Mã văn bản đến:</label></td>
+              <td><input type="text" readonly value="{{ vb.MaVanBanDen }}"></td>
+            </tr>
+            <tr>
+              <td><label>Đơn vị soạn thảo (*):</label></td>
+              <td><input type="text" readonly value="{{ vb.DonViNhan }}"></td>
+            </tr>
+            <tr>
+              <td><label>Ngày soạn thảo:</label></td>
+              <td><input type="text" readonly value="{{ vb.NgayBanHanh }}"></td>
+            </tr>
+              <tr>
+              <td><label>Phòng ban:</label></td>
+              <td><input type="text" readonly value="{{ vb.PhongBan }}"></td>
+            </tr>
+            <tr>
+              <td><label>Nội dung:</label></td>
+              <td><textarea readonly>{{ vb.NoiDung }}</textarea></td>
+            </tr>
+            <tr>
+              <td><label>Tệp đính kèm:</label></td>
+              <td>
+                {% if vb.TepDinhKem %}
+                  <a href="{{ vb.TepDinhKem.url }}" target="_blank">Xem tệp đính kèm</a>
+                {% else %}
+                  <input type="text" readonly value="Không có tệp đính kèm">
+                {% endif %}
+              </td>
+            </tr>
+          </table>
+        </td>
+
+        <!-- Cột phải: phân công -->
+        <!-- Cột phải: Thông tin phê duyệt -->
+        <td class="right-panel">
+          <div class="field-group">
+            <label>Chữ ký(*)</label>
+            <input type="file" name="chu_ky" accept=".png,.jpg,.jpeg,.pdf" required>
+          </div>
+            <div class="field-group">
+            <label>Lý do từ chối (nếu có)</label>
+            <textarea name="ly_do" placeholder="Nhập lý do nếu từ chối phê duyệt..."></textarea>
+          </div>
+
+            <hr>
+
+          <div class="field-group">
+            <label>Phân công văn thư(*)</label>
+            <select name="van_thu" required>
+              <option value="">-- Chọn văn thư --</option>
+              {% for vt in vanthus %}
+                <option value="{{ vt.id }}">{{ vt.HoTen }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Nội dung phân công</label>
+            <textarea name="noi_dung_phan_cong" placeholder="Nhập nội dung giao cho văn thư..."></textarea>
+          </div>
+
+          <div class="field-group">
+            <label>Hạn cuối(*)</label>
+            <input type="date" name="han_cuoi" required>
+          </div>
+
+
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo văn bản đến</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* 🔹 Navbar chứa nút quay lại + tiêu đề + nút lưu */
+        .navbar-custom {
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            padding: 12px 25px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar-custom h4 {
+            color: #0d6efd;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .container-form {
+            padding: 30px 50px;
+        }
+
+        .form-box {
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-custom d-flex justify-content-between align-items-center">
+    <button class="btn-gray" onclick="window.location.href='{% url 'danh_sach_van_ban_den' %}'">
+        ← Quay lại
+    </button>
+
+    <h4 class="mb-0">Tạo văn bản đến</h4>
+
+    <button type="submit" form="formVanBan" class="btn btn-success">
+        <i class="fa-solid fa-save me-1"></i> Lưu &amp; Trình ký
+    </button>
+</nav>
+
+<div class="container-form">
+    <div class="form-box">
+        <form id="formVanBan" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="SoHieu" class="form-label">Số hiệu</label>
+                    <input type="text" id="SoHieu" name="SoHieu" class="form-control"
+                           value="{{ so_hieu_tu_dong }}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label for="MaPhongBan" class="form-label">Phòng ban</label>
+                    <select id="MaPhongBan" name="MaPhongBan" class="form-select" required>
+                        <option value="">-- Chọn phòng ban --</option>
+                        {% for pb in phong_ban_list %}
+                        <option value="{{ pb.id }}">{{ pb.TenPhongBan }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="TrichYeu" class="form-label">Trích yếu *</label>
+                <textarea id="TrichYeu" name="TrichYeu" class="form-control" rows="3" required></textarea>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="LoaiVBDen" class="form-label">Loại văn bản *</label>
+                    <input type="text" id="LoaiVBDen" name="LoaiVBDen" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="MaNhanVien" class="form-label">Quản lý phê duyệt</label>
+                    <select id="MaNhanVien" name="MaNhanVien" class="form-select">
+                        <option value="">-- Chọn nhân viên quản lý --</option>
+                        {% for nv in nhan_vien_list %}
+                        <option value="{{ nv.id }}">{{ nv.HoTen }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label for="DoKhan" class="form-label">Độ khẩn</label>
+                    <select id="DoKhan" name="DoKhan" class="form-select">
+                        {% for value, label in DOKHAN_CHOICES %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="DoMat" class="form-label">Độ mật</label>
+                    <select id="DoMat" name="DoMat" class="form-select">
+                        {% for value, label in DOMAT_CHOICES %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label for="DonViBanHanh" class="form-label">Đơn vị ban hành *</label>
+                    <input type="text" id="DonViBanHanh" name="DonViBanHanh" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label for="NgayBanHanh" class="form-label">Ngày phát hành *</label>
+                    <input type="date" id="NgayBanHanh" name="NgayBanHanh" class="form-control" required>
+                </div>
+                <div class="col-md-6">
+                    <label for="NgayDen" class="form-label">Ngày đến *</label>
+                    <input type="date" id="NgayDen" name="NgayDen" class="form-control" required>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label for="NoiDung" class="form-label">Nội dung</label>
+                <textarea id="NoiDung" name="NoiDung" class="form-control" rows="4"></textarea>
+            </div>
+
+            <div class="mb-4">
+                <label for="FileDinhKem" class="form-label">Tệp đính kèm</label>
+                <div class="border rounded p-3 text-center bg-light">
+                    <input type="file" id="FileDinhKem" name="FileDinhKem" class="form-control">
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
