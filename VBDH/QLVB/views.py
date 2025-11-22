@@ -12,8 +12,11 @@ from django.conf import settings
 from datetime import timedelta, date
 from .models import VanBanDi, VanBanDen, ThongBao, NhatKyCongViec, PhongBan, PhanCongCongViec
 from accounts.models import User as NhanVien
+from django.contrib.auth import get_user_model
+User = get_user_model()
 import os
 from django.db import transaction
+from datetime import datetime
 
 
 def user_login(request):
@@ -33,22 +36,11 @@ def user_login(request):
 
     return render(request, 'QLVB/login.html')
 
-
-
-
 def tra_cuu_van_ban(request):
    return render(request, 'QLVB/tra_cuu_van_ban.html')
 
-
-
-
 def them_van_ban(request):
    return render(request, 'vanbanden/create.html')
-
-
-
-
-
 
 def ds_vanbandi(request):
    # Lấy tất cả văn bản đi
@@ -137,13 +129,9 @@ def ds_vanbandi(request):
 
 
 
-
 def vanbandi_detail(request, pk):
    vb = get_object_or_404(VanBanDi, pk=pk)
    return render(request, 'vanbandi/vanbandi_detail.html', {'vb': vb})
-
-
-
 
 def sua_vanbandi(request, id):
    vb = get_object_or_404(VanBanDi, id=id)
@@ -159,17 +147,11 @@ def sua_vanbandi(request, id):
 
    return render(request, 'vanbandi/sua_vanbandi.html', {'vb': vb})
 
-
-
-
 def get_current_nhanvien(request):
    try:
        return NhanVien.objects.filter(email=request.user.email).first()
    except Exception:
        return None
-
-
-
 
 def danh_sach_van_ban_den(request):
    van_ban_list = VanBanDen.objects.all().order_by('-NgayDen')
@@ -255,7 +237,6 @@ def danh_sach_van_ban_den(request):
    return render(request, 'vanbanden/danh_sach_van_ban_den.html', context)
 
 
-
 def chi_tiet_vb_den(request, vb_id):
    vb = get_object_or_404(VanBanDen, id=vb_id)
    vb_truoc = VanBanDen.objects.filter(id__lt=vb.id).order_by('-id').first()
@@ -269,36 +250,140 @@ def chi_tiet_vb_den(request, vb_id):
    })
 
 
-
-
 def tao_du_thao(request):
-   return render(request, 'vanbandi/tao_du_thao.html')
+    """Nhân viên tạo dự thảo và trình duyệt lên Trưởng phòng."""
+        # ⚙️ Giả sử nhân viên đang đăng nhập
+    nhanvien = User.objects.first()
+    count = VanBanDi.objects.count() + 1
+    so_hieu_tu_dong = f"VB-{datetime.now().year}-{count:04d}"
 
+        # ✅ Tạo văn bản mới
 
+    danh_sach_yeu_cau_list = VanBanDen.objects.filter(
+        TrangThai='Đang xử lý',
+        YeuCauVBDi=1  # chỉ lấy những văn bản có yêu cầu
+    )
+    if request.method == "POST":
+        ma_phong_ban_id = request.POST.get('MaPhongBan')
+        vb = VanBanDi.objects.create(
+            SoHieu=so_hieu_tu_dong,
+            TrichYeu=request.POST.get("TrichYeu"),
+            NoiDung=request.POST.get("NoiDung"),
+            LoaiVbDi=request.POST.get("LoaiVbDi"),
+            DonViNhan=request.POST.get("DonViNhan"),
+            FileDinhKem=request.FILES.get("FileDinhKem"),
+            MaNhanVien=nhanvien,
+            TrangThai="Chờ thông qua",  # trạng thái đầu tiên
+            MaPhongBan_id=ma_phong_ban_id,
+        )
 
+        # ✅ Xác định Trưởng phòng của phòng ban nhân viên
+        truong_phong = User.objects.filter(
+            ma_phong_ban_id=ma_phong_ban_id,
+            vai_tro="TP"
+        ).first()
 
+        # ✅ Gửi thông báo hệ thống (không phải email)
+        if truong_phong:
+            ThongBao.objects.create(
+                TieuDe=f"Nhân viên {nhanvien.ho_ten} trình duyệt dự thảo '{vb.TrichYeu}'.",
+                NoiDung=f"Nhân viên {nhanvien.ho_ten} đã trình duyệt dự thảo '{vb.TrichYeu}'.",
+                MaNhanVien=truong_phong,  # người nhận thông báo là trưởng phòng
+                MaVBDi=vb
+            )
+
+        messages.success(request, " Văn bản đã được trình duyệt cho Trưởng phòng.")
+        return redirect("vanbandi")  # chuyển về trang danh sách
+
+    # GET → hiển thị form
+    phong_ban_list = PhongBan.objects.all()
+    return render(request, "vanbandi/tao_du_thao.html", {
+        "phong_ban_list": phong_ban_list,
+        "so_hieu_tu_dong": so_hieu_tu_dong,
+        "danh_sach_yeu_cau_list" : danh_sach_yeu_cau_list,
+    })
+
+# Xét duyệt văn bản đi
 def xetduyetvanbandi(request, id):
-   vb = get_object_or_404(VanBanDi, id=id)
+    vb = get_object_or_404(VanBanDi, id=id)
 
+    # Lấy trưởng phòng nếu có nhân viên tạo văn bản
+    truong_phong = None
+    if vb.MaNhanVien:
+        truong_phong = User.objects.filter(ma_phong_ban_id=vb.MaNhanVien.ma_phong_ban_id, vai_tro="TP").first()
+    # Danh sách văn thư
+    vanthus = User.objects.filter(vai_tro="VT")
+    quanly = User.objects.first()
 
-   if request.method == "POST":
-       if 'duyet' in request.POST:
-           vb.TrangThai = "Đã duyệt"
-           vb.save()
-           return redirect('phancong_vanthu', id=vb.id)
+    if request.method == "POST":
+        action = request.POST.get("action")
+        ly_do = request.POST.get("ly_do", "").strip()
+        van_thu_id = request.POST.get("van_thu")
+        han_cuoi = request.POST.get("han_cuoi")
+        chu_ky = request.FILES.get("chu_ky")
+        noi_dung_phan_cong = request.POST.get("noi_dung_phan_cong", "").strip()
 
+        if action == "pheduyet":
+            # Bắt buộc nhập khi phê duyệt
+            if not (chu_ky and van_thu_id and han_cuoi):
+                messages.error(request, "⚠️ Vui lòng nhập đầy đủ chữ ký, văn thư, hạn cuối trước khi phê duyệt!")
+                return redirect('xetduyetvanbandi', id=vb.id)
 
-   return render(request, 'vanbandi/xetduyetvanbandi.html', {'vb': vb})
+            # Lưu dữ liệu phê duyệt
+            vb.ChuKy = chu_ky
+            vb.HanCuoi = han_cuoi
+            vb.NoiDungPhanCong = noi_dung_phan_cong
+            van_thu = NhanVien.objects.filter(id=van_thu_id, vai_tro="VT").first()
+            vb.VanThuPhuTrach = van_thu
+            vb.TrangThai = "Chờ ban hành"
+            vb.save()
 
+            # Thông báo đã duyệt cho người tạo văn bản + trưởng phòng
+            msg_duyet = f" Văn bản '{vb.TrichYeu}' đã được quản lý {quanly.ho_ten} phê duyệt."
+            if vb.MaNhanVien:
+                ThongBao.objects.create(MaNhanVien=vb.MaNhanVien, TieuDe=msg_duyet,
+                                        NoiDung=msg_duyet, MaVBDi=vb)
+            if truong_phong:
+                ThongBao.objects.create(MaNhanVien=truong_phong, TieuDe=msg_duyet,
+                                        NoiDung=msg_duyet, MaVBDi=vb)
 
+            # Thông báo phân công cho văn thư
+            if van_thu:
+                msg_phancong = (
+                    f" Bạn đã được quản lý {quanly.ho_ten} phân công xử lý văn bản '{vb.TrichYeu}'. "
+                    f"Hạn cuối: {han_cuoi}. "
+                    f"Nội dung: {noi_dung_phan_cong}"
+                    f"Chu Ky: {chu_ky}"
+                )
+                ThongBao.objects.create(MaNhanVien=van_thu,
+                                        TieuDe=f" Bạn được phân công xử lý văn bản '{vb.TrichYeu}'. ",
+                                        NoiDung=msg_phancong,
+                                        MaVBDi=vb)
 
+            messages.success(request, " Văn bản đã được phê duyệt và phân công thành công.")
 
-def phan_cong_van_thu(request, id):
-   vb = get_object_or_404(VanBanDi, id=id)
-   return render(request, 'vanbandi/phan_cong_van_thu.html', {'vb': vb})
+        elif action == "tuchoi":
+            # Từ chối thì không cần chữ ký, văn thư, hạn cuối
+            vb.TrangThai = "Từ chối phê duyệt"
+            vb.LyDoTuChoi = ly_do
+            vb.save()
 
+            msg_tuchoi = f" Văn bản '{vb.TrichYeu}' đã bị quản lý {quanly.ho_ten} từ chối."
+            if vb.MaNhanVien:
+                ThongBao.objects.create(MaNhanVien=vb.MaNhanVien,TieuDe=msg_tuchoi,
+                                        NoiDung=f" Lý do: {ly_do or 'Không ghi rõ'}", MaVBDi=vb)
+            if truong_phong:
+                ThongBao.objects.create(MaNhanVien=truong_phong, TieuDe=msg_tuchoi,
+                                        NoiDung=f" Lý do: {ly_do or 'Không ghi rõ'}",MaVBDi=vb)
 
+            messages.warning(request, " Văn bản đã bị từ chối.")
 
+        return redirect('vanbandi_detail', vb.id)  # quay về danh sách văn bản đi
+
+    return render(request, "vanbandi/xetduyetvanbandi.html", {
+        "vb": vb,
+        "vanthus": vanthus,
+    })
 
 def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
    if loaivanban == 'vanbanden':
@@ -562,7 +647,6 @@ def phan_cong_nhan_vien_vbden(request, id):
 
 
 
-
 def xac_nhan_phan_cong_vbden(request, vb_id):
    vb = get_object_or_404(VanBanDen, id=vb_id)
    nhanvien = get_current_nhanvien(request)
@@ -580,7 +664,6 @@ def xac_nhan_phan_cong_vbden(request, vb_id):
 
 
    return render(request, "vanbanden/xacnhan_phancong_vbden.html", {"vb": vb, "nhanvien": nhanvien})
-
 
 
 
@@ -655,14 +738,14 @@ def user_logout(request):
 
 def trang_thong_qua(request, vb_id):
     vb = get_object_or_404(VanBanDi, id=vb_id)
-    danh_sach_quan_ly = NhanVien.objects.filter(VaiTro="QL")  # Lấy tất cả quản lý
-    truong_phong = NhanVien.objects.filter(VaiTro="TP").first()
+    danh_sach_quan_ly = User.objects.filter(vai_tro="QL")  # Lấy tất cả quản lý
+    truong_phong = User.objects.filter(vai_tro="TP").first()
 
     if request.method == "POST":
         action = request.POST.get("action")
         ly_do = request.POST.get("ly_do_tu_choi", "")
         quan_ly_id = request.POST.get("quan_ly_chon")
-        quan_ly = NhanVien.objects.filter(id=quan_ly_id).first() if quan_ly_id else None
+        quan_ly = User.objects.filter(id=quan_ly_id).first() if quan_ly_id else None
 
         if action == "thongqua":
             if not quan_ly:
@@ -677,13 +760,13 @@ def trang_thong_qua(request, vb_id):
 
             # 🔔 Gửi thông báo cho quản lý đã chọn
             ThongBao.objects.create(
-                TieuDe=" văn bản đi",
-                NoiDung=f" Trưởng phòng {truong_phong.HoTen} trình duyệt văn bản đi '{vb.TrichYeu}'.",
+                TieuDe=f" Trưởng phòng {truong_phong.ho_ten} trình duyệt văn bản '{vb.TrichYeu}'.",
+                NoiDung=f" Trưởng phòng {truong_phong.ho_ten} trình duyệt văn bản '{vb.TrichYeu}'.",
                 MaNhanVien=quan_ly,
                 MaVBDi=vb
             )
 
-            messages.success(request, f" Văn bản '{vb.TrichYeu}' đã được trình duyệt. Trạng thái: Chờ phê duyệt.")
+            messages.success(request, f" Văn bản '{vb.TrichYeu}' đã được trình duyệt.")
 
         elif action == "tuchoi":
             vb.TrangThai = "Từ chối thông qua"
@@ -691,15 +774,14 @@ def trang_thong_qua(request, vb_id):
 
             if vb.MaNhanVien and truong_phong:
                 ThongBao.objects.create(
-                    TieuDe="Dự thảo bị từ chối",
-                    NoiDung=f"❌ Dự thảo '{vb.TrichYeu}' bị từ chối bởi Trưởng phòng {truong_phong.HoTen}. "
+                    TieuDe=f"Dự thảo '{vb.TrichYeu}' bị từ chối",
+                    NoiDung=f" Dự thảo '{vb.TrichYeu}' bị từ chối bởi Trưởng phòng {truong_phong.ho_ten}. "
                             f"Lý do: {ly_do or 'Không ghi rõ'}",
                     MaNhanVien=vb.MaNhanVien,
                     MaVBDi=vb)
 
-            messages.warning(request, f"❌ Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
+            messages.warning(request, f" Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
 
-        return redirect("vanbandi")
+        return redirect('vanbandi_detail', vb.id)
     return render(request, "vanbandi/thongqua.html", {"vb": vb, "danh_sach_quan_ly": danh_sach_quan_ly})
-
 

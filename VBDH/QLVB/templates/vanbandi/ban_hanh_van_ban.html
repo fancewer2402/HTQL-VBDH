@@ -51,20 +51,28 @@ textarea { height: 60px; resize: none; }
           <td><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
         </tr>
         <tr>
-          <td><label>Số ký hiệu:</label></td>
+          <td><label>Số hiệu (*):</label></td>
           <td><input type="text" readonly value="{{ vb.SoHieu|default:"(Tự động sinh)" }}"></td>
         </tr>
         <tr>
           <td><label>Loại văn bản:</label></td>
           <td><input type="text" readonly value="{{ vb.LoaiVbDi }}"></td>
         </tr>
+          <tr>
+              <td><label>Mã văn bản đến:</label></td>
+              <td><input type="text" readonly value="{{ vb.MaVanBanDen }}"></td>
+          </tr>
         <tr>
           <td><label>Đơn vị tiếp nhận (*):</label></td>
           <td><input type="text" readonly value="{{ vb.DonViNhan }}"></td>
         </tr>
         <tr>
+              <td><label>Ngày soạn thảo:</label></td>
+              <td><input type="text" readonly value="{{ vb.NgayTao }}"></td>
+        </tr>
+        <tr>
           <td><label>Phòng ban:</label></td>
-          <td><input type="text" readonly value="{{ vb.MaNhanVien.MaPhongBan.TenPhongBan }}"></td>
+          <td><input type="text" readonly value="{{ vb.MaPhongBan }}"></td>
         </tr>
         <tr>
           <td><label>Nội dung:</label></td>

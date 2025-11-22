@@ -252,11 +252,9 @@
             </div>
         </div>
 
-        <!-- Hàng 3 -->
-        <div class="button-row">
-            <button type="submit" id="filterBtn" class="btn-search">Tìm kiếm</button>
-        </div>
-    </form>
+    <div class="button-row">
+        <button id="filterBtn" class="btn-search">🔍 Tìm kiếm</button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -284,7 +282,7 @@
             <tbody>
                 {% for vb in ds_vanbandi %}
                 <tr>
-                    <td class="text-center">{{ page_obj.start_index|add:forloop.counter0 }}</td>
+                    <td class="text-center">{{ forloop.counter }}</td>
                     <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
                     <td class="text-start">
                         <a href="{% url 'vanbandi_detail' vb.id %}">{{ vb.TrichYeu }}</a>
@@ -292,10 +290,14 @@
                     <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
                     <td class="text-center">{{ vb.LoaiVbDi }}</td>
                     <td class="text-center">
-                        {% if vb.TrangThai == "CHỜ BAN HÀNH" %}
-                            <a href="{% url 'ban_hanh_van_ban' vb.pk %}" class="btn btn-sm btn-success">Ban hành</a>
+                        {% if vb.trang_thai == 'đã duyệt' %}
+                            <span class="badge bg-success">Đã duyệt</span>
+                        {% elif vb.trang_thai == 'chờ duyệt' %}
+                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
+                        {% elif vb.trang_thai == 'từ chối' %}
+                            <span class="badge bg-danger">Từ chối</span>
                         {% else %}
-                            <span class="badge bg-secondary">{{ vb.TrangThai }}</span>
+                            <span class="badge bg-secondary">Không xác định</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -309,14 +311,15 @@
     </div>
 </div>
 
+<!-- PHÂN TRANG -->
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">««</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">‹</a></li>
+            <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
         {% else %}
-            <li class="page-item disabled"><span class="page-link">««</span></li>
-            <li class="page-item disabled"><span class="page-link">‹</span></li>
+            <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
         {% endif %}
 
         {% for num in page_obj.paginator.page_range %}
@@ -328,11 +331,11 @@
         {% endfor %}
 
         {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">›</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">»»</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
+            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a></li>
         {% else %}
-            <li class="page-item disabled"><span class="page-link">›</span></li>
-            <li class="page-item disabled"><span class="page-link">»»</span></li>
+            <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
+            <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
         {% endif %}
     </ul>
 </nav>

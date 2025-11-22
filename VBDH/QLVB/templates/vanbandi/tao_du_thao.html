@@ -49,6 +49,10 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
             padding: 30px;
         }
+        .form-select {
+            height: calc(1.5em + .75rem + 2px); /* Đảm bảo chiều cao giống input */
+            padding: .375rem .75rem;
+        }
     </style>
 </head>
 <body>
@@ -65,6 +69,7 @@
         Trình duyệt
     </button>
 </nav>
+
 
 <!-- 🔹 Nội dung chính -->
 <div class="container-form">
@@ -97,14 +102,24 @@
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="LoaiVbDi" class="form-label">Loại văn bản *</label>
-                    <input type="text" id="LoaiVbDi" name="LoaiVbDi" class="form-control" required>
+                    <select id="LoaiVbDi" name="LoaiVbDi" class="form-select" required>
+                        <option value="">-- Chọn loại văn bản --</option>
+                        <option value="Công văn">Công văn</option>
+                        <option value="Thông báo">Thông báo</option>
+                        <option value="Quyết định">Quyết định</option>
+                        <option value="Chỉ thị">Chỉ thị</option>
+                        <option value="Biên bản làm việc – nghiệm thu – bàn giao">Biên bản làm việc – nghiệm thu – bàn giao</option>
+                        <option value="Tờ trình / Đề xuất">Tờ trình / Đề xuất</option>
+                        <option value="Hồ sơ thương mại">Hồ sơ thương mại </option>
+                    </select>
                 </div>
+
                 <div class="col-md-6">
                     <label for="MaVanBanDen" class="form-label">Mã văn bản đến</label>
                     <select id="MaVanBanDen" name="MaVanBanDen" class="form-select">
                         <option value="">-- Danh sách yêu cầu --</option>
-                        {% for nv in danh_sach_yeu_cau_list %}
-                        <option value="{{ vb.id }}">{{ vb.Ma }}</option>
+                        {% for vb in danh_sach_yeu_cau_list %}
+                        <option value="{{ vb.id }}">{{ vb.SoHieu  }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -112,7 +127,7 @@
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="DonViNhan" class="form-label">Đơn vị nhận *</label>
+                    <label for="DonViNhan" class="form-label">Đơn vị tiếp nhận *</label>
                     <input type="text" id="DonViNhan" name="DonViNhan" class="form-control" required>
                 </div>
                 <div class="col-md-6">
