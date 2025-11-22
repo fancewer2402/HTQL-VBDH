@@ -337,7 +337,7 @@ def xetduyetvanbandi(request, id):
             vb.NoiDungPhanCong = noi_dung_phan_cong
             van_thu = NhanVien.objects.filter(id=van_thu_id, vai_tro="VT").first()
             vb.VanThuPhuTrach = van_thu
-            vb.TrangThai = "Đã phê duyệt"
+            vb.TrangThai = "Chờ ban hành"
             vb.save()
 
             # Thông báo đã duyệt cho người tạo văn bản + trưởng phòng
