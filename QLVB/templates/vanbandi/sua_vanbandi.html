@@ -1,0 +1,145 @@
+{% block content %}
+<style>
+  .container {
+    margin: 30px auto;
+    width: 95%;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  .btn-gray {
+    background-color: #dcdcdc;
+    border: 1px solid #aaa;
+    padding: 7px 18px;
+    border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    color: black;
+    display: inline-block;
+    font-weight: normal;
+  }
+
+  .btn-gray:hover {
+    background-color: #cfcfcf;
+  }
+
+  .header-buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    border-bottom: 2px solid #1e4e79;
+    font-size: 22px;
+    font-weight: bold;
+    padding-bottom: 5px;
+    margin-bottom: 20px;
+    color: #1e4e79;
+    font-family: "Segoe UI", Arial, sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  td {
+    padding: 8px 10px;
+    vertical-align: top;
+  }
+
+  label {
+    font-weight: bold;
+  }
+
+  input[type="text"], input[type="email"], input[type="date"], textarea, select, input[type="file"] {
+    width: 100%;
+    border: 1px solid #999;
+    padding: 6px;
+    border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+  }
+
+  textarea {
+    height: 70px;
+    resize: none;
+  }
+</style>
+
+<div class="container">
+  <!-- Thanh trên cùng -->
+  <div class="header-buttons">
+    <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
+    <div><strong>Trạng thái:</strong> {{ vb.TrangThai }}</div>
+    <a href="{% url 'nhatkyhoatdong' 'vanbandi' vb.id %}" class="btn-gray">Xem nhật ký hoạt động</a>
+  </div>
+
+  <!-- Form bao toàn bộ phần nội dung -->
+  <form id="formSua" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <!-- Tiêu đề + nút hành động -->
+    <div class="title">
+      SỬA VĂN BẢN ĐI
+      <div>
+        <a href="{% url 'vanbandi_detail' vb.id %}" class="btn-gray">Hủy</a>
+        <button type="submit" class="btn-gray">Lưu thay đổi</button>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <td style="width: 20%;"><label>Trích yếu (*):</label></td>
+        <td style="width: 50%;"><textarea name="TrichYeu">{{ vb.TrichYeu }}</textarea></td>
+        <td rowspan="6" style="width: 30%;" valign="top"></td>
+      </tr>
+      <tr>
+        <td><label>Số ký hiệu (*):</label></td>
+        <td><input type="text" name="SoHieu" value="{{ vb.SoHieu }}"></td>
+      </tr>
+      <tr>
+        <td><label>Loại văn bản:</label></td>
+        <td><input type="text" name="LoaiVbDi" value="{{ vb.LoaiVbDi }}"></td>
+      </tr>
+      <tr>
+        <td><label>Độ mật:</label></td>
+        <td><input type="text" name="DoMat" value="{{ vb.DoMat }}"></td>
+      </tr>
+      <tr>
+        <td><label>Độ khẩn:</label></td>
+        <td><input type="text" name="DoKhan" value="{{ vb.DoKhan }}"></td>
+      </tr>
+      <tr>
+        <td><label>Đơn vị nhận (*):</label></td>
+        <td><input type="text" name="DonViNhan" value="{{ vb.DonViNhan }}"></td>
+      </tr>
+      <tr>
+        <td><label>Ngày phát hành:</label></td>
+        <td><input type="date" name="NgayBanHanh" value="{{ vb.NgayBanHanh|date:'Y-m-d' }}"></td>
+      </tr>
+      <tr>
+        <td><label>Nội dung:</label></td>
+        <td><textarea name="NoiDung">{{ vb.NoiDung }}</textarea></td>
+      </tr>
+      <tr>
+        <td><label>Tệp đính kèm:</label></td>
+        <td>
+          {% if vb.FileDinhKem %}
+            <p>📎 <a href="{{ vb.FileDinhKem.url }}" target="_blank" style="text-decoration:none; color:#1e4e79;">Xem tệp hiện tại</a></p>
+          {% endif %}
+          <input type="file" name="FileDinhKem">
+        </td>
+      </tr>
+    </table>
+  </form>
+</div>
+{% endblock %}
