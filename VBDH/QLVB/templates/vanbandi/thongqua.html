@@ -170,7 +170,7 @@
               <select name="quan_ly_chon" required>
                 <option value="">-- Chọn quản lý --</option>
                 {% for ql in danh_sach_quan_ly %}
-                  <option value="{{ ql.id }}">{{ ql.HoTen }}</option>
+                  <option value="{{ ql.id }}">{{ ql.ho_ten }}</option>
                 {% endfor %}
               </select>
             </div>
