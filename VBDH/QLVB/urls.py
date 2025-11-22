@@ -37,4 +37,5 @@ urlpatterns = [
     path('thongbao/doc/<int:id>/', views.mark_notification_read, name='mark_notification_read'),
     path('thongbao/read/<int:id>/', views.mark_notification_read, name='mark_notification_read'),  # giữ cả 2
     path('notification/<int:id>/read/', views.mark_notification_read, name='mark_notification_read'),
+
 ]

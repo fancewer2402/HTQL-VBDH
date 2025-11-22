@@ -17,23 +17,21 @@ from django.db import transaction
 
 
 def user_login(request):
-   if request.method == 'POST':
-       username = request.POST.get('username')
-       password = request.POST.get('password')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
 
-       user = authenticate(request, username=username, password=password)
-       if user is not None:
-           login(request, user)
-           if user.groups.filter(name='Quản lý').exists():
-               return redirect('dashboard_quanly')
-           elif user.groups.filter(name='Văn thư').exists():
-               return redirect('dashboard_vanthu')
-           else:
-               return redirect('dashboard_nhanvien')
-       else:
-           messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
-   return render(request, 'QLVB/login.html')
+            # === TẤT CẢ MỌI NGƯỜI ĐỀU VÀO DANH SÁCH VĂN BẢN ĐẾN ===
+            return redirect('danh_sach_van_ban_den')  # ← CHỈ CẦN DÒNG NÀY!
+
+        else:
+            messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
+
+    return render(request, 'QLVB/login.html')
 
 
 
@@ -703,3 +701,5 @@ def trang_thong_qua(request, vb_id):
 
         return redirect("vanbandi")
     return render(request, "vanbandi/thongqua.html", {"vb": vb, "danh_sach_quan_ly": danh_sach_quan_ly})
+
+
