@@ -28,7 +28,6 @@ urlpatterns = [
 
     # === PHÂN CÔNG & NHẬT KÝ ===
     path('<str:loaivanban>/<int:vanban_id>/nhatkyhoatdong/', views.nhat_ky_hoat_dong, name='nhatkyhoatdong'),
-    path('phancong/<int:id>/', views.phan_cong_van_thu, name='phancongvanthu'),
 
     # === TRA CỨU ===
     path('tra-cuu-van-ban/', views.tra_cuu_van_ban, name='tra_cuu_van_ban'),
