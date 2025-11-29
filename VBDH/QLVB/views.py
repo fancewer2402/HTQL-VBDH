@@ -21,10 +21,8 @@ logger = logging.getLogger(__name__)
 
 # === DASHBOARD PLACEHOLDERS (CẦN THÊM VÀO urls.py) ===
 def dashboard_quanly(request):
-    # Logic của bạn ở đây.
-    # Đảm bảo bạn đang render hoặc redirect đến một template/URL hợp lệ.
     from django.shortcuts import redirect
-    return redirect('vanbandi') # Ví dụ về cách 1: Chuyển hướng
+    return redirect('vanbandi')
 
 
 def dashboard_vanthu(request):
