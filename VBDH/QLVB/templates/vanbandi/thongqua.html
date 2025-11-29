@@ -124,7 +124,7 @@
             </tr>
             <tr>
               <td><label>Mã văn bản đến:</label></td>
-              <td><input type="text" readonly value="{{ vb.MaVanBanDen }}"></td>
+              <td><input type="text" readonly value="{{ vb.MaVBDen.SoHieu }}"></td>
             </tr>
             <tr>
               <td><label>Đơn vị tiếp nhận (*):</label></td>
@@ -132,7 +132,7 @@
             </tr>
             <tr>
               <td><label>Ngày soạn thảo:</label></td>
-              <td><input type="text" readonly value="{{ vb.NgayTao }}"></td>
+              <td><input type="text" readonly value="{{ vb.NgayTao|date:'d/m/Y' }}"></td>
             </tr>
               <tr>
               <td><label>Phòng ban:</label></td>

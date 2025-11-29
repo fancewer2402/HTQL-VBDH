@@ -57,9 +57,15 @@ ROOT_URLCONF = 'VBDH.urls'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ BASE_DIR / 'static' ]   # thư mục chứa css/js tùy chỉnh trong dev
 
-# Media (file upload)
+# settings.py
+import os
+# ...
+
+# Thiết lập đường dẫn gốc cho các file media (tệp đính kèm)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Thiết lập URL cơ sở để truy cập các file media
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
 
 AUTH_USER_MODEL = "accounts.User"
 

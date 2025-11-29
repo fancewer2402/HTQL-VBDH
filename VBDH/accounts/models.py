@@ -12,7 +12,7 @@ class User(AbstractUser):
 
     VAITRO_CHOICES = [
         ('NV', 'Nhân Viên'), ('QL', 'Quản Lý'),
-        ('VT', 'Văn Thư'), ('TP', 'Trưởng Phòng'),
+        ('VT', 'Văn Thư'), ('TP', 'Trưởng Phòng'),('GD', 'Giám Đốc'),
     ]
     vai_tro = models.CharField("Vai trò", max_length=2, choices=VAITRO_CHOICES, blank=True, null=True)
 
