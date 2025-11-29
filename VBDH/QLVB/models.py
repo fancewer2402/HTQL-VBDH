@@ -89,7 +89,6 @@ class VanBanDi(models.Model):
    Email = models.EmailField(blank=False)  # Bắt buộc
    FileDinhKem = models.FileField(upload_to='vanbandi/', blank=True, null=True)
 
-
    # SỬA: thêm choices + max_length hợp lý
    DoMat = models.CharField(
        max_length=20,
@@ -140,7 +139,8 @@ class ThongBao(models.Model):
    MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
 
    def __str__(self):
-        return self.TieuDe
+       return self.TieuDe
+
 
 
 # =====================

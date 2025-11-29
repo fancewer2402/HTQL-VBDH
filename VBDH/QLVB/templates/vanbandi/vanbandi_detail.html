@@ -1,5 +1,6 @@
 {% block content %}
 <style>
+  /* ********************************** CSS CHUNG ********************************** */
   .container {
     margin: 30px auto;
     width: 95%;
@@ -7,36 +8,20 @@
     font-size: 14px;
   }
 
-  .btn-blue {
-    background-color: #2b579a;
-    color: #fff;
-    border: none;
+  .btn-blue, .btn-success, .btn-gray {
     padding: 7px 18px;
     border-radius: 3px;
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
     font-weight: bold;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    text-decoration: none;
   }
 
-  .btn-gray {
-    background-color: #dcdcdc;
-    border: 1px solid #aaa;
-    padding: 7px 18px;
-    border-radius: 3px;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    text-decoration: none;
-    color: black;
-    display: inline-block;
-    font-weight: normal;
-  }
-
-  .btn-gray:hover {
-    background-color: #cfcfcf;
-  }
+  .btn-blue { background-color: #2b579a; color: #fff; border: none; }
+  .btn-success { background-color: #28a745; color: #fff; border: none; }
+  .btn-gray { background-color: #dcdcdc; border: 1px solid #aaa; color: black; display: inline-block; font-weight: normal; }
+  .btn-gray:hover { background-color: #cfcfcf; }
 
   .header-buttons {
     display: flex;
@@ -44,6 +29,14 @@
     align-items: center;
     margin-bottom: 15px;
   }
+
+  .action-buttons-group {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+  }
+  .action-buttons-group a { margin-bottom: 5px; }
+  .action-buttons-group a:last-child { margin-bottom: 0; }
 
   .title {
     border-bottom: 2px solid #1e4e79;
@@ -53,9 +46,7 @@
     margin-bottom: 20px;
     color: #1e4e79;
     font-family: "Segoe UI", Arial, sans-serif;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: block;
   }
 
   table {
@@ -64,31 +55,12 @@
     font-family: "Segoe UI", Arial, sans-serif;
     font-size: 14px;
   }
+  td { padding: 8px 10px; vertical-align: top; }
+  label { font-weight: bold; }
+  input[type="text"], textarea, select { width: 100%; border: 1px solid #999; padding: 6px; border-radius: 3px; font-size: 14px; font-family: "Segoe UI", Arial, sans-serif; }
+  textarea { height: 70px; resize: none; }
 
-  td {
-    padding: 8px 10px;
-    vertical-align: top;
-  }
-
-  label {
-    font-weight: bold;
-  }
-
-  input[type="text"], textarea, select {
-    width: 100%;
-    border: 1px solid #999;
-    padding: 6px;
-    border-radius: 3px;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-  }
-
-  textarea {
-    height: 70px;
-    resize: none;
-  }
-
-  /* ********************************** CSS MỚI CHO TOAST ********************************** */
+  /* ********************************** CSS TOAST ********************************** */
   .custom-toast {
     visibility: hidden;
     min-width: 280px;
@@ -98,7 +70,7 @@
     border-radius: 5px;
     padding: 10px 15px;
     position: fixed;
-    z-index: 1051; /* Đảm bảo Toast nằm trên tất cả */
+    z-index: 1051;
     right: 20px;
     bottom: 20px;
     font-size: 15px;
@@ -107,88 +79,53 @@
     opacity: 0;
     transition: opacity 0.5s, visibility 0.5s;
   }
-
-  .custom-toast.show {
-    visibility: visible;
-    opacity: 1;
-  }
-
-  .custom-toast.success {
-    background-color: #4CAF50; /* Xanh lá cây */
-  }
-
-  .custom-toast.error {
-    background-color: #f44336; /* Đỏ */
-  }
-  /* ******************************* KẾT THÚC CSS MỚI CHO TOAST ****************************** */
-
+  .custom-toast.show { visibility: visible; opacity: 1; }
+  .custom-toast.success { background-color: #4CAF50; }
+  .custom-toast.error { background-color: #f44336; }
 </style>
 
 <div class="container">
   <div class="header-buttons">
     <div>
-      <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
+      <a href="{% url 'vanbandi' %}" class="btn-gray">← Quay lại </a>
     </div>
+
     <div><strong>Trạng thái:</strong> {{ vb.TrangThai }}</div>
-    <button class="btn-gray">Xem nhật ký hoạt động</button>
+
+    <div class="action-buttons-group">
+        <a href="{% url 'nhatkyhoatdong' loaivanban='vanbandi' vanban_id=vb.pk %}" class="btn-gray">Xem nhật ký hoạt động</a>
+        {% if is_editable %}
+            <a href="{% url 'sua_vanbandi' pk=vb.pk %}" class="btn-gray">Sửa văn bản đi</a>
+        {% endif %}
+    </div>
   </div>
 
   <div class="title">
     CHI TIẾT VĂN BẢN ĐI
-    {% if vb.TrangThai == "Chờ phê duyệt" or vb.TrangThai == "Từ chối" %}
-      <a href="{% url 'sua_vanbandi' vb.id %}" class="btn-gray">Sửa văn bản đi</a>
-    {% endif %}
   </div>
 
   <table>
     <tr>
-      <td style="width: 20%;"><label>Trích yếu (*):</label></td>
-      <td style="width: 50%;"><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
-      <td rowspan="5" style="width: 30%;" valign="top"></td>
+      <td style="width:20%"><label>Trích yếu (*):</label></td>
+      <td style="width:50%"><textarea readonly>{{ vb.TrichYeu }}</textarea></td>
+      <td rowspan="5" style="width:30%" valign="top"></td>
     </tr>
-    <tr>
-      <td><label>Số ký hiệu (*):</label></td>
-      <td><input type="text" readonly value="{{ vb.SoKyHieu }}"></td>
-    </tr>
-    <tr>
-      <td><label>Loại văn bản:</label></td>
-      <td><input type="text" readonly value="{{ vb.LoaiVanBan }}"></td>
-    </tr>
-    <tr>
-      <td><label>Độ mật:</label></td>
-      <td><input type="text" readonly value="{{ vb.DoMat }}"></td>
-    </tr>
-    <tr>
-      <td><label>Độ khẩn:</label></td>
-      <td><input type="text" readonly value="{{ vb.DoKhan }}"></td>
-    </tr>
-    <tr>
-      <td><label>Đơn vị phát hành (*):</label></td>
-      <td><input type="text" readonly value="{{ vb.CoQuanBanHanh }}"></td>
-    </tr>
-    <tr>
-      <td><label>Ngày phát hành:</label></td>
-      <td><input type="text" readonly value="{{ vb.NgayBanHanh }}"></td>
-    </tr>
-    <tr>
-      <td><label>Ngày đến:</label></td>
-      <td><input type="text" readonly value="{{ vb.NgayDen }}"></td>
-    </tr>
-    <tr>
-      <td><label>Phòng ban:</label></td>
-      <td><input type="text" readonly value="{{ vb.PhongBan }}"></td>
-    </tr>
-    <tr>
-      <td><label>Nội dung:</label></td>
-      <td><textarea readonly>{{ vb.NoiDung }}</textarea></td>
-    </tr>
+    <tr><td><label>Số hiệu (*):</label></td><td><input type="text" readonly value="{{ vb.SoHieu }}"></td></tr>
+    <tr><td><label>Loại văn bản:</label></td><td><input type="text" readonly value="{{ vb.LoaiVbDi }}"></td></tr>
+    <tr><td><label>Mã văn bản đến:</label></td><td><input type="text" readonly value="{{ vb.MaVanBanDen }}"></td></tr>
+    <tr><td><label>Độ mật:</label></td><td><input type="text" readonly value="{{ vb.get_DoMat_display }}"></td></tr>
+    <tr><td><label>Độ khẩn:</label></td><td><input type="text" readonly value="{{ vb.get_DoKhan_display }}"></td></tr>
+    <tr><td><label>Đơn vị tiếp nhận (*):</label></td><td><input type="text" readonly value="{{ vb.DonViNhan }}"></td></tr>
+    <tr><td><label>Ngày soạn thảo:</label></td><td><input type="text" readonly value="{{ vb.NgayTao|date:'d/m/Y' }}">
+</td></tr>
+    <tr><td><label>Ngày phát hành:</label></td><td><input type="text" readonly value="{{ vb.NgayBanHanh|date:'d/m/Y' }}"></td></tr>
+    <tr><td><label>Phòng ban:</label></td><td><input type="text" readonly value="{{ vb.MaNhanVien.MaPhongBan.TenPhongBan }}"></td></tr>
+    <tr><td><label>Nội dung:</label></td><td><textarea readonly>{{ vb.NoiDung }}</textarea></td></tr>
     <tr>
       <td><label>Tệp đính kèm:</label></td>
       <td>
-        {% if vb.TepDinhKem %}
-          <a href="{{ vb.TepDinhKem.url }}" target="_blank" class="btn-gray" style="text-decoration:none;">
-            📎 Xem tệp đính kèm
-          </a>
+        {% if vb.FileDinhKem %}
+          <a href="{{ vb.FileDinhKem.url }}" target="_blank" class="btn-gray" style="text-decoration:none;">📎 Xem tệp đính kèm</a>
         {% else %}
           <input type="text" readonly value="Không có tệp đính kèm">
         {% endif %}
@@ -197,6 +134,8 @@
   </table>
 </div>
 
+<!-- TOAST MESSAGES -->
+<div id="customToast" class="custom-toast"></div>
 <div id="messages-container" style="display:none;">
     {% if messages %}
         {% for message in messages %}
@@ -208,42 +147,32 @@
     {% endif %}
 </div>
 
-<div id="customToast" class="custom-toast"></div>
-
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const toastElement = document.getElementById('customToast');
-        const messageContainer = document.getElementById('messages-container');
+document.addEventListener('DOMContentLoaded', function() {
+    const toastElement = document.getElementById('customToast');
+    const messageContainer = document.getElementById('messages-container');
+    const messages = messageContainer ? messageContainer.querySelectorAll('.message-item') : [];
 
-        // Lấy tất cả các tin nhắn từ Django
-        const messages = messageContainer ? messageContainer.querySelectorAll('.message-item') : [];
+    if (messages.length > 0) {
+        const latestMessage = messages[messages.length - 1];
+        const messageText = latestMessage.getAttribute('data-message-text');
+        const messageTags = latestMessage.getAttribute('data-message-tags');
 
-        if (messages.length > 0) {
-            // Chỉ lấy thông báo mới nhất (thường là thông báo thành công sau redirect)
-            const latestMessage = messages[messages.length - 1];
-            const messageText = latestMessage.getAttribute('data-message-text');
-            const messageTags = latestMessage.getAttribute('data-message-tags');
-
-            if (messageText && toastElement) {
-                // Đặt nội dung
-                toastElement.textContent = messageText;
-
-                // Thêm class dựa trên tag (success, error, warning...)
-                if (messageTags.includes('success')) {
-                    toastElement.classList.add('success');
-                } else if (messageTags.includes('error')) {
-                    toastElement.classList.add('error');
-                }
-
-                // Hiển thị toast
-                toastElement.classList.add('show');
-
-                // Tự động ẩn sau 3 giây
-                setTimeout(function() {
-                    toastElement.classList.remove('show');
-                }, 3000);
+        if (messageText && toastElement) {
+            toastElement.textContent = messageText;
+            if (messageTags.includes('success')) {
+                toastElement.classList.add('success');
+            } else if (messageTags.includes('error') || messageTags.includes('warning')) {
+                toastElement.classList.add('error');
             }
+
+            toastElement.classList.add('show');
+
+            setTimeout(function() {
+                toastElement.classList.remove('show');
+            }, 3000);
         }
-    });
+    }
+});
 </script>
 {% endblock %}

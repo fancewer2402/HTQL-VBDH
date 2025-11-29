@@ -54,7 +54,22 @@
         word-wrap: break-word;
     }
 
-    /* ====== NÚT TẠO VĂN BẢN ====== */
+    /* ====== CSS cho Badge (Trạng thái) ====== */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        display: inline-block;
+        font-size: 12px;
+    }
+    .bg-success { background-color: #28a745; color: white; }
+    .bg-warning { background-color: #ffc107; color: #343a40; }
+    .bg-danger { background-color: #dc3545; color: white; }
+    .bg-info { background-color: #17a2b8; color: white; }
+    .bg-primary { background-color: #007bff; color: white; }
+    .bg-secondary { background-color: #6c757d; color: white; }
+
+    /* ====== NÚT TẠO VĂN BẢN (CSS Đã Có Sẵn) ====== */
     .btn-create-custom {
         font-family: 'Times New Roman', Times, serif;
         font-size: 16px;
@@ -200,11 +215,9 @@
     <h2>Danh sách văn bản đi</h2>
 </div>
 
-<!-- ========== TRA CỨU VĂN BẢN ========== -->
 <div class="search-container">
     <div class="search-title">Tra cứu văn bản</div>
     <form method="get" action="{% url 'vanbandi' %}">
-        <!-- Hàng 1 -->
         <div class="form-row">
             <div class="form-group">
                 <label>Từ khóa</label>
@@ -218,7 +231,6 @@
             </div>
         </div>
 
-        <!-- Hàng 2 -->
         <div class="form-row">
             <div class="form-group">
                 <label>Ngày tạo</label>
@@ -262,9 +274,9 @@
     flatpickr("#fromDate, #toDate", { dateFormat: "d/m/Y" });
 </script>
 
-<!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
+        <a href="{% url 'vanbandi_create' %}" class="btn-create-custom">Tạo văn bản đi</a>
     </div>
 
     <div class="table-responsive">
@@ -283,21 +295,30 @@
                 {% for vb in ds_vanbandi %}
                 <tr>
                     <td class="text-center">{{ forloop.counter }}</td>
-                    <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
+                    <td class="text-center fw-semibold">
+                        <a href="{% url 'vanbandi_detail' vb.pk %}">{{ vb.SoHieu }}</a>
+                    </td>
                     <td class="text-start">
-                        <a href="{% url 'vanbandi_detail' vb.id %}">{{ vb.TrichYeu }}</a>
+                        <a href="{% url 'vanbandi_detail' vb.pk %}">{{ vb.TrichYeu }}</a>
                     </td>
                     <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
                     <td class="text-center">{{ vb.LoaiVbDi }}</td>
+
                     <td class="text-center">
-                        {% if vb.trang_thai == 'đã duyệt' %}
-                            <span class="badge bg-success">Đã duyệt</span>
-                        {% elif vb.trang_thai == 'chờ duyệt' %}
-                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                        {% elif vb.trang_thai == 'từ chối' %}
-                            <span class="badge bg-danger">Từ chối</span>
+                        {% if vb.TrangThai == 'Chờ thông qua' %}
+                            {{ vb.TrangThai }}
+                        {% elif vb.TrangThai == 'Từ chối thông qua' %}
+                            <span class="badge bg-danger">Từ chối (TP)</span>
+                        {% elif vb.TrangThai == 'Chờ xét duyệt' %}
+                            <span>{{ vb.TrangThai }} </span>
+                        {% elif vb.TrangThai == 'Đã xét duyệt' %}
+                            <span class="badge bg-primary">Đã xét duyệt (GĐ)</span>
+                        {% elif vb.TrangThai == 'Chờ ban hành' %}
+                            {{ vb.TrangThai }}
+                        {% elif vb.TrangThai == 'Đã ban hành' %}
+                            <span>{{ vb.TrangThai }} </span>
                         {% else %}
-                            <span class="badge bg-secondary">Không xác định</span>
+                            <span class="badge bg-secondary">{{ vb.TrangThai }}</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -311,7 +332,6 @@
     </div>
 </div>
 
-<!-- PHÂN TRANG -->
 <nav aria-label="Page navigation" class="mt-4">
     <ul class="pagination justify-content-center">
         {% if page_obj.has_previous %}
