@@ -30,32 +30,31 @@ DOMAT_CHOICES = [
    ('BINH THUONG', 'Bình thường'),
 ]
 
-
 class VanBanDen(models.Model):
-   SoHieu = models.CharField(max_length=100, blank=False)
-   TrichYeu = models.CharField(max_length=250, blank=False)
-   LoaiVBDen = models.CharField(max_length=100)
-   DonViPhatHanh = models.CharField(max_length=250)
-   NgayBanHanh = models.DateTimeField(null=True, blank=True)
-   NgayDen = models.DateTimeField(null=True, blank=True)
-   NoiDung = models.CharField(max_length=500, null=True, blank=True)
-   DoKhan = models.CharField(
-       max_length=20,
-       choices=DOKHAN_CHOICES,
-       default='BINH THUONG'
-   )
-   DoMat = models.CharField(
-       max_length=20,
-       choices=DOMAT_CHOICES,
-       default='BINH THUONG'
-   )
-   TrangThai = models.CharField(max_length=50, null=True, blank=True)
-   FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True, null=True)
-   MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-   MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE)
-
-
-   def __str__(self):
+    SoHieu = models.CharField(null = False, max_length = 100)
+    TrichYeu = models.CharField(null = False, max_length = 250)
+    LoaiVBDen = models.CharField(max_length = 100)
+    DonViPhatHanh = models.CharField(max_length = 250)
+    NgayBanHanh = models.DateTimeField(null=True, blank=True)
+    NgayDen = models.DateTimeField(null=True, blank=True)
+    NoiDung = models.CharField(max_length = 250,null=True, blank=True)
+    YeuCauVBDi = models.IntegerField(default=0)
+    DoKhan = models.CharField(
+        max_length=20,
+        choices=DOKHAN_CHOICES,
+        default='BINH THUONG'
+    )
+    DoMat = models.CharField(
+        max_length=20,
+        choices=DOMAT_CHOICES,
+        default='BINH THUONG'
+    )
+    TrangThai = models.CharField(max_length=255, null=True, blank=True)  # TrangThai
+    FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True)
+    NgayTao = models.DateTimeField(auto_now_add=True)  # NgayTao
+    MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    MaPhongBan = models.ForeignKey(PhongBan, on_delete = models.CASCADE)
+    def __str__(self):
        return self.TrichYeu
 
 
@@ -109,7 +108,8 @@ class VanBanDi(models.Model):
    NgayTao = models.DateTimeField(auto_now_add=True)
    MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
    MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
-
+   YeuCauVBDi = models.IntegerField(choices=[(0, 'Không yêu cầu'), (1, 'Có yêu cầu')], default=0)
+   MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE)
 
    def __str__(self):
        return self.TrichYeu
@@ -137,7 +137,6 @@ class ThongBao(models.Model):
    MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
    MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
    MaVBDi = models.ForeignKey(VanBanDi, on_delete=models.CASCADE, null=True, blank=True)
-
 
    def __str__(self):
        return self.TieuDe
