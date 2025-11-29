@@ -316,7 +316,7 @@
                         {% elif vb.TrangThai == 'Chờ ban hành' %}
                             {{ vb.TrangThai }}
                         {% elif vb.TrangThai == 'Đã ban hành' %}
-                            <span class="badge bg-success"> Đã ban hành</span>
+                            <span>{{ vb.TrangThai }} </span>
                         {% else %}
                             <span class="badge bg-secondary">{{ vb.TrangThai }}</span>
                         {% endif %}

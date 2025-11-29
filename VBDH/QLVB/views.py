@@ -14,7 +14,7 @@ from accounts.models import User as NhanVien
 import os
 from django.db import transaction
 from .forms import VanBanDiForm, VanBanDiEditForm
-
+from django.contrib.auth.decorators import login_required
 import logging
 logger = logging.getLogger(__name__)
 
@@ -191,10 +191,7 @@ def ds_vanbandi(request):
 
     context.update(global_notifications(request))
     return render(request, 'vanbandi/vanbandi.html', context)
-
-from django.shortcuts import render, redirect, get_object_or_404
-# Đảm bảo bạn đã import các Model cần thiết
-
+@login_required
 def vanbandi_detail(request, pk):
     van_ban = get_object_or_404(VanBanDi, pk=pk)
     is_editable = False
