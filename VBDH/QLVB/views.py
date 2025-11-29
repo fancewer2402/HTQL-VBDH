@@ -590,8 +590,14 @@ def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
    }
    return render(request, 'QLVB/nhat_ky_hoat_dong.html', context)
 
+
+
+
+
+
 from django.core.mail import EmailMultiAlternatives  # ← DÙNG CÁI NÀY ĐỂ GỬI HTML
 from django.utils.html import strip_tags
+
 
 @transaction.atomic
 def ban_hanh_van_ban(request, id):
