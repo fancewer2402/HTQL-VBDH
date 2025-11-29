@@ -1,5 +1,6 @@
 {% block content %}
 <style>
+  /* ********************************** CSS CHUNG ********************************** */
   .container {
     margin: 30px auto;
     width: 95%;
@@ -74,20 +75,26 @@
     height: 70px;
     resize: none;
   }
+
+  /* ********************************** CSS LỖI FORM ********************************** */
+  .errorlist {
+    color: #f44336;
+    list-style-type: none;
+    padding-left: 0;
+    margin-top: 5px;
+    font-weight: bold;
+  }
 </style>
 
 <div class="container">
-  <!-- Thanh trên cùng -->
   <div class="header-buttons">
     <button class="btn-gray" onclick="window.history.back()">← Quay lại</button>
     <div><strong>Trạng thái:</strong> {{ vb.TrangThai }}</div>
     <a href="{% url 'nhatkyhoatdong' 'vanbandi' vb.id %}" class="btn-gray">Xem nhật ký hoạt động</a>
   </div>
 
-  <!-- Form bao toàn bộ phần nội dung -->
   <form id="formSua" method="POST" enctype="multipart/form-data">
     {% csrf_token %}
-    <!-- Tiêu đề + nút hành động -->
     <div class="title">
       SỬA VĂN BẢN ĐI
       <div>
@@ -98,47 +105,113 @@
 
     <table>
       <tr>
-        <td style="width: 20%;"><label>Trích yếu (*):</label></td>
-        <td style="width: 50%;"><textarea name="TrichYeu">{{ vb.TrichYeu }}</textarea></td>
+        <td style="width: 20%;"><label for="id_TrichYeu">Trích yếu (*):</label></td>
+        <td style="width: 50%;">
+          <textarea id="id_TrichYeu" name="TrichYeu">{{ form.TrichYeu.value|default_if_none:'' }}</textarea>
+          {% if form.TrichYeu.errors %}
+            <ul class="errorlist">{% for error in form.TrichYeu.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
         <td rowspan="6" style="width: 30%;" valign="top"></td>
       </tr>
+
       <tr>
-        <td><label>Số ký hiệu (*):</label></td>
-        <td><input type="text" name="SoHieu" value="{{ vb.SoHieu }}"></td>
-      </tr>
-      <tr>
-        <td><label>Loại văn bản:</label></td>
-        <td><input type="text" name="LoaiVbDi" value="{{ vb.LoaiVbDi }}"></td>
-      </tr>
-      <tr>
-        <td><label>Độ mật:</label></td>
-        <td><input type="text" name="DoMat" value="{{ vb.DoMat }}"></td>
-      </tr>
-      <tr>
-        <td><label>Độ khẩn:</label></td>
-        <td><input type="text" name="DoKhan" value="{{ vb.DoKhan }}"></td>
-      </tr>
-      <tr>
-        <td><label>Đơn vị nhận (*):</label></td>
-        <td><input type="text" name="DonViNhan" value="{{ vb.DonViNhan }}"></td>
-      </tr>
-      <tr>
-        <td><label>Ngày phát hành:</label></td>
-        <td><input type="date" name="NgayBanHanh" value="{{ vb.NgayBanHanh|date:'Y-m-d' }}"></td>
-      </tr>
-      <tr>
-        <td><label>Nội dung:</label></td>
-        <td><textarea name="NoiDung">{{ vb.NoiDung }}</textarea></td>
-      </tr>
-      <tr>
-        <td><label>Tệp đính kèm:</label></td>
+        <td><label for="id_SoHieu">Số ký hiệu (*):</label></td>
         <td>
-          {% if vb.FileDinhKem %}
-            <p>📎 <a href="{{ vb.FileDinhKem.url }}" target="_blank" style="text-decoration:none; color:#1e4e79;">Xem tệp hiện tại</a></p>
+          <input type="text" id="id_SoHieu" name="SoHieu" value="{{ form.SoHieu.value|default_if_none:'' }}">
+          {% if form.SoHieu.errors %}
+            <ul class="errorlist">{% for error in form.SoHieu.errors %}<li>{{ error }}</li>{% endfor %}</ul>
           {% endif %}
-          <input type="file" name="FileDinhKem">
         </td>
       </tr>
+
+      <tr>
+        <td><label for="id_LoaiVbDi">Loại văn bản:</label></td>
+        <td>
+          <input type="text" id="id_LoaiVbDi" name="LoaiVbDi" value="{{ form.LoaiVbDi.value|default_if_none:'' }}">
+          {% if form.LoaiVbDi.errors %}
+            <ul class="errorlist">{% for error in form.LoaiVbDi.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <td><label for="id_DoMat">Độ mật:</label></td>
+        <td>
+          {{ form.DoMat }}
+          {% if form.DoMat.errors %}
+            <ul class="errorlist">{% for error in form.DoMat.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <td><label for="id_DoKhan">Độ khẩn:</label></td>
+        <td>
+          {{ form.DoKhan }}
+          {% if form.DoKhan.errors %}
+            <ul class="errorlist">{% for error in form.DoKhan.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <td><label for="id_DonViNhan">Đơn vị nhận (*):</label></td>
+        <td>
+          <input type="text" id="id_DonViNhan" name="DonViNhan" value="{{ form.DonViNhan.value|default_if_none:'' }}">
+          {% if form.DonViNhan.errors %}
+            <ul class="errorlist">{% for error in form.DonViNhan.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <td><label for="id_NgayBanHanh">Ngày phát hành:</label></td>
+        <td>
+          <input type="date" id="id_NgayBanHanh" name="NgayBanHanh"
+                 value="{{ form.NgayBanHanh.value|date:'Y-m-d'|default_if_none:'' }}">
+          {% if form.NgayBanHanh.errors %}
+            <ul class="errorlist">{% for error in form.NgayBanHanh.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+
+      <tr>
+        <td><label for="id_NoiDung">Nội dung:</label></td>
+        <td>
+          <textarea id="id_NoiDung" name="NoiDung">{{ form.NoiDung.value|default_if_none:'' }}</textarea>
+          {% if form.NoiDung.errors %}
+            <ul class="errorlist">{% for error in form.NoiDung.errors %}<li>{{ error }}</li>{% endfor %}</ul>
+          {% endif %}
+        </td>
+      </tr>
+
+      <!-- ==================== TỆP ĐÍNH KÈM ĐÃ ĐƯỢC TỐI GIẢN ==================== -->
+      <tr>
+        <td><label for="id_FileDinhKem">Tệp đính kèm:</label></td>
+        <td>
+          {% if vb.FileDinhKem %}
+            <p>📎
+              <a href="{{ vb.FileDinhKem.url }}" target="_blank"
+                 style="text-decoration:none; color:#1e4e79;">
+                 Xem tệp hiện tại
+              </a>
+            </p>
+          {% endif %}
+
+          <input type="file" name="FileDinhKem" id="id_FileDinhKem">
+
+          {% if form.FileDinhKem.errors %}
+            <ul class="errorlist">
+              {% for error in form.FileDinhKem.errors %}
+                <li>{{ error }}</li>
+              {% endfor %}
+            </ul>
+          {% endif %}
+        </td>
+      </tr>
+      <!-- ======================================================================= -->
+
     </table>
   </form>
 </div>
