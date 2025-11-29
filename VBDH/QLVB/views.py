@@ -15,24 +15,35 @@ User = get_user_model()
 import os
 from django.db import transaction
 from datetime import datetime
+from .forms import VanBanDiEditForm
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+from django.urls import reverse
 
 
 def user_login(request):
-   if request.method == 'POST':
-       username = request.POST.get('username')
-       password = request.POST.get('password')
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            if user.groups.filter(name='Quản lý').exists():
-                return redirect('dashboard_quanly')
-            elif user.groups.filter(name='Văn thư').exists():
-                return redirect('dashboard_vanthu')
-            else:
-                return redirect('dashboard_nhanvien')
+
+            # DÙ LÀ QUẢN LÝ, VĂN THƯ, NHÂN VIÊN HAY TRƯỞNG PHÒNG
+            # → ĐỀU VÀO DANH SÁCH VĂN BẢN ĐẾN LUÔN!!!
+            return redirect('danh_sach_van_ban_den')  # ← ĐÂY LÀ DÒNG CON MUỐN
+
+            # Nếu sau này muốn phân dashboard theo role thì bỏ comment lại đoạn dưới
+            # if user.groups.filter(name='Quản lý').exists():
+            #     return redirect('dashboard_quanly')
+            # elif user.groups.filter(name='Văn thư').exists():
+            #     return redirect('dashboard_vanthu')
+            # else:
+            #     return redirect('dashboard_nhanvien')
         else:
             messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
+
     return render(request, 'QLVB/login.html')
 
 
@@ -444,47 +455,54 @@ def ban_hanh_van_ban(request, id):
                    messages.error(request, "Vui lòng nhập email người nhận.")
                    return render(request, "vanbandi/ban_hanh_van_ban.html", {"vb": vb, "today": today})
 
-                # Tạo số hiệu tự động nếu chưa có
-                if not vb.SoHieu or vb.SoHieu.strip() == "":
-                    count = VanBanDi.objects.count() + 1
-                    vb.SoHieu = f"{count}/CV-PCDL/{today.year}"
 
-                # Cập nhật dữ liệu
-                vb.Email = email_nguoi_nhan
-                vb.DoMat = request.POST.get("DoMat", vb.DoMat)
-                vb.DoKhan = request.POST.get("DoKhan", vb.DoKhan)
-                vb.NgayBanHanh = today
-                vb.TrangThai = "Đã ban hành"
-                vb.save()
+               # === TẠO SỐ HIỆU TỰ ĐỘNG ===
+               if not vb.SoHieu or vb.SoHieu.strip() == "":
+                   count = VanBanDi.objects.count() + 1
+                   vb.SoHieu = f"{count}/CV-PCDL/{today.year}"
 
-                # Nội dung email
-                subject = f"[Văn bản đi] {vb.SoHieu} - {vb.TrichYeu}"
-                html_content = f"""
-                <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
-                    <div style="background: #2b579a; color: white; padding: 15px; text-align: center;">
-                        <h2 style="margin: 0;">CÔNG TY ĐIỆN LỰC ĐẮK LẮK</h2>
-                    </div>
-                    <div style="padding: 20px;">
-                        <h3 style="color: #2b579a;">Kính gửi Quý cơ quan,</h3>
-                        <p><strong>Văn bản đã được ban hành:</strong></p>
-                        <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
-                            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Số hiệu:</strong></td><td style="padding: 8px;">{vb.SoHieu}</td></tr>
-                            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Trích yếu:</strong></td><td style="padding: 8px;">{vb.TrichYeu}</td></tr>
-                            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Ngày ban hành:</strong></td><td style="padding: 8px;">{today.strftime('%d/%m/%Y')}</td></tr>
-                            <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Độ khẩn:</strong></td><td style="padding: 8px;">{vb.get_DoKhan_display()}</td></tr>
-                            <tr><td style="padding: 8px;"><strong>Độ mật:</strong></td><td style="padding: 8px;">{vb.get_DoMat_display()}</td></tr>
-                        </table>
-                        <div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #2b579a; margin: 15px 0;">
-                            <strong>Nội dung:</strong><br>
-                            {vb.NoiDung.replace(chr(10), '<br>')}
-                        </div>
-                        <p><em>Trân trọng,<br><strong>Hệ thống Quản lý Văn bản - PC Đắk Lắk</strong></em></p>
-                    </div>
-                    <div style="background: #f1f1f1; padding: 10px; text-align: center; font-size: 12px; color: #666;">
-                        Email tự động từ hệ thống QLVB - Vui lòng không trả lời.
-                    </div>
-                </div>
-                """
+
+               # === CẬP NHẬT DỮ LIỆU ===
+               vb.Email = email_nguoi_nhan
+               vb.DoMat = request.POST.get("DoMat", vb.DoMat)
+               vb.DoKhan = request.POST.get("DoKhan", vb.DoKhan)
+               vb.NgayBanHanh = today
+               vb.TrangThai = "Đã ban hành"
+               vb.save()
+
+
+               # === NỘI DUNG EMAIL ===
+               subject = f"[Văn bản đi] {vb.SoHieu} - {vb.TrichYeu}"
+
+
+               html_content = f"""
+               <div style="font-family: Arial, sans-serif; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; overflow: hidden;">
+                   <div style="background: #2b579a; color: white; padding: 15px; text-align: center;">
+                       <h2 style="margin: 0;">CÔNG TY ĐIỆN LỰC ĐẮK LẮK</h2>
+                   </div>
+                   <div style="padding: 20px;">
+                       <h3 style="color: #2b579a;">Kính gửi Quý cơ quan,</h3>
+                       <p><strong>Văn bản đã được ban hành:</strong></p>
+                       <table style="width: 100%; border-collapse: collapse; margin: 15px 0;">
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Số hiệu:</strong></td><td style="padding: 8px;">{vb.SoHieu}</td></tr>
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Trích yếu:</strong></td><td style="padding: 8px;">{vb.TrichYeu}</td></tr>
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Ngày ban hành:</strong></td><td style="padding: 8px;">{today.strftime('%d/%m/%Y')}</td></tr>
+                           <tr><td style="padding: 8px; border-bottom: 1px solid #eee;"><strong>Độ khẩn:</strong></td><td style="padding: 8px;">{vb.get_DoKhan_display()}</td></tr>
+                           <tr><td style="padding: 8px;"><strong>Độ mật:</strong></td><td style="padding: 8px;">{vb.get_DoMat_display()}</td></tr>
+                       </table>
+<div style="background: #f8f9fa; padding: 15px; border-left: 4px solid #2b579a; margin: 15px 0;">
+                           <strong>Nội dung:</strong><br>
+                           {vb.NoiDung.replace(chr(10), '<br>')}
+                       </div>
+                       <p><em>Trân trọng,<br><strong>Hệ thống Quản lý Văn bản - PC Đắk Lắk</strong></em></p>
+                   </div>
+                   <div style="background: #f1f1f1; padding: 10px; text-align: center; font-size: 12px; color: #666;">
+                       Email tự động từ hệ thống QLVB - Vui lòng không trả lời.
+                   </div>
+               </div>
+               """
+
+
                text_content = strip_tags(html_content)  # Phiên bản text
 
 
@@ -497,101 +515,50 @@ def ban_hanh_van_ban(request, id):
                )
                email.attach_alternative(html_content, "text/html")
 
-                # Đính kèm file nếu có
-                if vb.FileDinhKem and hasattr(vb.FileDinhKem, 'path') and os.path.exists(vb.FileDinhKem.path):
-                    email.attach_file(vb.FileDinhKem.path)
 
-                try:
-                    email.send()
-                    messages.success(request, f"ĐÃ BAN HÀNH + GỬI EMAIL THÀNH CÔNG đến: <strong>{email_nguoi_nhan}</strong>")
-                except Exception as e:
-                    messages.warning(request, f"Đã ban hành nhưng <strong>gửi email thất bại</strong>: {str(e)}")
-                    logger.exception("[EMAIL ERROR]")
-
-                # Tạo thông báo nội bộ
-                ThongBao.objects.create(
-                    TieuDe=f"Văn bản '{vb.TrichYeu}' đã ban hành",
-                    NoiDung=f"Số hiệu: {vb.SoHieu} | Gửi đến: {email_nguoi_nhan}",
-                    MaNhanVien=vb.MaNhanVien,
-                    MaVBDi=vb,
-                )
-
-                # Cập nhật phân công + nhật ký
-                phancong = PhanCongCongViec.objects.filter(VanBanDi=vb).first()
-                if phancong:
-                    phancong.TrangThai = PhanCongCongViec.TrangThai.DA_BAN_HANH
-                    phancong.save()
-                    NhatKyCongViec.objects.create(
-                        PhanCong=phancong,
-                        ThaoTac=f"Ban hành văn bản đi số {vb.SoHieu}",
-                        TrangThai=PhanCongCongViec.TrangThai.DA_BAN_HANH,
-                        NguoiThucHien=vb.MaNhanVien
-                    )
-
-                return redirect("vanbandi")
-
-            except Exception as e:
-                messages.error(request, f"Lỗi hệ thống: {str(e)}")
-
-    return render(request, "vanbandi/ban_hanh_van_ban.html", {"vb": vb, "today": today})
+               # === ĐÍNH KÈM FILE (nếu có) ===
+               if vb.FileDinhKem and os.path.exists(vb.FileDinhKem.path):
+                   email.attach_file(vb.FileDinhKem.path)
 
 
-def trang_thong_qua(request, vb_id):
-    vb = get_object_or_404(VanBanDi, id=vb_id)
-    danh_sach_quan_ly = NhanVien.objects.filter(vai_tro="QL")
-    truong_phong = NhanVien.objects.filter(id=request.user.pk).first()
+               try:
+                   email.send()
+                   messages.success(request, f"ĐÃ BAN HÀNH + GỬI EMAIL THÀNH CÔNG đến: <strong>{email_nguoi_nhan}</strong>")
+               except Exception as e:
+                   messages.warning(request, f"Đã ban hành nhưng <strong>gửi email thất bại</strong>: {str(e)}")
+                   print(f"[EMAIL ERROR] {e}")
 
-    if request.method == "POST":
-        action = request.POST.get("action")
-        ly_do = request.POST.get("ly_do_tu_choi", "")
-        quan_ly_id = request.POST.get("quan_ly_chon")
-        quan_ly = NhanVien.objects.filter(id=quan_ly_id).first() if quan_ly_id else None
 
-        if action == "thongqua":
-            if not quan_ly:
-                messages.error(request, "⚠️ Phải chọn quản lý trước khi thông qua.")
-                context = {"vb": vb, "danh_sach_quan_ly": danh_sach_quan_ly, "truong_phong": truong_phong}
-                context.update(global_notifications(request))
-                return render(request, "vanbandi/thongqua.html", context)
+               # === TẠO THÔNG BÁO NỘI BỘ ===
+               ThongBao.objects.create(
+                   TieuDe=f"Văn bản '{vb.TrichYeu}' đã ban hành",
+                   NoiDung=f"Số hiệu: {vb.SoHieu} | Gửi đến: {email_nguoi_nhan}",
+                   MaNhanVien=vb.MaNhanVien,
+                   MaVBDi=vb,
+               )
 
-            file_chu_ky = request.FILES.get("file_chu_ky")
-            if file_chu_ky:
-                vb.FileChuKy = file_chu_ky
 
-            vb.TrangThai = "Chờ phê duyệt"
-            vb.save()
+               # === CẬP NHẬT PHÂN CÔNG + NHẬT KÝ ===
+               phancong = PhanCongCongViec.objects.filter(VanBanDi=vb).first()
+               if phancong:
+                   phancong.TrangThai = PhanCongCongViec.TrangThai.DA_BAN_HANH
+                   phancong.save()
+                   NhatKyCongViec.objects.create(
+                       PhanCong=phancong,
+                       ThaoTac=f"Ban hành văn bản đi số {vb.SoHieu}",
+                       TrangThai=PhanCongCongViec.TrangThai.DA_BAN_HANH,
+                       NguoiThucHien=vb.MaNhanVien
+                   )
 
-            ThongBao.objects.create(
-                TieuDe="Yêu cầu phê duyệt văn bản đi",
-                NoiDung=f"Trưởng phòng {truong_phong.HoTen if truong_phong else 'N/A'} trình duyệt văn bản đi '{vb.TrichYeu}'.",
-                MaNhanVien=quan_ly,
-                MaVBDi=vb
-            )
-            messages.success(request, f"Văn bản '{vb.TrichYeu}' đã được trình duyệt. Trạng thái: Chờ phê duyệt.")
 
-        elif action == "tuchoi":
-            vb.TrangThai = "Từ chối thông qua"
-            vb.save()
+               return redirect("vanbandi")
 
-            if vb.MaNhanVien:
-                ThongBao.objects.create(
-                    TieuDe="Dự thảo bị từ chối",
-                    NoiDung=f"❌ Dự thảo '{vb.TrichYeu}' bị từ chối bởi Trưởng phòng {truong_phong.HoTen if truong_phong else 'N/A'}. Lý do: {ly_do or 'Không ghi rõ'}",
-                    MaNhanVien=vb.MaNhanVien,
-                    MaVBDi=vb
-                )
 
-            messages.warning(request, f"❌ Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
+           except Exception as e:
+               messages.error(request, f"Lỗi hệ thống: {str(e)}")
 
-        return redirect("vanbandi")
 
-    context = {
-        "vb": vb,
-        "danh_sach_quan_ly": danh_sach_quan_ly,
-        "truong_phong": truong_phong
-    }
-    context.update(global_notifications(request))
-    return render(request, "vanbandi/thongqua.html", context)
+   return render(request, "vanbandi/ban_hanh_van_ban.html", {"vb": vb, "today": today})
 
 
 def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
@@ -800,57 +767,81 @@ def bao_cao_vbden(request, vb_id):
 
 
 def sua_vb_den(request, vb_id):
-    vb = get_object_or_404(VanBanDen, id=vb_id)
-    phongbans = PhongBan.objects.all()
+    vb = get_object_or_404(VanBanDen, pk=vb_id)
+    context = {
+        'vb': vb,
+        'phongbans': PhongBan.objects.all(),
+        'nhan_vien_list': User.objects.all().order_by('ho_ten'),
+        'DOKHAN_CHOICES': vb._meta.get_field('DoKhan').choices,
+        'DOMAT_CHOICES': vb._meta.get_field('DoMat').choices,
+    }
 
     if request.method == 'POST':
-        vb.SoHieu = request.POST.get('SoHieu')
-        vb.TrichYeu = request.POST.get('TrichYeu')
-        vb.LoaiVBDen = request.POST.get('LoaiVBDen')
-        vb.DonViPhatHanh = request.POST.get('DonViPhatHanh')
+        data = request.POST
+        files = request.FILES
+        now = date.today()
 
+        try:
+            # Lấy chuỗi từ form
+            ngay_ban_hanh_str = data.get('NgayBanHanh')
+            ngay_den_str = data.get('NgayDen')
 
-       ngay_bh = request.POST.get('NgayBanHanh')
-       ngay_den = request.POST.get('NgayDen')
-       if ngay_bh:
-           try:
-               from datetime import datetime
-               vb.NgayBanHanh = datetime.strptime(ngay_bh, '%Y-%m-%d')
-           except:
-               pass
-       if ngay_den:
-           try:
-               from datetime import datetime
-               vb.NgayDen = datetime.strptime(ngay_den, '%Y-%m-%d')
-           except:
-               pass
+            # Chuyển sang đối tượng date (chỉ ngày)%m-%d')) if ngay_den_str else None
+            ngay_ban_hanh = date.fromisoformat(ngay_ban_hanh_str) if ngay_ban_hanh_str else None
+            ngay_den = date.fromisoformat(ngay_den_str) if ngay_den_str else None
+        except ValueError:
+            messages.error(request, "Lỗi định dạng ngày. Vui lòng nhập theo định dạng ngày/tháng/năm.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
 
-        vb.DoKhan = request.POST.get('DoKhan', vb.DoKhan)
-        vb.DoMat = request.POST.get('DoMat', vb.DoMat)
-        vb.NoiDung = request.POST.get('NoiDung', vb.NoiDung)
+        if not data.get('TrichYeu') or not data.get('DonViPhatHanh') or not data.get('MaPhongBan'):
+            messages.error(request, "Các trường (*) không được để trống.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
 
-        phongban_id = request.POST.get('MaPhongBan')
-        if phongban_id:
-            try:
-                vb.MaPhongBan = PhongBan.objects.get(id=int(phongban_id))
-            except:
-                pass
+        if ngay_den and ngay_ban_hanh and ngay_den < ngay_ban_hanh:
+            messages.error(request, "Ngày đến phải sau ngày phát hành.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
+        if ngay_den and ngay_den > now:
+            messages.error(request, "Ngày đến không được lớn hơn hiện tại.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
 
-        vb.save()
-        messages.success(request, "Cập nhật văn bản đến thành công.")
-        return redirect('chi_tiet_vb_den', vb_id=vb.id)
+        try:
+            ma_phong_ban = PhongBan.objects.get(pk=data.get('MaPhongBan'))
+        except PhongBan.DoesNotExist:
+            messages.error(request, "Phòng ban được chọn không hợp lệ hoặc không tồn tại.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
 
-   return render(request, 'vanbanden/sua_van_ban_den.html', {
-       'vb': vb,
-       'phongbans': phongbans,
-   })
+        nguoi_trinh_ky = vb.NguoiNhanTrinhKy
 
+        vb.TrichYeu = data.get('TrichYeu')
+        vb.LoaiVBDen = data.get('LoaiVBDen')
+        vb.DonViPhatHanh = data.get('DonViPhatHanh')
+        vb.DoMat = data.get('DoMat')
+        vb.DoKhan = data.get('DoKhan')
+        vb.YeuCauVBDi = int(data.get('YeuCauVBDi', 0))
+        vb.NgayBanHanh = ngay_ban_hanh
+        vb.NgayDen = ngay_den  # Đưa vào đây
+        vb.NoiDung = data.get('NoiDung')  # Đưa vào đây
+        vb.MaPhongBan = ma_phong_ban  # Đưa vào đây
+        vb.NguoiNhanTrinhKy = nguoi_trinh_ky  # Đưa vào đây
+
+        file_upload = files.get('FileDinhKem')
+        if file_upload:
+            if vb.FileDinhKem:
+                vb.FileDinhKem.delete(save=False)
+            vb.FileDinhKem = file_upload
+
+        try:
+            vb.save()
+            # --- ĐÃ SỬA: BỎ messages.success VÀ THÊM ?status=success VÀO URL ---
+            return redirect(f'{reverse("chi_tiet_vb_den", kwargs={"vb_id": vb.id})}?status=success')
+
+        except Exception as e:
+            messages.error(request, f"Lỗi lưu dữ liệu: {e}")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
+
+    return render(request, "vanbanden/sua_van_ban_den.html", context)
 from django.contrib.auth import logout
 from django.shortcuts import redirect
-
-def user_logout(request):
-    logout(request)
-    return redirect('login')
 
 def trang_thong_qua(request, vb_id):
     vb = get_object_or_404(VanBanDi, id=vb_id)
