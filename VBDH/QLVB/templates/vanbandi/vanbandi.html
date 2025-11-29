@@ -21,12 +21,12 @@
         border: 1px solid #ddd;
     }
     .table a {
-      text-decoration: none;
-      color: inherit;
+        text-decoration: none;
+        color: inherit;
     }
     .table a:hover {
-      text-decoration: underline;
-      color: #0d6efd;
+        text-decoration: underline;
+        color: #0d6efd;
     }
     thead th {
         background-color: #007bff !important;
@@ -54,7 +54,22 @@
         word-wrap: break-word;
     }
 
-    /* ====== NÚT TẠO VĂN BẢN ====== */
+    /* ====== CSS cho Badge (Trạng thái) ====== */
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        font-weight: bold;
+        display: inline-block;
+        font-size: 12px;
+    }
+    .bg-success { background-color: #28a745; color: white; }
+    .bg-warning { background-color: #ffc107; color: #343a40; }
+    .bg-danger { background-color: #dc3545; color: white; }
+    .bg-info { background-color: #17a2b8; color: white; }
+    .bg-primary { background-color: #007bff; color: white; }
+    .bg-secondary { background-color: #6c757d; color: white; }
+
+    /* ====== NÚT TẠO VĂN BẢN (CSS Đã Có Sẵn) ====== */
     .btn-create-custom {
         font-family: 'Times New Roman', Times, serif;
         font-size: 16px;
@@ -117,7 +132,7 @@
         cursor: not-allowed !important;
     }
 
-    /* ====== TRA CỨU VĂN BẢN (MỚI) ====== */
+    /* ====== TRA CỨU VĂN BẢN ====== */
     .search-container {
         max-width: 750px;
         margin: 30px auto 0;
@@ -200,52 +215,55 @@
     <h2>Danh sách văn bản đi</h2>
 </div>
 
-<!-- ========== TRA CỨU VĂN BẢN ========== -->
 <div class="search-container">
     <div class="search-title">Tra cứu văn bản</div>
-  <form method="get" action="{% url 'vanbandi' %}">
-      <!-- Hàng 1 -->
-      <div class="form-row">
-          <div class="form-group">
-              <label>Từ khóa</label>
-              <input name="keyword" id="searchInput" type="text" class="form-control"
-                     value="{{ keyword }}" placeholder="Số ký hiệu, trích yếu...">
-          </div>
-          <div class="form-group">
-              <label>Đơn vị ban hành</label>
-              <input name="agency" id="agency" type="text" class="form-control"
-                     value="{{ agency }}" placeholder="Nhập đơn vị ban hành">
-          </div>
-      </div>
-
-    <!-- Hàng 2 -->
-    <div class="form-row">
-        <div class="form-group">
-            <label>Ngày tạo</label>
-            <div class="date-range">
-                <input id="fromDate" type="text" class="form-control" placeholder="Từ ngày">
-                <input id="toDate" type="text" class="form-control" placeholder="Đến ngày">
+    <form method="get" action="{% url 'vanbandi' %}">
+        <div class="form-row">
+            <div class="form-group">
+                <label>Từ khóa</label>
+                <input name="keyword" id="searchInput" type="text" class="form-control"
+                       value="{{ keyword }}" placeholder="Số ký hiệu, trích yếu...">
+            </div>
+            <div class="form-group">
+                <label>Đơn vị ban hành</label>
+                <input name="agency" id="agency" type="text" class="form-control"
+                       value="{{ agency }}" placeholder="Nhập đơn vị ban hành">
             </div>
         </div>
-        <div class="form-group">
-            <label>Phòng ban</label>
-            <select id="department" class="form-select">
-                <option value="">-- Chọn phòng ban --</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Hình thức văn bản</label>
-            <select id="docType" class="form-select">
-                <option value="">-- Loại văn bản --</option>
-                <option>Công văn</option>
-                <option>Thông báo</option>
-                <option>Quyết định</option>
-                <option>Tờ trình</option>
-            </select>
-        </div>
-    </div>
 
-    <!-- Hàng 3 -->
+        <div class="form-row">
+            <div class="form-group">
+                <label>Ngày tạo</label>
+                <div class="date-range">
+                    <input name="from_date" id="fromDate" type="text" class="form-control"
+                           value="{{ from_date }}" placeholder="Từ ngày">
+                    <input name="to_date" id="toDate" type="text" class="form-control"
+                           value="{{ to_date }}" placeholder="Đến ngày">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Phòng ban</label>
+                <select name="department" id="department" class="form-select">
+                    <option value="">-- Chọn phòng ban --</option>
+                    {% for pb in phongban_list %}
+                        <option value="{{ pb.id }}" {% if pb.id|stringformat:"s" == department %}selected{% endif %}>
+                            {{ pb.TenPhongBan }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Hình thức văn bản</label>
+                <select name="doc_type" id="docType" class="form-select">
+                    <option value="">-- Loại văn bản --</option>
+                    <option {% if doc_type == "Công văn" %}selected{% endif %}>Công văn</option>
+                    <option {% if doc_type == "Thông báo" %}selected{% endif %}>Thông báo</option>
+                    <option {% if doc_type == "Quyết định" %}selected{% endif %}>Quyết định</option>
+                    <option {% if doc_type == "Tờ trình" %}selected{% endif %}>Tờ trình</option>
+                </select>
+            </div>
+        </div>
+
     <div class="button-row">
         <button id="filterBtn" class="btn-search">🔍 Tìm kiếm</button>
     </div>
@@ -253,14 +271,12 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    flatpickr("#fromDate", { dateFormat: "d/m/Y" });
-    flatpickr("#toDate", { dateFormat: "d/m/Y" });
+    flatpickr("#fromDate, #toDate", { dateFormat: "d/m/Y" });
 </script>
 
-<!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="{% url 'tao_vanbandi' %}" class="btn-create-custom">+ Tạo văn bản đi</a>
+        <a href="{% url 'tao_du_thao' %}" class="btn-create-custom">Tạo văn bản đi</a>
     </div>
 
     <div class="table-responsive">
@@ -279,21 +295,30 @@
                 {% for vb in ds_vanbandi %}
                 <tr>
                     <td class="text-center">{{ forloop.counter }}</td>
-                    <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
+                    <td class="text-center fw-semibold">
+                        <a href="{% url 'vanbandi_detail' vb.pk %}">{{ vb.SoHieu }}</a>
+                    </td>
                     <td class="text-start">
-                        <a href="{% url 'vanbandi_detail' vb.id %}">{{ vb.TrichYeu }}</a>
+                        <a href="{% url 'vanbandi_detail' vb.pk %}">{{ vb.TrichYeu }}</a>
                     </td>
                     <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
                     <td class="text-center">{{ vb.LoaiVbDi }}</td>
+
                     <td class="text-center">
-                        {% if vb.trang_thai == 'đã duyệt' %}
-                            <span class="badge bg-success">Đã duyệt</span>
-                        {% elif vb.trang_thai == 'chờ duyệt' %}
-                            <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                        {% elif vb.trang_thai == 'từ chối' %}
-                            <span class="badge bg-danger">Từ chối</span>
+                        {% if vb.TrangThai == 'Chờ thông qua' %}
+                            {{ vb.TrangThai }}
+                        {% elif vb.TrangThai == 'Từ chối thông qua' %}
+                            <span class="badge bg-danger">Từ chối (TP)</span>
+                        {% elif vb.TrangThai == 'Chờ xét duyệt' %}
+                            <span>{{ vb.TrangThai }} </span>
+                        {% elif vb.TrangThai == 'Đã xét duyệt' %}
+                            <span class="badge bg-primary">Đã xét duyệt (GĐ)</span>
+                        {% elif vb.TrangThai == 'Chờ ban hành' %}
+                            {{ vb.TrangThai }}
+                        {% elif vb.TrangThai == 'Đã ban hành' %}
+                            <span>{{ vb.TrangThai }} </span>
                         {% else %}
-                            <span class="badge bg-secondary">Không xác định</span>
+                            <span class="badge bg-secondary">{{ vb.TrangThai }}</span>
                         {% endif %}
                     </td>
                 </tr>
@@ -308,42 +333,55 @@
 </div>
 
 <nav aria-label="Page navigation" class="mt-4">
-    <ul class="pagination justify-content-center">
-        {% if page_obj.has_previous %}
-            <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
-        {% else %}
-            <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
-            <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
-        {% endif %}
+  <ul class="pagination justify-content-center">
 
-        {% for num in page_obj.paginator.page_range %}
-            {% if num == page_obj.number %}
-                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-                <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-            {% endif %}
-        {% endfor %}
+    <!-- Nút trang trước -->
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous" title="Trang trước">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&laquo;</span>
+    </li>
+    {% endif %}
 
-        {% if page_obj.has_next %}
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
-            <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a></li>
-        {% else %}
-            <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
-            <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
-        {% endif %}
-    </ul>
+    <!-- Hiển thị phạm vi văn bản -->
+    {% with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}
+    <li class="page-item active">
+      <span class="page-link">
+        {{ start }}–{{ end }} / {{ total }}
+      </span>
+    </li>
+    {% endwith %}
+
+    <!-- Nút trang sau -->
+    {% if page_obj.has_next %}
+    <li class="page-item">
+<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&raquo;</span>
+    </li>
+    {% endif %}
+  </ul>
 </nav>
-<!-- Thêm vào cuối file vanbandi.html -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+</div>
+<div id="toastMessageList" class="custom-toast">
+</div>
+
 <script>
- document.addEventListener("DOMContentLoaded", function() {
-   flatpickr("#fromDate, #toDate", {
-     dateFormat: "d/m/Y",
-     locale: { firstDayOfWeek: 1 }
-   });
- });
+document.addEventListener("DOMContentLoaded", function() {
+    flatpickr("#fromDate, #toDate", {
+        dateFormat: "d/m/Y",
+        locale: { firstDayOfWeek: 1 }
+    });
+});
 </script>
-
-
 {% endblock %}

@@ -1,3 +1,4 @@
+
 {% extends "base.html" %}
 {% load static %}
 
@@ -190,6 +191,33 @@
   .btn-search:hover {
       background-color: #1e3d6d;
   }
+  .custom-toast {
+        visibility: hidden;
+        min-width: 280px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 10px 15px;
+        position: fixed; /* QUAN TRỌNG: Giúp nó cố định góc màn hình */
+        z-index: 1051;
+        right: 20px;
+        bottom: 20px;
+        font-size: 15px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        opacity: 0;
+        transition: opacity 0.5s, visibility 0.5s;
+    }
+
+    .custom-toast.show {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    .custom-toast.success {
+        background-color: #4CAF50; /* Màu nền xanh lá cho thông báo thành công */
+    }
   @media (max-width: 768px) {
       .form-row {
           flex-direction: column;
@@ -284,104 +312,140 @@
 
 <!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
-  <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-      <a href="{% url 'tao_du_thao' %}" class="btn-create-custom">+ Tạo văn bản đi</a>
-  </div>
+    <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
+        <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
+    </div>
 
-
-
-
-  <div class="table-responsive">
-      <table class="table table-hover table-bordered align-middle">
-          <thead class="table-primary text-center">
-          <tr>
-              <th style="width: 60px;">STT</th>
-              <th style="width: 180px;">Số ký hiệu văn bản</th>
-              <th>Trích yếu</th>
-              <th style="width: 150px;">Ngày ban hành</th>
-              <th style="width: 150px;">Loại văn bản</th>
-              <th style="width: 140px;">Trạng thái</th>
-          </tr>
-          </thead>
-          <tbody>
-          {% for vb in ds_vanbandi %}
-          <tr>
-              <td class="text-center">{{ page_obj.start_index|add:forloop.counter0 }}</td>
-              <td class="text-center fw-semibold">{{ vb.SoHieu }}</td>
-              <td class="text-start">
-                  <a href="{% url 'vanbandi_detail' vb.id %}">{{ vb.TrichYeu }}</a>
-              </td>
-              <td class="text-center">{{ vb.NgayBanHanh|date:"d/m/Y" }}</td>
-              <td class="text-center">{{ vb.LoaiVbDi }}</td>
-              <td class="text-center">
-                  {% if vb.TrangThai == 'Đã ban hành' %}
-                      <span class="badge bg-success">Đã ban hành</span>
-                  {% elif vb.TrangThai == 'Đã duyệt' %}
-                      <span class="badge bg-info text-dark">Đã duyệt</span>
-                  {% elif vb.TrangThai == 'Chờ duyệt' %}
-                      <span class="badge bg-warning text-dark">Chờ duyệt</span>
-                  {% elif vb.TrangThai == 'Từ chối' %}
-                      <span class="badge bg-danger">Từ chối</span>
-                  {% else %}
-                      <span class="badge bg-secondary">Không xác định</span>
-                  {% endif %}
-              </td>
-          </tr>
-          {% empty %}
-          <tr>
-              <td colspan="6" class="text-center text-muted py-4">Không có kết quả</td>
-          </tr>
-          {% endfor %}
-          </tbody>
-      </table>
-  </div>
+    <div class="table-responsive">
+        <table class="table table-hover table-bordered align-middle text-center">
+            <thead class="table-primary">
+            <tr>
+                <th style="width: 5%;">STT</th>
+                <th style="width: 15%;">Số ký hiệu</th>
+                <th style="width: 35%;">Trích yếu</th>
+                <th style="width: 20%;">Cơ quan ban hành</th>
+                <th style="width: 15%;">Loại văn bản</th>
+                <th style="width: 10%;">Trạng thái</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for vb in van_ban_list %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ vb.SoHieu }}</td>
+                <td class="text-start">
+                    <a href="{% url 'chi_tiet_vb_den' vb.id %}" class="text-decoration-none text-dark fw-medium">
+                        {{ vb.TrichYeu }}
+                    </a>
+                </td>
+                <td>{{ vb.DonViPhatHanh }}</td>
+                <td>{{ vb.LoaiVBDen }}</td>
+               <td>
+                    {{ vb.TrangThai }}
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center text-muted py-4">
+                    Không có kết quả
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 </div>
 
+<!-- Phân trang -->
+<!-- Phân trang -->
+<!-- Phân trang -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+
+    <!-- Nút chuyển trang -->
+    <!-- Phân trang -->
+<div class="d-flex justify-content-between align-items-center mt-4">
+    <!-- Hiển thị phạm vi văn bản -->
 
 
-
+    <!-- Nút phân trang -->
+    <!-- Phân trang tối giản -->
 <nav aria-label="Page navigation" class="mt-4">
   <ul class="pagination justify-content-center">
-      {% if page_obj.has_previous %}
-      <li class="page-item"><a class="page-link" href="?page=1">&laquo;&laquo;</a></li>
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">&lsaquo;</a></li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">&laquo;&laquo;</span></li>
-      <li class="page-item disabled"><span class="page-link">&lsaquo;</span></li>
-      {% endif %}
 
+    <!-- Nút trang trước -->
+    {% if page_obj.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous" title="Trang trước">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&laquo;</span>
+    </li>
+    {% endif %}
 
+    <!-- Hiển thị phạm vi văn bản -->
+    {% with start=page_obj.start_index end=page_obj.end_index total=page_obj.paginator.count %}
+    <li class="page-item active">
+      <span class="page-link">
+        {{ start }}–{{ end }} / {{ total }}
+      </span>
+    </li>
+    {% endwith %}
 
-
-      {% for num in page_obj.paginator.page_range %}
-          {% if num == page_obj.number %}
-          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-          {% elif num >= page_obj.number|add:'-2' and num <= page_obj.number|add:'2' %}
-          <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
-          {% endif %}
-      {% endfor %}
-
-
-
-
-      {% if page_obj.has_next %}
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">&rsaquo;</a></li>
-      <li class="page-item"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">&raquo;&raquo;</a></li>
-      {% else %}
-      <li class="page-item disabled"><span class="page-link">&rsaquo;</span></li>
-      <li class="page-item disabled"><span class="page-link">&raquo;&raquo;</span></li>
-      {% endif %}
+    <!-- Nút trang sau -->
+    {% if page_obj.has_next %}
+    <li class="page-item">
+<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link">&raquo;</span>
+    </li>
+    {% endif %}
   </ul>
 </nav>
-<!-- Thêm vào cuối file vanbandi.html -->
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+</div>
+<div id="toastMessageList" class="custom-toast">
+</div>
+
 <script>
- document.addEventListener("DOMContentLoaded", function() {
-   flatpickr("#fromDate, #toDate", {
-     dateFormat: "d/m/Y",
-     locale: { firstDayOfWeek: 1 }
-   });
- });
+    // Định nghĩa hàm showToastList (ĐÃ CÓ)
+    function showToastList(message, type = 'success') {
+        const toast = document.getElementById("toastMessageList");
+
+        // Gán class success hoặc error
+        const typeClass = type === 'success' ? 'success' : 'error';
+
+        // Cập nhật nội dung và loại thông báo
+        toast.textContent = message;
+        toast.className = `custom-toast show ${typeClass}`;
+
+        // Ẩn sau 3 giây
+        setTimeout(function(){
+            toast.className = toast.className.replace("show", "").trim();
+        }, 3000);
+    }
+
+    // 3. BỔ SUNG: LOGIC KÍCH HOẠT TOAST (ĐANG THIẾU TRONG CODE CỦA BẠN)
+    const urlParams = new URLSearchParams(window.location.search);
+    const updateStatus = urlParams.get('status');
+
+    if (updateStatus === 'create_success') {
+        // Gọi hàm Toast khi điều kiện thỏa mãn
+        showToastList(`Đã thêm mới văn bản thành công.`, 'success');
+
+        // Tùy chọn: Xóa tham số status khỏi URL sau khi hiển thị
+        if (history.replaceState) {
+            let newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            history.replaceState({path: newUrl}, '', newUrl);
+        }
+    }
 </script>
 
 
