@@ -17,7 +17,12 @@ User = get_user_model()
 import os
 from django.db import transaction
 from datetime import datetime
+from django.contrib.auth import authenticate, login
+from .models import VanBanDi, VanBanDen, ThongBao, NhatKyCongViec, PhongBan, PhanCongCongViec, DOKHAN_CHOICES, DOMAT_CHOICES
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
 
+from django.db.models import Max
 
 def user_login(request):
    if request.method == 'POST':
@@ -29,11 +34,14 @@ def user_login(request):
        if user is not None:
            login(request, user)
            if user.groups.filter(name='Quản lý').exists():
-               return redirect('dashboard_quanly')
+               return redirect('danh_sach_van_ban_den')
            elif user.groups.filter(name='Văn thư').exists():
-               return redirect('dashboard_vanthu')
+               return redirect('danh_sach_van_ban_den')
+
+           elif user.groups.filter(name='Nhân viên').exists():
+               return redirect('danh_sach_van_ban_den')
            else:
-               return redirect('dashboard_nhanvien')
+               return redirect('danh_sach_van_ban_den')
        else:
            messages.error(request, "Tên đăng nhập hoặc mật khẩu không đúng.")
    return render(request, 'QLVB/login.html')
@@ -41,8 +49,120 @@ def user_login(request):
 def tra_cuu_van_ban(request):
    return render(request, 'QLVB/tra_cuu_van_ban.html')
 
+def get_so_hieu_tu_dong():
+    """Tạo Số hiệu tự động: VB/YYYY/NNN"""
+    today = datetime.now()
+    year = today.strftime("%Y")
+
+    last_vb = VanBanDen.objects.filter(
+        NgayTao__year=year
+    ).aggregate(Max('SoHieu'))['SoHieu__max']
+
+    if last_vb:
+        try:
+            last_number = int(last_vb.split('/')[-1])
+        except (ValueError, IndexError):
+            last_number = 0
+    else:
+        last_number = 0
+
+    new_number = last_number + 1
+    return f"VB/{year}/{new_number:03d}"
+
+@login_required
 def them_van_ban(request):
-   return render(request, 'vanbanden/create.html')
+    context = {
+        'phong_ban_list': PhongBan.objects.all(),
+        'nhan_vien_list': User.objects.filter(vai_tro='QL').order_by('ho_ten'),
+        'DOKHAN_CHOICES': DOKHAN_CHOICES,
+        'DOMAT_CHOICES': DOMAT_CHOICES,
+        'loai_vb_list': VanBanDen.objects.values_list('LoaiVBDen', flat=True).distinct().order_by('LoaiVBDen'),
+        'so_hieu_tu_dong': get_so_hieu_tu_dong(),
+        'initial_data': {},
+    }
+
+    if request.method == 'POST':
+        data = request.POST
+        files = request.FILES
+        now = timezone.now()
+        context['initial_data'] = dict(data.items())
+
+        # Xử lý Ngày/Giờ
+        try:
+            ngay_ban_hanh_str = data.get('NgayBanHanh')
+            ngay_den_str = data.get('NgayDen')
+
+            if not ngay_ban_hanh_str or not ngay_den_str:
+                raise ValueError("Ngày phát hành và Ngày đến không được để trống.")
+
+            # Chuyển string 'YYYY-MM-DD' sang date object
+            ngay_ban_hanh = date.fromisoformat(ngay_ban_hanh_str)
+            ngay_den = date.fromisoformat(ngay_den_str)
+
+        except ValueError:
+            messages.error(request, "Lỗi định dạng Ngày/Giờ. Vui lòng kiểm tra lại.")
+            return render(request, "vanbanden/create.html", context)
+
+        # Kiểm tra logic ngày
+        today = date.today()
+        if ngay_den < ngay_ban_hanh:
+            messages.error(request, "Ngày đến phải lớn hơn hoặc bằng ngày ban hành.")
+            return render(request, "vanbanden/create.html", context)
+
+        if ngay_den > today:
+            messages.error(request, "Ngày đến không được lớn hơn ngày hôm nay.")
+            return render(request, "vanbanden/create.html", context)
+        if not data.get('MaPhongBan'):
+            messages.info(request, "Vui lòng chọn Phòng ban")
+            return render(request, "vanbanden/create.html", context)
+        trich_yeu = data.get('TrichYeu', '').strip()
+        if len(trich_yeu) <= 5:
+            messages.error(request, "Trích yếu phải lớn hơn 5 ký tự.")
+            return render(request, "vanbanden/create.html", context)
+        # Lấy Foreign Key
+        ma_nhan_vien = request.user
+        ma_phong_ban = get_object_or_404(PhongBan, pk=data.get('MaPhongBan'))
+
+        nguoi_trinh_ky = None
+        if data.get('NguoiNhanTrinhKy'):
+            try:
+                nguoi_trinh_ky = User.objects.get(id=data.get('NguoiNhanTrinhKy'), vai_tro='QL')
+            except User.DoesNotExist:
+                messages.error(request, "Người nhận trình ký phải là quản lý.")
+                return render(request, "vanbanden/create.html", context)
+
+        # Lấy giá trị khác
+        do_khan = data.get('DoKhan', 'BINH THUONG')
+        do_mat = data.get('DoMat', 'BINH THUONG')
+        yeu_cau_vbdi = int(data.get('YeuCauVBDi', 0))
+
+        # Tạo đối tượng VanBanDen
+        vb = VanBanDen(
+            SoHieu=get_so_hieu_tu_dong(),
+            TrichYeu=trich_yeu,
+            LoaiVBDen=data.get('LoaiVBDen'),
+            DonViPhatHanh=data.get('DonViPhatHanh'),
+            NgayBanHanh=ngay_ban_hanh,
+            NgayDen=ngay_den,
+            NoiDung=data.get('NoiDung'),
+            DoKhan=do_khan,
+            DoMat=do_mat,
+            YeuCauVBDi=yeu_cau_vbdi,
+            MaNhanVien=ma_nhan_vien,
+            MaPhongBan=ma_phong_ban,
+            NguoiNhanTrinhKy=nguoi_trinh_ky,
+        )
+
+        # Xử lý File đính kèm (Logic này là đúng)
+        file_upload = request.FILES.get('FileDinhKem')
+        if file_upload:
+            vb.FileDinhKem = file_upload
+
+        vb.save()
+        from django.urls import reverse
+        return redirect(f'{reverse("danh_sach_van_ban_den")}?status=create_success')
+
+    return render(request, "vanbanden/create.html", context)
 
 def ds_vanbandi(request):
    # Lấy tất cả văn bản đi
@@ -156,100 +276,107 @@ def get_current_nhanvien(request):
        return None
 
 def danh_sach_van_ban_den(request):
-   van_ban_list = VanBanDen.objects.all().order_by('-NgayDen')
+    van_ban_list = VanBanDen.objects.all().order_by('-NgayDen')
+    user = request.user
+    if not user.is_superuser and user.vai_tro not in ['QL', 'TP']:
 
+        # Nếu là Văn thư ('VT') hoặc Nhân viên ('NV')
+        if user.vai_tro in ['VT', 'NV']:
+            # Lọc: Chỉ xem các văn bản mà họ đã tạo (MaNhanVien = user hiện tại)
+            van_ban_list = van_ban_list.filter(MaNhanVien=user)
+        else:
+            # Trường hợp vai trò không xác định, không xem gì cả
+            van_ban_list = van_ban_list.none()
+    keyword = request.GET.get('keyword', '').strip()
+    if keyword:
+        van_ban_list = van_ban_list.filter(
+            Q(SoHieu__icontains=keyword) |
+            Q(TrichYeu__icontains=keyword)
+        )
 
-   # === LỌC THEO TỪ KHÓA ===
-   keyword = request.GET.get('keyword', '').strip()
-   if keyword:
-       van_ban_list = van_ban_list.filter(
-           Q(SoHieu__icontains=keyword) |
-           Q(TrichYeu__icontains=keyword)
-       )
+    # === LỌC THEO ĐƠN VỊ PHÁT HÀNH ===
+    agency = request.GET.get('agency', '').strip()
+    if agency:
+        van_ban_list = van_ban_list.filter(DonViPhatHanh__icontains=agency)
 
+    # === LỌC THEO NGÀY ĐẾN ===
+    from_date = request.GET.get('from_date')
+    to_date = request.GET.get('to_date')
 
-   # === LỌC THEO ĐƠN VỊ PHÁT HÀNH ===
-   agency = request.GET.get('agency', '').strip()
-   if agency:
-       van_ban_list = van_ban_list.filter(DonViPhatHanh__icontains=agency)
+    if from_date:
+        try:
+            from_date_parsed = parse_date(from_date)  # dd/mm/yyyy → yyyy-mm-dd
+            if from_date_parsed:
+                van_ban_list = van_ban_list.filter(NgayDen__date__gte=from_date_parsed)
+        except:
+            pass
 
+    if to_date:
+        try:
+            to_date_parsed = parse_date(to_date)
+            if to_date_parsed:
+                van_ban_list = van_ban_list.filter(NgayDen__date__lte=to_date_parsed)
+        except:
+            pass
 
-   # === LỌC THEO NGÀY ĐẾN ===
-   from_date = request.GET.get('from_date')
-   to_date = request.GET.get('to_date')
+    # === LỌC THEO PHÒNG BAN ===
+    department = request.GET.get('department')
+    if department:
+        van_ban_list = van_ban_list.filter(MaPhongBan_id=department)
 
+    # === LỌC THEO LOẠI VĂN BẢN ĐẾN ===
+    doc_type = request.GET.get('doc_type')
+    if doc_type:
+        van_ban_list = van_ban_list.filter(LoaiVBDen=doc_type)
 
-   if from_date:
-       try:
-           from_date_parsed = parse_date(from_date)  # dd/mm/yyyy → yyyy-mm-dd
-           if from_date_parsed:
-               van_ban_list = van_ban_list.filter(NgayDen__date__gte=from_date_parsed)
-       except:
-           pass
+    # === PHÂN TRANG ===
+    paginator = Paginator(van_ban_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
+    # === DANH SÁCH PHÒNG BAN ===
+    phongban_list = PhongBan.objects.all()
 
-   if to_date:
-       try:
-           to_date_parsed = parse_date(to_date)
-           if to_date_parsed:
-               van_ban_list = van_ban_list.filter(NgayDen__date__lte=to_date_parsed)
-       except:
-           pass
+    context = {
+        'van_ban_list': page_obj,  # Dùng chung tên với template
+        'page_obj': page_obj,
+        'paginator': paginator,
+        'phongban_list': phongban_list,
 
+        # Giữ giá trị form
+        'keyword': keyword,
+        'agency': agency,
+        'from_date': from_date,
+        'to_date': to_date,
+        'department': department,
+        'doc_type': doc_type,
+    }
 
-   # === LỌC THEO PHÒNG BAN ===
-   department = request.GET.get('department')
-   if department:
-       van_ban_list = van_ban_list.filter(MaPhongBan_id=department)
-
-
-   # === LỌC THEO LOẠI VĂN BẢN ĐẾN ===
-   doc_type = request.GET.get('doc_type')
-   if doc_type:
-       van_ban_list = van_ban_list.filter(LoaiVBDen=doc_type)
-
-
-   # === PHÂN TRANG ===
-   paginator = Paginator(van_ban_list, 10)
-   page_number = request.GET.get('page')
-   page_obj = paginator.get_page(page_number)
-
-
-   # === DANH SÁCH PHÒNG BAN ===
-   phongban_list = PhongBan.objects.all()
-
-
-   context = {
-       'van_ban_list': page_obj,  # Dùng chung tên với template
-       'page_obj': page_obj,
-       'paginator': paginator,
-       'phongban_list': phongban_list,
-
-
-       # Giữ giá trị form
-       'keyword': keyword,
-       'agency': agency,
-       'from_date': from_date,
-       'to_date': to_date,
-       'department': department,
-       'doc_type': doc_type,
-   }
-
-
-   return render(request, 'vanbanden/danh_sach_van_ban_den.html', context)
+    return render(request, 'vanbanden/danh_sach_van_ban_den.html', context)
 
 
 def chi_tiet_vb_den(request, vb_id):
-   vb = get_object_or_404(VanBanDen, id=vb_id)
-   vb_truoc = VanBanDen.objects.filter(id__lt=vb.id).order_by('-id').first()
-   vb_sau = VanBanDen.objects.filter(id__gt=vb.id).order_by('id').first()
-   total_vb = VanBanDen.objects.count()
-   return render(request, 'vanbanden/chi_tiet_vb_den.html', {
-       'vb': vb,
-       'vb_truoc': vb_truoc,
-       'vb_sau': vb_sau,
-       'total_vb': total_vb
-   })
+    vb = get_object_or_404(VanBanDen, id=vb_id)
+    if vb.TrangThai == 'CHỜ XÉT DUYỆT':
+        return redirect('xet_duyet_vb_den', vb_id=vb_id)
+
+        # 2. Trạng thái: CHỜ XÁC NHẬN -> Điều hướng tới trang Xác Nhận Công Việc
+    elif vb.TrangThai == 'CHỜ XÁC NHẬN':
+        # Lưu ý: Nếu URL name của bạn là phan_cong_nhan_vien_vbden, bạn cần truyền id
+        # Nhưng dựa trên URL bạn cung cấp (vanbanden/xacnhan/<int:vb_id>/), thì vb_id là đúng
+        return redirect('xac_nhan_phan_cong_vbden', vb_id=vb_id)
+
+        # 3. Trạng thái: CHỜ XỬ LÝ -> Điều hướng tới trang Báo cáo/Hoàn thành
+    elif vb.TrangThai == 'CHỜ XỬ LÝ':
+        return redirect('bao_cao_vbden', vb_id=vb_id)
+
+        # Trường hợp mặc định (Đã hoàn thành, Bị từ chối, Đang lưu hành, v.v.)
+        # Nếu không có redirect nào được thực thi, hàm sẽ chạy đến đây và render trang chi tiết
+    context = {
+        'vb': vb,
+        # ... Thêm dữ liệu context khác nếu cần thiết (ví dụ: danh sách lịch sử xử lý)
+    }
+    return render(request, 'vanbanden/chi_tiet_vb_den.html', context)
 
 
 def tao_du_thao(request):
@@ -682,54 +809,87 @@ def bao_cao_vbden(request, vb_id):
 
 
 def sua_vb_den(request, vb_id):
-   vb = get_object_or_404(VanBanDen, id=vb_id)
-   phongbans = PhongBan.objects.all()
+    vb = get_object_or_404(VanBanDen, pk=vb_id)
+    context = {
+        'vb': vb,
+        'phongbans': PhongBan.objects.all(),
+        'nhan_vien_list': User.objects.all().order_by('ho_ten'),
+        'DOKHAN_CHOICES': vb._meta.get_field('DoKhan').choices,
+        'DOMAT_CHOICES': vb._meta.get_field('DoMat').choices,
+    }
+
+    if request.method == 'POST':
+        data = request.POST
+        files = request.FILES
+        now =date.today()
+
+        try:
+            # Lấy chuỗi từ form
+            ngay_ban_hanh_str = data.get('NgayBanHanh')
+            ngay_den_str = data.get('NgayDen')
+
+            # Chuyển sang đối tượng date (chỉ ngày)%m-%d')) if ngay_den_str else None
+            ngay_ban_hanh = date.fromisoformat(ngay_ban_hanh_str) if ngay_ban_hanh_str else None
+            ngay_den = date.fromisoformat(ngay_den_str) if ngay_den_str else None
+        except ValueError:
+            messages.error(request,"Lỗi định dạng ngày. Vui lòng nhập theo định dạng ngày/tháng/năm.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context) 
 
 
-   if request.method == 'POST':
-       vb.SoHieu = request.POST.get('SoHieu')
-       vb.TrichYeu = request.POST.get('TrichYeu')
-       vb.LoaiVBDen = request.POST.get('LoaiVBDen')
-       vb.DonViPhatHanh = request.POST.get('DonViPhatHanh')
+        if not data.get('TrichYeu') or not data.get('DonViPhatHanh') or not data.get('MaPhongBan'):
+            messages.error(request, "Các trường (*) không được để trống.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
+
+        if ngay_den and ngay_ban_hanh and ngay_den < ngay_ban_hanh:
+            messages.error(request, "Ngày đến phải sau ngày phát hành.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
+        if ngay_den and ngay_den > now:
+            messages.error(request, "Ngày đến không được lớn hơn hiện tại.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
+
+        try:
+            ma_phong_ban = PhongBan.objects.get(pk=data.get('MaPhongBan'))
+        except PhongBan.DoesNotExist:
+            messages.error(request, "Phòng ban được chọn không hợp lệ hoặc không tồn tại.")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
 
 
-       ngay_bh = request.POST.get('NgayBanHanh')
-       ngay_den = request.POST.get('NgayDen')
-       if ngay_bh:
-           try:
-               from datetime import datetime
-               vb.NgayBanHanh = datetime.strptime(ngay_bh, '%Y-%m-%d')
-           except:
-               pass
-       if ngay_den:
-           try:
-               from datetime import datetime
-               vb.NgayDen = datetime.strptime(ngay_den, '%Y-%m-%d')
-           except:
-               pass
 
 
-       vb.DoKhan = request.POST.get('DoKhan', vb.DoKhan)
-       vb.DoMat = request.POST.get('DoMat', vb.DoMat)
-       vb.NoiDung = request.POST.get('NoiDung', vb.NoiDung)
+        nguoi_trinh_ky = vb.NguoiNhanTrinhKy
 
 
-       phongban_id = request.POST.get('MaPhongBan')
-       if phongban_id:
-           try:
-               vb.MaPhongBan = PhongBan.objects.get(id=int(phongban_id))
-           except:
-               pass
+         
 
+        vb.TrichYeu = data.get('TrichYeu')
+        vb.LoaiVBDen = data.get('LoaiVBDen')
+        vb.DonViPhatHanh = data.get('DonViPhatHanh')
+        vb.DoMat = data.get('DoMat')
+        vb.DoKhan = data.get('DoKhan')
+        vb.YeuCauVBDi = int(data.get('YeuCauVBDi', 0))
+        vb.NgayBanHanh = ngay_ban_hanh
+        vb.NgayDen = ngay_den  # Đưa vào đây
+        vb.NoiDung = data.get('NoiDung')  # Đưa vào đây
+        vb.MaPhongBan = ma_phong_ban  # Đưa vào đây
+        vb.NguoiNhanTrinhKy = nguoi_trinh_ky  # Đưa vào đây
 
-       vb.save()
-       return redirect('chi_tiet_vb_den', vb_id=vb.id)
+        file_upload = files.get('FileDinhKem')
+        if file_upload:
+            if vb.FileDinhKem:
+                vb.FileDinhKem.delete(save=False)
+            vb.FileDinhKem = file_upload
 
+        try:
+            vb.save()
 
-   return render(request, 'vanbanden/sua_van_ban_den.html', {
-       'vb': vb,
-       'phongbans': phongbans,
-   })
+            # --- ĐÃ SỬA: BỎ messages.success VÀ THÊM ?status=success VÀO URL ---
+            return redirect(f'{reverse("chi_tiet_vb_den", kwargs={"vb_id": vb.id})}?status=success')
+
+        except Exception as e:
+            messages.error(request, f"Lỗi lưu dữ liệu: {e}")
+            return render(request, "vanbanden/sua_van_ban_den.html", context)
+
+    return render(request, "vanbanden/sua_van_ban_den.html", context)
 
 from django.contrib.auth import logout
 from django.shortcuts import redirect

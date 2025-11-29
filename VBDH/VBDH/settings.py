@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from django.conf.urls.static import static
 from pathlib import Path
-
+from django.conf import settings
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -158,3 +158,5 @@ EMAIL_SUBJECT_PREFIX = '[QLVB] '
 # (Tùy chọn) Gửi mail thử nghiệm ra console (dev only)
 # EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # ==========
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
+USE_TZ = True
