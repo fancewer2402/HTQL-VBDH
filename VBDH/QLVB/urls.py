@@ -11,6 +11,7 @@ urlpatterns = [
    path('vanbandi/', views.ds_vanbandi, name='vanbandi'),
    path('vanbandi/<int:pk>/', views.vanbandi_detail, name='vanbandi_detail'),
    path('taoduthao/', views.tao_du_thao, name='tao_du_thao'),
+   path('vanbandi/tao/', views.tao_du_thao, name='tao_vanbandi'),
    path('vanbanden/', views.danh_sach_van_ban_den, name='danh_sach_van_ban_den'),
    path('vanbanden/<int:vb_id>/', views.chi_tiet_vb_den, name='chi_tiet_vb_den'),
    path('vanbandi/ban-hanh/<int:id>/', views.ban_hanh_van_ban, name='ban_hanh_van_ban'),
