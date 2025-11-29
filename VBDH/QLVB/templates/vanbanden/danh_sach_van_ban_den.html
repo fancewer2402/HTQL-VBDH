@@ -1,255 +1,197 @@
-<!--{% extends "base.html" %}-->
+
+{% extends "base.html" %}
 {% load static %}
 
 {% block title %}Danh sách văn bản đến{% endblock %}
 
 {% block content %}
 <style>
-    body, input, select, button {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        font-size: 13px;
-    }
+  body, input, select, button {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 13px;
+  }
 
-    /* ====== BỘ LỌC ====== */
-    .container {
-        display: flex;
-        justify-content: center;
-    }
 
-    .filter-box {
-        border: 1px solid #ddd;
-        padding: 20px;
-        border-radius: 6px;
-        background-color: #f9f9f9;
-        max-width: 850px;
-        width: 100%;
-        display: flex;
-        flex-direction: column;
-    }
 
-    .filter-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 15px;
-        margin-bottom: 10px;
-        width: 100%;
-    }
 
-    .filter-row.first {
-        justify-content: center;
-    }
+  /* ====== BẢNG DỮ LIỆU ====== */
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background-color: #fff;
+  }
+  table, th, td {
+      border: 1px solid #ddd;
+  }
+  .table a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .table a:hover {
+    text-decoration: underline;
+    color: #0d6efd;
+  }
+  thead th {
+      background-color: #007bff !important;
+      color: white !important;
+      font-weight: bold !important;
+      text-align: center;
+      font-size: 16px;
+      padding: 10px;
+  }
+  td {
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: 15px;
+  }
+  td:nth-child(1),
+  td:nth-child(2),
+  td:nth-child(4),
+  td:nth-child(5),
+  td:nth-child(6) {
+      text-align: center;
+  }
+  td:nth-child(3) {
+      text-align: justify;
+      white-space: normal;
+      word-wrap: break-word;
+  }
 
-    .filter-row.second {
-        justify-content: flex-start;
-        align-items: flex-start;
-        margin-left: 241px; /* Căn thẳng với "Ngày nhận" */
-    }
 
-    .filter-group {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-    }
 
-    .filter-group label {
-        font-weight: 500;
-        margin-bottom: 4px;
-    }
 
-    .filter-inline input,
-    .filter-inline select,
-    .filter-group select,
-    .filter-group input {
-        height: 28px;
-        min-width: 180px;
-        padding: 4px 8px;
-        box-sizing: border-box;
-        font-size: 13px;
-        align-self: center;
-    }
-
-    .filter-inline.date-range {
-        display: flex;
-        gap: 14px;
-    }
-
-    .filter-inline.date-range input {
-        flex: 1;
-    }
-
-    .btn-loc {
-        height: 28px;
-        padding: 0 30px;
-        font-size: 13px;
-        margin-top: 16px;
-        margin-left: -21px;
-        align-self: flex-start;
-    }
-
-    .btn-group {
-        margin-left: 20px;
-        margin-top: 4px;
-    }
-
-    .search-btn-container {
-        margin-top: 4px;
-    }
-
-    /* ====== NÚT TẠO ====== */
-    .btn-create-custom {
-        font-family: 'Times New Roman', Times, serif;
-        font-size: 16px;
-        font-weight: bold;
-        border: 1px solid #0d6efd;
-        color: #0d6efd;
-        background-color: #ffffff;
-        padding: 8px 22px;
-        border-radius: 6px;
-        text-decoration: none;
-        transition: 0.2s;
-    }
-    .btn-create-custom:hover {
-        background-color: #e9f2ff;
-        color: #0a58ca;
-    }
-
-    /* ====== BẢNG ====== */
-    .table-container {
-        width: 100%;
-        overflow-x: auto;
-        margin-top: 20px;
-    }
-
-    /* Toàn bảng */
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #fff;
-        margin: 0 auto;
-    }
-
-    /* Viền */
-    table, th, td {
-        border: 1px solid #ddd;
-    }
-
-    /* Header */
-    thead th {
-        background-color: #007bff;
-        color: white;
-        font-weight: 600;
-        text-align: center;
-        font-size: 15.5px;
-        padding: 10px;
-        vertical-align: middle;
-        white-space: nowrap;
-    }
-
-    /* Ô dữ liệu */
-    td {
-        padding: 10px 12px;
-        font-size: 15px;
-        vertical-align: middle;
-    }
-
-    /* Căn lề từng cột */
-    td:nth-child(1), /* STT */
-    td:nth-child(2), /* Số ký hiệu */
-    td:nth-child(5), /* Loại văn bản */
-    td:nth-child(6)  /* Trạng thái */
-    {
-        text-align: center;
-    }
-
-    /* Cột Trích yếu */
-    td:nth-child(3) {
-        text-align: justify;
-        white-space: normal;
-        word-break: break-word;
-    }
-    td:nth-child(4) {
-        text-align: justify;
-        white-space: normal;
-        word-break: break-word;
-    }
-    .table a {
+  /* ====== NÚT TẠO VĂN BẢN ====== */
+  .btn-create-custom {
+      font-family: 'Times New Roman', Times, serif;
+      font-size: 16px;
+      font-weight: bold;
+      border: 1px solid #0d6efd;
+      color: #0d6efd;
+      background-color: #ffffff;
+      padding: 8px 22px;
+      border-radius: 6px;
       text-decoration: none;
-      color: inherit; /* giữ nguyên màu chữ của text xung quanh */
-    }
+      transition: 0.2s;
+  }
+  .btn-create-custom:hover {
+      background-color: #e9f2ff;
+      color: #0a58ca;
+  }
 
-    .table a:hover {
-      text-decoration: underline;
-      color: #0d6efd; /* chỉ đổi màu khi hover */
-    }
 
 
-    /* Hiệu ứng hover */
-    tbody tr:hover {
-        background-color: #f8faff;
-        transition: background-color 0.2s ease-in-out;
-    }
 
-    /* Khi không có kết quả */
-    #noResult {
-        margin-top: 15px;
-        color: red;
-        font-weight: bold;
-        text-align: center;
-        display: none;
-    }
+  /* ====== PHÂN TRANG ====== */
+  .pagination {
+      display: flex !important;
+      justify-content: center !important;
+      align-items: center !important;
+      flex-wrap: wrap !important;
+      margin-top: 25px !important;
+      gap: 5px !important;
+  }
+  .pagination li {
+      display: inline-block !important;
+  }
+  .page-item {
+      margin: 2px !important;
+  }
+  .page-link {
+      color: #0d6efd !important;
+      border: 1px solid #ddd !important;
+      border-radius: 6px !important;
+      padding: 6px 12px !important;
+      font-size: 14px !important;
+      min-width: 38px !important;
+      text-align: center !important;
+      background-color: #fff !important;
+      transition: all 0.2s ease !important;
+  }
+  .page-link:hover {
+      background-color: #e9f2ff !important;
+      color: #0a58ca !important;
+      border-color: #0d6efd !important;
+  }
+  .page-item.active .page-link {
+      background-color: #0d6efd !important;
+      color: white !important;
+      border-color: #0d6efd !important;
+      font-weight: 600 !important;
+      cursor: default !important;
+  }
+  .page-item.disabled .page-link {
+      background-color: #f1f1f1 !important;
+      color: #999 !important;
+      border-color: #ddd !important;
+      cursor: not-allowed !important;
+  }
 
-    /* ====== PHÂN TRANG ====== */
-    .pagination {
-        display: flex !important;
-        justify-content: center !important;
-        align-items: center !important;
-        flex-wrap: wrap !important;
-        margin-top: 25px !important;
-        gap: 5px !important;
-    }
 
-    .pagination li {
-        display: inline-block !important;
-        visibility: visible !important;
-    }
 
-    .page-item {
-        margin: 2px !important;
-    }
 
-    .page-link {
-        color: #0d6efd !important;
-        border: 1px solid #ddd !important;
-        border-radius: 6px !important;
-        padding: 6px 12px !important;
-        font-size: 14px !important;
-        min-width: 38px !important;
-        text-align: center !important;
-        background-color: #fff !important;
-        transition: all 0.2s ease !important;
-    }
-
-    .page-link:hover {
-        background-color: #e9f2ff !important;
-        color: #0a58ca !important;
-        border-color: #0d6efd !important;
-    }
-
-    .page-item.active .page-link {
-        background-color: #0d6efd !important;
-        color: white !important;
-        border-color: #0d6efd !important;
-        font-weight: 600 !important;
-        cursor: default !important;
-    }
-
-    .page-item.disabled .page-link {
-        background-color: #f1f1f1 !important;
-        color: #999 !important;
-        border-color: #ddd !important;
-        cursor: not-allowed !important;
-    }
-    .custom-toast {
+  /* ====== TRA CỨU VĂN BẢN (MỚI) ====== */
+  .search-container {
+      max-width: 750px;
+      margin: 30px auto 0;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+      padding: 20px 25px;
+  }
+  .search-title {
+      text-align: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #2b4a70;
+      margin-bottom: 20px;
+      text-transform: uppercase;
+  }
+  .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+  }
+  .form-group {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+  }
+  .form-group label {
+      font-weight: 500;
+      margin-bottom: 4px;
+      font-size: 13px;
+  }
+  .form-control, .form-select {
+      padding: 5px 8px;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      font-size: 13px;
+  }
+  .date-range {
+      display: flex;
+      gap: 10px;
+  }
+  .button-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 5px;
+  }
+  .btn-search {
+      background-color: #2b579a;
+      color: white;
+      border: none;
+      padding: 6px 20px;
+      border-radius: 5px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: 0.2s;
+  }
+  .btn-search:hover {
+      background-color: #1e3d6d;
+  }
+  .custom-toast {
         visibility: hidden;
         min-width: 280px;
         background-color: #333;
@@ -276,90 +218,99 @@
     .custom-toast.success {
         background-color: #4CAF50; /* Màu nền xanh lá cho thông báo thành công */
     }
+  @media (max-width: 768px) {
+      .form-row {
+          flex-direction: column;
+      }
+      .date-range {
+          flex-direction: column;
+      }
+      .button-row {
+          justify-content: center;
+      }
+      .btn-search {
+          width: 100%;
+      }
+  }
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h2>Danh sách văn bản đến</h2>
+<!-- ========== TRA CỨU VĂN BẢN ========== -->
+<div class="search-container">
+  <div class="search-title">Tra cứu văn bản</div>
+
+
+
+
+  <form method="get" action="{% url 'vanbandi' %}">
+      <!-- Hàng 1 -->
+      <div class="form-row">
+          <div class="form-group">
+              <label>Từ khóa</label>
+              <input name="keyword" id="searchInput" type="text" class="form-control"
+                     value="{{ keyword }}" placeholder="Số ký hiệu, trích yếu...">
+          </div>
+          <div class="form-group">
+              <label>Đơn vị ban hành</label>
+              <input name="agency" id="agency" type="text" class="form-control"
+                     value="{{ agency }}" placeholder="Nhập đơn vị ban hành">
+          </div>
+      </div>
+
+
+
+
+      <!-- Hàng 2 -->
+      <div class="form-row">
+          <div class="form-group">
+              <label>Ngày tạo</label>
+              <div class="date-range">
+                  <input name="from_date" id="fromDate" type="text" class="form-control"
+                         value="{{ from_date }}" placeholder="Từ ngày">
+                  <input name="to_date" id="toDate" type="text" class="form-control"
+                         value="{{ to_date }}" placeholder="Đến ngày">
+              </div>
+          </div>
+          <div class="form-group">
+              <label>Phòng ban</label>
+              <select name="department" id="department" class="form-select">
+                  <option value="">-- Chọn phòng ban --</option>
+                  {% for pb in phongban_list %}
+                      <option value="{{ pb.id }}" {% if pb.id|stringformat:"s" == department %}selected{% endif %}>
+                          {{ pb.TenPhongBan }}
+                      </option>
+                  {% endfor %}
+              </select>
+          </div>
+          <div class="form-group">
+              <label>Hình thức văn bản</label>
+              <select name="doc_type" id="docType" class="form-select">
+                  <option value="">-- Loại văn bản --</option>
+                  <option {% if doc_type == "Công văn" %}selected{% endif %}>Công văn</option>
+                  <option {% if doc_type == "Thông báo" %}selected{% endif %}>Thông báo</option>
+                  <option {% if doc_type == "Quyết định" %}selected{% endif %}>Quyết định</option>
+                  <option {% if doc_type == "Tờ trình" %}selected{% endif %}>Tờ trình</option>
+              </select>
+          </div>
+      </div>
+
+
+
+
+      <!-- Hàng 3 -->
+      <div class="button-row">
+          <button type="submit" id="filterBtn" class="btn-search">🔍 Tìm kiếm</button>
+      </div>
+  </form>
 </div>
 
-<div class="container mt-3">
-    <div class="filter-box">
-        <!-- Dòng 1 -->
-        <div class="filter-row first">
-            <div class="filter-group">
-                <label>Tìm kiếm</label>
-                <div class="filter-inline">
-                    <input id="searchInput" type="text" class="form-control" placeholder="Nhập số ký hiệu, trích yếu">
-                </div>
-                <div class="search-btn-container">
-                    <button id="searchBtn" class="btn btn-success btn-search">Tìm kiếm</button>
-                </div>
-            </div>
 
-            <div class="filter-group">
-                <label>Ngày nhận</label>
-                <div class="filter-inline date-range">
-                    <input id="fromDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
-                    <input id="toDate" type="text" class="form-control" placeholder="dd/MM/yyyy">
-                </div>
-            </div>
 
-            <div class="filter-group">
-                <label>Loại văn bản</label>
-                <select id="docType" class="form-select">
-                    <option value="">Chọn loại văn bản</option>
-                    <option>Công văn</option>
-                    <option>Thông báo</option>
-                    <option>Quyết định</option>
-                    <option>Tờ trình</option>
-                </select>
-            </div>
-        </div>
 
-        <!-- Dòng 2 -->
-        <div class="filter-row second">
-            <div class="filter-group">
-                <label>Cơ quan ban hành</label>
-                <input id="agency" type="text" class="form-control" placeholder="Nhập cơ quan ban hành">
-            </div>
-
-            <div class="filter-group">
-                <label>Trạng thái</label>
-                <select id="status" class="form-select">
-                    <option value="">Tất cả</option>
-                    <option>Đã xử lý</option>
-                    <option>Chưa xử lý</option>
-                </select>
-            </div>
-
-            <div class="btn-group">
-                <button id="filterBtn" class="btn btn-primary btn-loc">Lọc</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script>
-    flatpickr("#fromDate", { dateFormat: "d/m/Y" });
-    flatpickr("#toDate", { dateFormat: "d/m/Y" });
-
-    document.getElementById('filterBtn').addEventListener('click', () => {
-        alert('Đã áp dụng bộ lọc!');
-    });
-
-    document.getElementById('searchBtn').addEventListener('click', () => {
-        const value = document.getElementById('searchInput').value.trim();
-        if(value === '') {
-            alert('Vui lòng nhập từ khóa cần tìm kiếm!');
-        } else {
-            alert('Đang tìm kiếm: ' + value);
-        }
-    });
-</script>
-
+<!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
         <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
@@ -447,7 +398,7 @@
     <!-- Nút trang sau -->
     {% if page_obj.has_next %}
     <li class="page-item">
-      <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
+<a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next" title="Trang sau">
         <span aria-hidden="true">&raquo;</span>
       </a>
     </li>
@@ -496,5 +447,6 @@
         }
     }
 </script>
+
 
 {% endblock %}

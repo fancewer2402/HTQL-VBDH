@@ -324,7 +324,7 @@ def vanbandi_detail(request, pk):
     # === KIỂM TRA ĐIỀU KIỆN TRƯỞNG PHÒNG DUYỆT ===
     if current_user.is_authenticated:
         # Kiểm tra vai trò: Trưởng Phòng ('TP') HOẶC Quản Lý ('QL')
-        is_manager_role = current_user.vai_tro in ['QL', 'TP']
+        is_manager_role = current_user.vai_tro in ['TP']
         is_pending = van_ban.TrangThai == 'Chờ thông qua'
 
         if is_manager_role and is_pending:
@@ -344,7 +344,7 @@ def vanbandi_detail(request, pk):
         return redirect('thong_qua_van_ban', vb_id=pk)
     # === DÀNH CHO GIÁM ĐỐC: chuyển sang XÉT DUYỆT ===
     if current_user.is_authenticated:
-        if current_user.vai_tro == "GD" and van_ban.TrangThai == "Chờ xét duyệt":
+        if current_user.vai_tro == "QL" and van_ban.TrangThai == "Chờ xét duyệt":
             return redirect('xetduyetvanbandi', id=pk)
     # === 4) VĂN THƯ → CHUYỂN SANG TRANG BAN HÀNH ================
     # ============================================================
