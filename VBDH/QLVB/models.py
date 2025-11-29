@@ -1,7 +1,12 @@
 from django.db import models
 from django.conf import settings
-
-
+from .constants import (  # Import từ file constants.py
+    TrangThaiCongViec,
+    DOKHAN_CHOICES,
+    DOMAT_CHOICES,
+    DO_KHAN_VBDI_CHOICES,
+    DO_MAT_VBDI_CHOICES,
+)
 
 
 # =====================
@@ -13,6 +18,10 @@ class PhongBan(models.Model):
 
     def __str__(self):
         return self.TenPhongBan
+
+    class Meta:
+        verbose_name = "Phòng ban"
+        verbose_name_plural = "Phòng ban"
 
 
 # =====================
@@ -63,10 +72,22 @@ class VanBanDen(models.Model):
         verbose_name='Người Nhận Trình Ký'
     )
 
-    def __str__(self):
-        return self.TrichYeu
+   def __str__(self):
+       return self.TrichYeu
 
-
+    class Meta:
+        verbose_name = "Văn bản đến"
+        verbose_name_plural = "Văn bản đến"
+        permissions = [
+            ("tao_vanbanden", "Tạo văn bản đến"),
+            ("sua_vanbanden", "Sửa văn bản đến"),
+            ("xemchitiet_vanbanden", "Xem chi tiết văn bản đến"),
+            ("xemdanhsach_vanbanden", "Xem danh sách văn bản đến"),
+            ("phancong_vanbanden", "Phân công nhân viên (văn bản đến)"),
+            ("xetduyet_vanbanden", "Xét duyệt văn bản đến"),
+            ("capnhat_trangthai_cv_vbden", "Cập nhật trạng thái công việc"),
+            ("xem_nhatky_vanbanden", "Xem nhật ký hoạt động văn bản đến"),
+        ]
 
 
 # =====================
@@ -133,10 +154,34 @@ class VanBanDi(models.Model):
        return dict(DO_KHAN_VBDI_CHOICES).get(self.DoKhan, self.DoKhan)
 
 
+    class Meta:
+        verbose_name = "Văn bản đi / dự thảo"
+        verbose_name_plural = "Văn bản đi / dự thảo"
+        permissions = [
+            ("tao_vanbandi", "Tạo văn bản đi"),
+            ("sua_vanbandi", "Sửa văn bản đi"),
+            ("xemchitiet_vanbandi", "Xem chi tiết văn bản đi"),
+            ("xemdanhsach_vanbandi", "Xem danh sách văn bản đi"),
+            ("thongqua_vanbandi", "Thông qua văn bản đi"),
+            ("xetduyet_vanbandi", "Xét duyệt văn bản đi"),
+            ("phancong_vanbandi", "Phân công nhân viên (văn bản đi)"),
+            ("banhanh_vanbandi", "Ban hành văn bản đi"),
+        ]
 
 
 # =====================
-# 4. Thông báo
+# 4. Tra cứu (model giả để sinh permission)
+# =====================
+class TraCuu(models.Model):
+    class Meta:
+        managed = False
+        permissions = [("tracuu_hethong", "Tra cứu toàn hệ thống")]
+        verbose_name = "Tra cứu"
+        verbose_name_plural = "Tra cứu"
+
+
+# =====================
+# 5. Thông báo
 # =====================
 class ThongBao(models.Model):
    TieuDe = models.CharField(max_length=255)  # Dùng CharField thay TextField
@@ -150,6 +195,8 @@ class ThongBao(models.Model):
    def __str__(self):
        return self.TieuDe
 
+    class Meta:
+        permissions = [("xem_thongbao", "Xem thông báo")]
 
 
 # =====================
