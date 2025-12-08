@@ -23,6 +23,7 @@ from django.contrib.auth import authenticate, login
 from .models import VanBanDi, VanBanDen, ThongBao, NhatKyCongViec, PhongBan, PhanCongCongViec, DOKHAN_CHOICES, DOMAT_CHOICES
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.contrib.auth.decorators import permission_required
 
 from django.db.models import Max
 from django.contrib.auth.decorators import login_required
@@ -134,6 +135,7 @@ def get_so_hieu_tu_dong():
     return f"VB/{year}/{new_number:03d}"
 
 @login_required
+@permission_required('QLVB.tao_vanbanden', raise_exception=True)
 def them_van_ban(request):
     context = {
         'phong_ban_list': PhongBan.objects.all(),
@@ -231,7 +233,16 @@ def them_van_ban(request):
 def ds_vanbandi(request):
     # CẬP NHẬT: Sắp xếp ưu tiên theo NgayTao giảm dần (-NgayTao) để văn bản mới tạo luôn nằm trên cùng.
     # NgayBanHanh (-NgayBanHanh) được sử dụng làm sắp xếp phụ.
-    vanbandi_list = VanBanDi.objects.all().order_by('-NgayTao', '-NgayBanHanh')
+    user = request.user
+
+    # --- 1. NHÂN VIÊN: chỉ xem văn bản mình tạo ---
+    if user.vai_tro == 'NV':
+        vanbandi_list = VanBanDi.objects.filter(
+            MaNhanVien=user
+        ).order_by('-NgayTao', '-NgayBanHanh')
+    else:
+        # Các vai trò khác → xem tất cả (hoặc bạn có thể bổ sung quy định tùy ý)
+        vanbandi_list = VanBanDi.objects.all().order_by('-NgayTao', '-NgayBanHanh')
 
     # Lọc theo từ khóa
     keyword = request.GET.get('keyword', '').strip()
@@ -247,8 +258,8 @@ def ds_vanbandi(request):
         vanbandi_list = vanbandi_list.filter(DonViNhan__icontains=agency)
 
     # Lọc theo ngày tạo
-    from_date = request.GET.get('from_date')
-    to_date = request.GET.get('to_date')
+    from_date = request.GET.get('from_date') or ''
+    to_date = request.GET.get('to_date') or ''
     if from_date:
         try:
             from_date_parsed = parse_date(from_date)
@@ -396,7 +407,9 @@ def chi_tiet_vb_den(request, vb_id):
     }
     return render(request, 'vanbanden/chi_tiet_vb_den.html', context)
 
+
 @login_required
+@permission_required('QLVB.tao_vanbandi', raise_exception=True)
 def tao_du_thao(request):
     """Nhân viên tạo dự thảo và trình duyệt lên Trưởng phòng."""
         # ⚙️ Giả sử nhân viên đang đăng nhập
@@ -460,6 +473,8 @@ def tao_du_thao(request):
     })
 
 # Xét duyệt văn bản đi
+@login_required
+@permission_required('QLVB.xetduyet_vanbandi', raise_exception=True)
 def xetduyetvanbandi(request, id):
     vb = get_object_or_404(VanBanDi, id=id)
 
@@ -595,6 +610,8 @@ from django.utils.html import strip_tags
 
 
 @transaction.atomic
+@login_required
+@permission_required('QLVB.banhanh_vanbandi', raise_exception=True)
 def ban_hanh_van_ban(request, id):
    vb = get_object_or_404(VanBanDi, id=id)
    today = timezone.now().date()
@@ -747,8 +764,22 @@ def nhat_ky_hoat_dong(request, loaivanban, vanban_id):
 
 # === VĂN BẢN ĐẾN (VANBANDEN) ===
 def danh_sach_van_ban_den(request):
-    van_ban_list = VanBanDen.objects.all().order_by('-NgayDen')
+    user = request.user
+    role = user.vai_tro
 
+    # --- 1. Lọc theo vai trò ---
+    if role == "VT":  # Văn thư chỉ xem văn bản mình tạo
+        van_ban_list = VanBanDen.objects.filter(
+            MaNhanVien=user
+        ).order_by("-NgayTao")
+
+    elif role == "NV":  # Nhân viên chỉ xem văn bản được phân công
+        van_ban_list = VanBanDen.objects.filter(
+            phancongcongviec__NguoiNhan=user
+        ).distinct().order_by("-NgayTao")
+
+    else:  # QL hoặc Trưởng phòng: xem tất cả
+        van_ban_list = VanBanDen.objects.all().order_by("-NgayTao")
     # Lọc theo từ khóa
     keyword = request.GET.get('keyword', '').strip()
     if keyword:
@@ -763,8 +794,8 @@ def danh_sach_van_ban_den(request):
         van_ban_list = van_ban_list.filter(DonViPhatHanh__icontains=agency)
 
     # Lọc theo ngày đến
-    from_date = request.GET.get('from_date')
-    to_date = request.GET.get('to_date')
+    from_date = request.GET.get('from_date') or ''
+    to_date = request.GET.get('to_date') or ''
     if from_date:
         try:
             from_date_parsed = parse_date(from_date)
@@ -929,7 +960,8 @@ def bao_cao_vbden(request, vb_id):
     context.update(global_notifications(request))
     return render(request, "vanbanden/baocao_vbden.html", context)
 
-
+@login_required
+@permission_required('QLVB.sua_vanbanden', raise_exception=True)
 def sua_vb_den(request, vb_id):
     vb = get_object_or_404(VanBanDen, pk=vb_id)
     context = {
