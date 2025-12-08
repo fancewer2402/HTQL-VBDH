@@ -20,7 +20,6 @@ urlpatterns = [
     path('vanbandi/', views.ds_vanbandi, name='vanbandi'),  # Danh sách + tìm kiếm
     path('vanbandi/<int:pk>/', views.vanbandi_detail, name='vanbandi_detail'),
     path('vanbandi/ban-hanh/<int:id>/', views.ban_hanh_van_ban, name='ban_hanh_van_ban'),
-    path('suavanbandi/<int:id>/', views.sua_vanbandi, name='sua_vanbandi'),
     path('xetduyetvanbandi/<int:id>/', views.xetduyetvanbandi, name='xetduyetvanbandi'),
     path('taoduthao/', views.tao_du_thao, name='tao_du_thao'),
     path('vanbandi/<int:id>/sua/', views.sua_vanbandi, name='sua_vanbandi'),  # trùng tên, giữ 1

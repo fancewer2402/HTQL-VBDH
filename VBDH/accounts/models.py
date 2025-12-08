@@ -2,23 +2,20 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-# XÓA DÒNG NÀY ĐI:
-# from QLVB.models import PhongBan
-
 class User(AbstractUser):
     ho_ten = models.CharField("Họ tên", max_length=100, blank=True, null=True)
     sdt = models.CharField("Số điện thoại", max_length=15, blank=True, null=True)
-    email = models.EmailField("Email", unique=True, blank=True, null=True)
+    email = models.EmailField("Email", unique=True, blank=True, default='')
 
     VAITRO_CHOICES = [
         ('NV', 'Nhân Viên'), ('QL', 'Quản Lý'),
-        ('VT', 'Văn Thư'), ('TP', 'Trưởng Phòng'),('GD', 'Giám Đốc'),
+        ('VT', 'Văn Thư'), ('TP', 'Trưởng Phòng'),
     ]
     vai_tro = models.CharField("Vai trò", max_length=2, choices=VAITRO_CHOICES, blank=True, null=True)
 
-    # SỬA DÒNG NÀY THÀNH DẠNG STRING (QUAN TRỌNG NHẤT!!!)
+    # SỬA DÒNG NÀY: dùng string thay vì import
     ma_phong_ban = models.ForeignKey(
-        'QLVB.PhongBan',  # ← Dùng string thay vì import trực tiếp
+        'QLVB.PhongBan',  # ← Đổi thành chuỗi 'app_label.ModelName'
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
@@ -27,8 +24,9 @@ class User(AbstractUser):
     )
 
     def __str__(self):
-        return self.ho_ten or self.username or self.email
+        return self.ho_ten or self.username or self.email or ""
 
     class Meta:
         verbose_name = "Nhân viên"
-        verbose_name_plural = "Nhân viên"
+        verbose_name_plural = "Nhân viên"  # đã bỏ dấu chấm thừa
+

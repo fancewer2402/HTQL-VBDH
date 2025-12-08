@@ -95,7 +95,7 @@
     <div class="action-buttons-group">
         <a href="{% url 'nhatkyhoatdong' loaivanban='vanbandi' vanban_id=vb.pk %}" class="btn-gray">Xem nhật ký hoạt động</a>
         {% if is_editable %}
-            <a href="{% url 'sua_vanbandi' pk=vb.pk %}" class="btn-gray">Sửa văn bản đi</a>
+            <a href="{% url 'sua_vanbandi' id=vb.pk %}" class="btn-gray">Sửa văn bản đi</a>
         {% endif %}
     </div>
   </div>
