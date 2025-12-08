@@ -321,27 +321,22 @@ def vanbandi_detail(request, pk):
         if van_ban.TrangThai == 'Chờ thông qua' and creator_user.pk == current_user.pk:
             is_editable = True
 
-    # === KIỂM TRA ĐIỀU KIỆN TRƯỞNG PHÒNG DUYỆT ===
-    if current_user.is_authenticated:
-        # Kiểm tra vai trò: Trưởng Phòng ('TP') HOẶC Quản Lý ('QL')
-        is_manager_role = current_user.vai_tro in ['TP']
-        is_pending = van_ban.TrangThai == 'Chờ thông qua'
+            # === THÊM ĐOẠN BẠN YÊU CẦU ===
+            if current_user.role == "nhan_vien":
+                van_ban_di = VanBanDi.objects.filter(NguoiTao=current_user)
+            else:
+                van_ban_di = VanBanDi.objects.all()
 
-        if is_manager_role and is_pending:
-            # Đảm bảo cả người duyệt và người tạo đều có phòng ban
-            if current_user.ma_phong_ban and creator_user.ma_phong_ban:
+    # === TRƯỞNG PHÒNG — CHUYỂN HƯỚNG SANG TRANG THÔNG QUA ===
+    if current_user.is_authenticated and current_user.vai_tro == 'TP':
+        if van_ban.TrangThai == 'Chờ thông qua':
 
-                # So sánh ID của Phòng Ban
-                if current_user.ma_phong_ban.pk == creator_user.ma_phong_ban.pk:
-                    is_manager_reviewable = True
+            previous_url = request.META.get('HTTP_REFERER', '')
 
-    # ********************************************************
-    # *** ĐIỀU CHỈNH CHÍNH: KIỂM TRA VÀ CHUYỂN HƯỚNG NGAY ***
-    # ********************************************************
-    if is_manager_reviewable:
-        # Nếu người dùng có quyền duyệt và văn bản chờ duyệt, CHUYỂN HƯỚNG SANG TRANG THÔNG QUA
-        # Tên URL: 'thong_qua_van_ban', Tham số: vb_id
-        return redirect('thong_qua_van_ban', vb_id=pk)
+            # Nếu không đến từ chính trang thông qua → redirect
+            if 'thong-qua' not in previous_url:
+                return redirect('thong_qua_van_ban', vb_id=pk)
+
     # === DÀNH CHO GIÁM ĐỐC: chuyển sang XÉT DUYỆT ===
     if current_user.is_authenticated:
         if current_user.vai_tro == "QL" and van_ban.TrangThai == "Chờ xét duyệt":
@@ -361,14 +356,14 @@ def vanbandi_detail(request, pk):
     return render(request, 'vanbandi/vanbandi_detail.html', context)
 
 
-def sua_vanbandi(request, pk):
-    vb = get_object_or_404(VanBanDi, pk=pk)
+def sua_vanbandi(request, id):
+    vb = get_object_or_404(VanBanDi, id=id)
 
     if request.method == "POST":
         form = VanBanDiEditForm(request.POST, request.FILES, instance=vb)
         if form.is_valid():
             vb = form.save()
-            messages.success(request, "✅ Cập nhật văn bản đi thành công!")
+            messages.success(request, "Cập nhật văn bản đi thành công!")
             # Không redirect, chỉ render lại form mới (theo logic gốc)
             return redirect('vanbandi_detail', pk=vb.pk)
         else:

@@ -8,7 +8,7 @@ from django.db import models
 class User(AbstractUser):
     ho_ten = models.CharField("Họ tên", max_length=100, blank=True, null=True)
     sdt = models.CharField("Số điện thoại", max_length=15, blank=True, null=True)
-    email = models.EmailField("Email", unique=True, blank=True, null=True)
+    email = models.EmailField("Email", unique=False, blank=True, null=True)
 
     VAITRO_CHOICES = [
         ('NV', 'Nhân Viên'), ('QL', 'Quản Lý'),
