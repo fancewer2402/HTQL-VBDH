@@ -82,9 +82,9 @@
     <tbody>
       {% for log in nhatky %}
       <tr>
-        <td>{{ log.NgayTao|date:"d/m/Y H:i" }}</td>
+        <td>{{ log.ThoiGian|date:"d/m/Y H:i" }}</td>
         <td>{{ log.ThaoTac }}</td>
-        <td>{{ log.MaNhanVien.HoTen|default:"Không rõ" }}</td>
+        <td>{{ log.NguoiThucHien.ho_ten|default:"Không rõ" }}</td>
         <td>{{ log.TrangThai }}</td>
       </tr>
       {% empty %}

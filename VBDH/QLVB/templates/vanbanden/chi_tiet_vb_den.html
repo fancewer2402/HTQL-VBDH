@@ -1,204 +1,205 @@
 {% block content %}
 <style>
-  .container {
-    margin: 30px auto;
-    width: 95%;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-  }
+    .container {
+        margin: 30px auto;
+        width: 95%;
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
+    }
 
-  .btn-blue {
-    background-color: #2b579a;
-    color: #fff;
-    border: none;
-    padding: 7px 18px;
-    border-radius: 3px;
-    font-weight: bold;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    text-decoration: none;
-  }
+    .btn-blue {
+        background-color: #2b579a;
+        color: #fff;
+        border: none;
+        padding: 7px 18px;
+        border-radius: 3px;
+        font-weight: bold;
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+    }
 
-  .btn-gray {
-    background-color: #dcdcdc;
-    border: 1px solid #aaa;
-    padding: 7px 18px;
-    border-radius: 3px;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-    cursor: pointer;
-    text-decoration: none;
-    color: black;
-    display: inline-block;
-    font-weight: normal;
-  }
+    .btn-gray {
+        background-color: #dcdcdc;
+        border: 1px solid #aaa;
+        padding: 7px 18px;
+        border-radius: 3px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
+        cursor: pointer;
+        text-decoration: none;
+        color: black;
+        display: inline-block;
+        font-weight: normal;
+    }
 
-  .btn-gray:hover {
-    background-color: #cfcfcf;
-  }
+    .btn-gray:hover {
+        background-color: #cfcfcf;
+    }
 
-  .header-buttons {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 15px;
-  }
+    .header-buttons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
 
-  .title {
-    border-bottom: 2px solid #1e4e79;
-    font-size: 22px;
-    font-weight: bold;
-    padding-bottom: 5px;
-    margin-bottom: 20px;
-    color: #1e4e79;
-    font-family: "Segoe UI", Arial, sans-serif;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+    .title {
+        border-bottom: 2px solid #1e4e79;
+        font-size: 22px;
+        font-weight: bold;
+        padding-bottom: 5px;
+        margin-bottom: 20px;
+        color: #1e4e79;
+        font-family: "Segoe UI", Arial, sans-serif;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
 
-  /* CHỈNH SỬA CHÍNH: Cấu trúc table ngoài cùng */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-  }
+    /* CHỈNH SỬA CHÍNH: Cấu trúc table ngoài cùng */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
+    }
 
-  /* Đảm bảo padding không quá lớn */
-  td {
-    padding: 8px 10px; /* Giữ nguyên hoặc điều chỉnh nếu muốn ít hơn */
-    vertical-align: top;
-  }
+    /* Đảm bảo padding không quá lớn */
+    td {
+        padding: 8px 10px; /* Giữ nguyên hoặc điều chỉnh nếu muốn ít hơn */
+        vertical-align: top;
+    }
 
-  label {
-    font-weight: bold;
-  }
+    label {
+        font-weight: bold;
+    }
 
-  input[type="text"], textarea, select {
-    width: 100%;
-    border: 1px solid #999;
-    padding: 6px;
-    border-radius: 3px;
-    font-family: "Segoe UI", Arial, sans-serif;
-    font-size: 14px;
-  }
+    input[type="text"], textarea, select {
+        width: 100%;
+        border: 1px solid #999;
+        padding: 6px;
+        border-radius: 3px;
+        font-family: "Segoe UI", Arial, sans-serif;
+        font-size: 14px;
+    }
 
-  input[readonly], textarea[readonly] {
-      background-color: white !important;
-  }
+    input[readonly], textarea[readonly] {
+        background-color: white !important;
+    }
 
-  textarea {
-    height: 70px;
-    resize: vertical; /* Cho phép resize theo chiều dọc */
-  }
+    textarea {
+        height: 70px;
+        resize: vertical; /* Cho phép resize theo chiều dọc */
+    }
 
-  .file-display-box {
-    width: 100%;
-    border: 1px solid #999;
-    padding: 6px;
-    border-radius: 3px;
-    background-color: white;
-    display: block;
-    word-break: break-word;
-  }
+    .file-display-box {
+        width: 100%;
+        border: 1px solid #999;
+        padding: 6px;
+        border-radius: 3px;
+        background-color: white;
+        display: block;
+        word-break: break-word;
+    }
 
-  .file-display-box a {
-    color: #2b579a;
-    text-decoration: none;
-    display: block;
-  }
+    .file-display-box a {
+        color: #2b579a;
+        text-decoration: none;
+        display: block;
+    }
 
-  .file-display-box a:hover {
-    text-decoration: underline;
-  }
+    .file-display-box a:hover {
+        text-decoration: underline;
+    }
 
-  /* ********************************** CHỈNH SỬA: CỘT TRÁI ********************************** */
-  .left-column-fields {
-      display: grid;
-      grid-template-columns: 130px 1fr;
-      gap: 10px 15px;
-      align-items: center; /* Căn giữa label và input theo chiều dọc */
-  }
+    /* ********************************** CHỈNH SỬA: CỘT TRÁI ********************************** */
+    .left-column-fields {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 10px 15px;
+        align-items: center; /* Căn giữa label và input theo chiều dọc */
+    }
 
-  .left-column-fields label {
-      text-align: left; /* Căn phải label để gần input hơn */
-      padding-right: 5px; /* Khoảng cách nhỏ giữa label và input */
-      white-space: nowrap; /* Giữ label trên một dòng */
-  }
+    .left-column-fields label {
+        text-align: left; /* Căn phải label để gần input hơn */
+        padding-right: 5px; /* Khoảng cách nhỏ giữa label và input */
+        white-space: nowrap; /* Giữ label trên một dòng */
+    }
 
-  /* ********************************** CHỈNH SỬA: CỘT PHẢI ********************************** */
-  .right-column-fields {
-      display: grid;
-      grid-template-columns: 170px 1fr; /* Giữ nguyên độ rộng label 150px hoặc điều chỉnh */
-      gap: 10px 15px; /* Giảm khoảng cách giữa hàng và cột */
-      align-items: center;
-      padding: 0 10px;
-  }
+    /* ********************************** CHỈNH SỬA: CỘT PHẢI ********************************** */
+    .right-column-fields {
+        display: grid;
+        grid-template-columns: 170px 1fr; /* Giữ nguyên độ rộng label 150px hoặc điều chỉnh */
+        gap: 10px 15px; /* Giảm khoảng cách giữa hàng và cột */
+        align-items: center;
+        padding: 0 10px;
+    }
 
-  /* Đảm bảo các label trong cột phải được căn phải */
-  .right-column-fields label {
-      font-weight: bold;
-      text-align: left; /* Đảm bảo căn phải */
-      padding-right: 5px; /* Thêm khoảng cách nhỏ */
-      white-space: nowrap;
-  }
+    /* Đảm bảo các label trong cột phải được căn phải */
+    .right-column-fields label {
+        font-weight: bold;
+        text-align: left; /* Đảm bảo căn phải */
+        padding-right: 5px; /* Thêm khoảng cách nhỏ */
+        white-space: nowrap;
+    }
 
-  /* field-label không cần text-align: right nếu nó nằm trên toàn bộ grid-column */
-  .right-column-fields .field-label {
-      font-weight: bold;
-      text-align: left; /* Đặt text-align: left cho tiêu đề span */
-      grid-column: 1 / span 2; /* Để tiêu đề chiếm toàn bộ 2 cột */
-      border-bottom: 1px solid #ccc;
-      padding-bottom: 5px;
-      margin-bottom: 5px;
-  }
+    /* field-label không cần text-align: right nếu nó nằm trên toàn bộ grid-column */
+    .right-column-fields .field-label {
+        font-weight: bold;
+        text-align: left; /* Đặt text-align: left cho tiêu đề span */
+        grid-column: 1 / span 2; /* Để tiêu đề chiếm toàn bộ 2 cột */
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 5px;
+        margin-bottom: 5px;
+    }
 
-  .right-column-fields input[type="text"] {
-      background-color: #f5f5f5;
-      border: 1px solid #ccc;
-      width: 100%;
-  }
+    .right-column-fields input[type="text"] {
+        background-color: #f5f5f5;
+        border: 1px solid #ccc;
+        width: 100%;
+    }
 
-  .right-column-wrapper {
-      padding: 0;
-  }
-  /* ***************************************************************************************** */
+    .right-column-wrapper {
+        padding: 0;
+    }
+
+    /* ***************************************************************************************** */
 
 
-  /* ********************************** CSS TOAST (Đã có sẵn) ********************************** */
-  .custom-toast {
-    visibility: hidden;
-    min-width: 280px;
-    background-color: #333;
-    color: #fff;
-    text-align: center;
-    border-radius: 5px;
-    padding: 10px 15px;
-    position: fixed;
-    z-index: 1051;
-    right: 20px;
-    bottom: 20px;
-    font-size: 15px;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    opacity: 0;
-    transition: opacity 0.5s, visibility 0.5s;
-  }
+    /* ********************************** CSS TOAST (Đã có sẵn) ********************************** */
+    .custom-toast {
+        visibility: hidden;
+        min-width: 280px;
+        background-color: #333;
+        color: #fff;
+        text-align: center;
+        border-radius: 5px;
+        padding: 10px 15px;
+        position: fixed;
+        z-index: 1051;
+        right: 20px;
+        bottom: 20px;
+        font-size: 15px;
+        font-weight: 500;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        opacity: 0;
+        transition: opacity 0.5s, visibility 0.5s;
+    }
 
-  .custom-toast.show {
-    visibility: visible;
-    opacity: 1;
-  }
+    .custom-toast.show {
+        visibility: visible;
+        opacity: 1;
+    }
 
-  .custom-toast.success {
-    background-color: #4CAF50;
-  }
+    .custom-toast.success {
+        background-color: #4CAF50;
+    }
 
-  .custom-toast.error {
-    background-color: #f44336;
-  }
+    .custom-toast.error {
+        background-color: #f44336;
+    }
 </style>
 
 <div class="container">
@@ -219,11 +220,11 @@
 
     <div class="title d-flex justify-content-between align-items-center">
         <span>CHI TIẾT VĂN BẢN ĐẾN</span>
-        <div>
-            <a href="{% url 'sua_vb_den' vb.id %}" class="btn-blue me-2">
+        {% if is_editable %}
+            <a href="{% url 'sua_vb_den' vb.id %}" class="btn btn-primary">
                 Sửa
             </a>
-        </div>
+        {% endif %}
     </div>
 
     <table>
@@ -274,16 +275,18 @@
             <td style="width: 45%; border-left: 1px solid #eee;" class="right-column-wrapper">
                 <div class="right-column-fields">
 
-                    <span class="field-label" style="grid-column: 1 / span 2; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px;"></span>
+                    <span class="field-label"
+                          style="grid-column: 1 / span 2; border-bottom: 1px solid #ccc; padding-bottom: 5px; margin-bottom: 5px;"></span>
 
                     <label>Người tạo:</label>
-<input type="text" readonly value="{% with creator=vb.MaNhanVien %}{{ creator.ho_ten|default:creator.username }} (Mã: {{ creator.id }}){% endwith %}">
+                    <input type="text" readonly
+                           value="{% with creator=vb.MaNhanVien %}{{ creator.ho_ten|default:creator.username }} (Mã: {{ creator.id }}){% endwith %}">
 
                     <label>Phòng ban:</label>
                     <input type="text" readonly value="{{ vb.MaPhongBan.TenPhongBan }}">
 
                     <label>Ngày tạo:</label>
-                    <input type="text" readonly value="{{ vb.NgayTao|date:"d/m/Y H:i" }}">
+                    <input type="text" readonly value="{{ vb.NgayTao|date:" d/m/Y H:i" }}">
 
                     {% if vb.NguoiNhanTrinhKy %}
                     <label>Người nhận trình ký:</label>
@@ -303,7 +306,7 @@
 
 </div>
 <div id="toastMessage" class="custom-toast">
-    </div>
+</div>
 
 <script>
     function showToast(message, type = 'success') {
@@ -318,7 +321,7 @@
         toast.className = `custom-toast show ${typeClass}`;
 
         // Ẩn sau 3 giây
-        setTimeout(function(){
+        setTimeout(function () {
             // Xóa class 'show' để toast ẩn đi
             toast.className = toast.className.replace("show", "").trim();
         }, 3000);

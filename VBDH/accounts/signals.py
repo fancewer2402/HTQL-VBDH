@@ -1,33 +1,33 @@
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 from django.contrib.auth.models import Group
 from django.conf import settings
 
-@receiver(post_save, sender=settings.AUTH_USER_MODEL)
-def add_user_to_group(sender, instance, created, **kwargs):
-    if not instance.vai_tro:
+from .models import User
+
+
+ROLE_GROUP_MAP = {
+    'NV': 'Nhân viên',
+    'VT': 'Văn thư',
+    'TP': 'Trưởng phòng',
+    'QL': 'Quản lý',
+}
+
+
+@receiver(post_save, sender=User)
+def sync_user_group(sender, instance, created, **kwargs):
+    role = instance.vai_tro
+    if not role:
         return
 
-    # Map vai trò → tên group
-    role_group_map = {
-        'NV': 'NhanVien',
-        'QL': 'QuanLy',
-        'VT': 'VanThu',
-        'TP': 'TruongPhong',
-    }
-
-    group_name = role_group_map.get(instance.vai_tro)
+    group_name = ROLE_GROUP_MAP.get(role)
     if not group_name:
         return
 
-    try:
-        group = Group.objects.get(name=group_name)
+    group, _ = Group.objects.get_or_create(name=group_name)
 
-        # Xóa group cũ để tránh trùng
-        instance.groups.clear()
+    # Xóa toàn bộ group cũ (nếu muốn mỗi user chỉ thuộc 1 group)
+    instance.groups.clear()
 
-        # Thêm group mới
-        instance.groups.add(group)
-
-    except Group.DoesNotExist:
-        print(f"[WARNING] Group '{group_name}' chưa tồn tại.")
+    # Thêm group mới
+    instance.groups.add(group)

@@ -1,4 +1,3 @@
-
 {% extends "base.html" %}
 {% load static %}
 
@@ -242,10 +241,7 @@
 <div class="search-container">
   <div class="search-title">Tra cứu văn bản</div>
 
-
-
-
-  <form method="get" action="{% url 'vanbandi' %}">
+  <form method="get" action="{% url 'danh_sach_van_ban_den' %}">
       <!-- Hàng 1 -->
       <div class="form-row">
           <div class="form-group">
@@ -259,9 +255,6 @@
                      value="{{ agency }}" placeholder="Nhập đơn vị ban hành">
           </div>
       </div>
-
-
-
 
       <!-- Hàng 2 -->
       <div class="form-row">
@@ -297,9 +290,6 @@
           </div>
       </div>
 
-
-
-
       <!-- Hàng 3 -->
       <div class="button-row">
           <button type="submit" id="filterBtn" class="btn-search">🔍 Tìm kiếm</button>
@@ -307,13 +297,12 @@
   </form>
 </div>
 
-
-
-
 <!-- ========== DANH SÁCH VĂN BẢN ========== -->
 <div class="page-container">
     <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
+        {% if request.user.vai_tro == "VT" %}
+            <a href="{% url 'them_van_ban' %}" class="btn-create-custom">+ Tạo văn bản đến</a>
+        {% endif %}
     </div>
 
     <div class="table-responsive">
@@ -335,7 +324,7 @@
                 <td>{{ vb.SoHieu }}</td>
                 <td class="text-start">
                     <a href="{% url 'chi_tiet_vb_den' vb.id %}" class="text-decoration-none text-dark fw-medium">
-                        {{ vb.TrichYeu }}F
+                        {{ vb.TrichYeu }}
                     </a>
                 </td>
                 <td>{{ vb.DonViPhatHanh }}</td>
@@ -357,8 +346,6 @@
 </div>
 </div>
 
-<!-- Phân trang -->
-<!-- Phân trang -->
 <!-- Phân trang -->
 <div class="d-flex justify-content-between align-items-center mt-4">
 

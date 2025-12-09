@@ -59,7 +59,7 @@ class VanBanDen(models.Model):
     NoiDung = models.CharField("Nội dung tóm tắt", max_length=500, null=True, blank=True)
     DoKhan = models.CharField(max_length=20, choices=DOKHAN_CHOICES, default='BINH THUONG')
     DoMat = models.CharField(max_length=20, choices=DOMAT_CHOICES, default='BINH THUONG')
-    TrangThai = models.CharField("Trạng thái", max_length=50, null=True, blank=True)
+    TrangThai = models.CharField("Trạng thái", max_length=50, null=True, blank=True, default='Chờ xét duyệt')
     FileDinhKem = models.FileField(upload_to='vanbanden/', blank=True, null=True)
 
     MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE,verbose_name="Người tiếp nhận")
@@ -109,10 +109,6 @@ DO_MAT_VBDI_CHOICES = [
    ('TOI MAT', 'Tối mật'),
 ]
 
-
-
-
-
 class VanBanDi(models.Model):
     SoHieu = models.CharField("Số hiệu", max_length=50, unique=True)
     NgayBanHanh = models.DateField("Ngày ban hành", null=True, blank=True)
@@ -126,7 +122,6 @@ class VanBanDi(models.Model):
     DoKhan = models.CharField(max_length=20, choices=DO_KHAN_VBDI_CHOICES, default='BINH THUONG', null=True, blank=True)
     TrangThai = models.CharField("Trạng thái", max_length=50, null=True, blank=True)
     NgayTao = models.DateTimeField("Ngày tạo", auto_now_add=True)
-
     MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Người soạn thảo")
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name="Văn bản đến liên quan")
@@ -161,11 +156,6 @@ class VanBanDi(models.Model):
        return dict(DO_KHAN_VBDI_CHOICES).get(self.DoKhan, self.DoKhan)
 
 
-
-
-# =====================
-# 4. Thông báo
-# =====================
 class ThongBao(models.Model):
     TieuDe = models.CharField("Tiêu đề", max_length=255)
     NoiDung = models.TextField("Nội dung", null=True, blank=True)
@@ -190,8 +180,6 @@ class PhanCongCongViec(models.Model):
    MoTa = models.TextField("Mô tả", max_length=500)
    NgayTao = models.DateTimeField(auto_now_add=True)
    HanChot = models.DateTimeField("Hạn chót")
-
-
    NguoiGiao = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cv_giao', verbose_name="Người giao")
    NguoiNhan = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cv_nhan', verbose_name="Người nhận")
    VanBanDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True)
@@ -238,7 +226,19 @@ class NhatKyCongViec(models.Model):
    ThaoTac = models.TextField("Thao tác")
    TrangThai = models.CharField(max_length=50, choices=TrangThaiCongViec.choices)
    NguoiThucHien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Người thực hiện")
+   MaVBDen = models.ForeignKey(
+       'VanBanDen',
+       on_delete=models.CASCADE,
+       null=True, blank=True,
+       related_name="nhatky_vbden"
+   )
 
+   MaVBDi = models.ForeignKey(
+       'VanBanDi',
+       on_delete=models.CASCADE,
+       null=True, blank=True,
+       related_name="nhatky_vbdi"
+   )
 
    def __str__(self):
        pc = self.PhanCong.TieuDe if self.PhanCong else "N/A"
@@ -246,9 +246,6 @@ class NhatKyCongViec(models.Model):
 
 # QLVB/constants.py
 from django.db import models
-
-
-
 
 class TrangThaiCongViec(models.TextChoices):
    CHO_XET_DUYET = "Chờ xét duyệt", "CHỜ XÉT DUYỆT"

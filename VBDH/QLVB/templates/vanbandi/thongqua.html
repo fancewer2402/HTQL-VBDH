@@ -4,6 +4,7 @@
     margin: 30px auto;
     width: 95%;
     font-family: Arial, sans-serif;
+      font-size: 15px;
   }
 
   .btn-blue {
@@ -56,6 +57,7 @@
     border: 1px solid #999;
     padding: 5px;
     border-radius: 3px;
+      font-size: 15px;
   }
   textarea {
     height: 60px;
@@ -94,7 +96,7 @@
     {% csrf_token %}
 
     <div class="header-buttons">
-      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'vanbandi_detail' vb.id %}'">← Quay lại</button>
+      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'vanbandi' %}'">← Quay lại</button>
       <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Chờ thông qua" }}</span></div>
       <div class="footer-btn">
         <button type="submit" name="action" value="thongqua" class="btn-blue">Thông qua</button>

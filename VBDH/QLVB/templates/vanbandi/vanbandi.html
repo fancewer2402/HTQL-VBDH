@@ -275,9 +275,11 @@
 </script>
 
 <div class="page-container">
-    <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
-        <a href="{% url 'tao_du_thao' %}" class="btn-create-custom">Tạo văn bản đi</a>
-    </div>
+    {% if request.user.vai_tro == "NV" %}
+        <div class="d-flex justify-content-end mb-3" style="text-align: right; margin-bottom: 10px;">
+            <a href="{% url 'tao_du_thao' %}" class="btn-create-custom">+ Tạo văn bản đi</a>
+        </div>
+    {% endif %}
 
     <div class="table-responsive">
         <table class="table table-hover table-bordered align-middle">

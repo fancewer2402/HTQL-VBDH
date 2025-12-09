@@ -1,9 +1,6 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group, Permission
 
-
-
-
 class Command(BaseCommand):
    help = "Tạo 4 nhóm quyền và gán chính xác theo bảng phân quyền chính thức (tự động thay thế tick tay)"
 
