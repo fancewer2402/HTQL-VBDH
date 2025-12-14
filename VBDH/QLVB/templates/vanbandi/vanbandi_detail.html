@@ -93,13 +93,16 @@
     <div><strong>Trạng thái:</strong> {{ vb.TrangThai }}</div>
 
     <div class="action-buttons-group">
-        <a href="{% url 'nhatkyhoatdong' loaivanban='vanbandi' vanban_id=vb.pk %}" class="btn-gray">Xem nhật ký hoạt động</a>
+        {% if perms.QLVB.xem_nhatky_vanbanden %}
+        <a class="btn-gray" href="{% url 'nhatkyhoatdong' loaivanban='vanbandi' vanban_id=vb.id %}">
+            Xem nhật ký hoạt động
+        </a>
+        {% endif %}
         {% if is_editable %}
             <a href="{% url 'sua_vanbandi' id=vb.pk %}" class="btn-gray">Sửa văn bản đi</a>
         {% endif %}
     </div>
   </div>
-
   <div class="title">
     CHI TIẾT VĂN BẢN ĐI
   </div>
@@ -112,14 +115,14 @@
     </tr>
     <tr><td><label>Số hiệu (*):</label></td><td><input type="text" readonly value="{{ vb.SoHieu }}"></td></tr>
     <tr><td><label>Loại văn bản:</label></td><td><input type="text" readonly value="{{ vb.LoaiVbDi }}"></td></tr>
-    <tr><td><label>Mã văn bản đến:</label></td><td><input type="text" readonly value="{{ vb.MaVanBanDen }}"></td></tr>
+    <tr><td><label>Mã văn bản đến:</label></td><td><input type="text" readonly value="{{ vb.MaVBDen.SoHieu }}"></td></tr>
     <tr><td><label>Độ mật:</label></td><td><input type="text" readonly value="{{ vb.get_DoMat_display }}"></td></tr>
     <tr><td><label>Độ khẩn:</label></td><td><input type="text" readonly value="{{ vb.get_DoKhan_display }}"></td></tr>
     <tr><td><label>Đơn vị tiếp nhận (*):</label></td><td><input type="text" readonly value="{{ vb.DonViNhan }}"></td></tr>
     <tr><td><label>Ngày soạn thảo:</label></td><td><input type="text" readonly value="{{ vb.NgayTao|date:'d/m/Y' }}">
 </td></tr>
     <tr><td><label>Ngày phát hành:</label></td><td><input type="text" readonly value="{{ vb.NgayBanHanh|date:'d/m/Y' }}"></td></tr>
-    <tr><td><label>Phòng ban:</label></td><td><input type="text" readonly value="{{ vb.MaNhanVien.MaPhongBan.TenPhongBan }}"></td></tr>
+    <tr><td><label>Phòng ban:</label></td><td><input type="text" readonly value="{{ vb.MaPhongBan.TenPhongBan }}"></td></tr>
     <tr><td><label>Nội dung:</label></td><td><textarea readonly>{{ vb.NoiDung }}</textarea></td></tr>
     <tr>
       <td><label>Tệp đính kèm:</label></td>

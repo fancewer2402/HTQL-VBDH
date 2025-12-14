@@ -125,8 +125,6 @@ class VanBanDi(models.Model):
     MaNhanVien = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, verbose_name="Người soạn thảo")
     MaVBDen = models.ForeignKey(VanBanDen, on_delete=models.CASCADE, null=True, blank=True,
                                 verbose_name="Văn bản đến liên quan")
-
-
     YeuCauVBDi = models.IntegerField(choices=[(0, 'Không yêu cầu'), (1, 'Có yêu cầu')], default=0)
     MaPhongBan = models.ForeignKey(PhongBan, on_delete=models.CASCADE)
 
@@ -256,5 +254,6 @@ class TrangThaiCongViec(models.TextChoices):
    HOAN_THANH = "Hoàn thành", "HOÀN THÀNH"
    CHO_BAN_HANH = "Chờ ban hành", "CHỜ BAN HÀNH"
    DA_BAN_HANH = "Đã ban hành", "ĐÃ BAN HÀNH"
+   CHO_THONG_QUA = "Chờ thông qua", "CHỜ THÔNG QUA"
 
 
