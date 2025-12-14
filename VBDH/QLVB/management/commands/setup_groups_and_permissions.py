@@ -16,6 +16,7 @@ class Command(BaseCommand):
                "xemchitiet_vanbanden",
                "xemdanhsach_vanbanden",
                "capnhat_trangthai_cv_vbden",
+               "xem_nhatky_vanbanden",
                # Văn bản đi / dự thảo
                "tao_vanbandi",
                "sua_vanbandi",
@@ -61,6 +62,7 @@ class Command(BaseCommand):
                # Chung
                "tracuu_hethong",
                "xem_thongbao",
+               "xem_nhatky_vanbanden",
            ],
 
 

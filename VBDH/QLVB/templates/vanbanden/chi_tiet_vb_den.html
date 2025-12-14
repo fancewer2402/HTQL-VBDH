@@ -212,18 +212,20 @@
         <div style="font-size: 1.1em; font-weight: bold; color: #d9534f;">
             Trạng thái: {{ vb.TrangThai }}
         </div>
+        {% if perms.QLVB.xem_nhatky_vanbanden %}
         <a class="btn-gray" href="{% url 'nhatkyhoatdong' 'vanbanden' vb.id %}">
             Xem nhật ký hoạt động
         </a>
+        {% endif %}
 
     </div>
 
     <div class="title d-flex justify-content-between align-items-center">
         <span>CHI TIẾT VĂN BẢN ĐẾN</span>
         {% if is_editable %}
-            <a href="{% url 'sua_vb_den' vb.id %}" class="btn btn-primary">
-                Sửa
-            </a>
+        <a href="{% url 'sua_vb_den' vb.id %}" class="btn-blue">
+            Sửa
+        </a>
         {% endif %}
     </div>
 

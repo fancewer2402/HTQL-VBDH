@@ -189,13 +189,18 @@
                         </tr>
 
                         <tr>
-                            <td><label>Tệp đính kèm:</label></td>
+                            <td style="width:180px;"><label>Tệp đính kèm:</label></td>
                             <td>
-                                {% if vb.TepDinhKem %}
-                                <a href="{{ vb.TepDinhKem.url }}" target="_blank">{{ vb.TepDinhKem.name }}</a>
-                                {% else %}
-                                <input type="text" readonly value="Không có tệp đính kèm">
-                                {% endif %}
+                                <div> {% if vb.FileDinhKem %}
+                                    <div class="file-display-box">
+                                        <a href="{{ vb.FileDinhKem.url }}" target="_blank">
+                                            {{ vb.FileDinhKem.name|cut:"documents/"|cut:"vanbanden/" }}
+                                        </a>
+                                    </div>
+                                    {% else %}
+                                    <input type="text" readonly value="Không có tệp đính kèm">
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                     </table>
