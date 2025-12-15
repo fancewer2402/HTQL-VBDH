@@ -13,12 +13,12 @@ class UserAdmin(BaseUserAdmin):
             'fields': ('username', 'password'),
         }),
         ('Thông tin nhân viên', {
-            'fields': ('ho_ten', 'email', 'sdt', 'vai_tro', 'ma_phong_ban'),
+            'fields': ('ho_ten', 'email', 'sdt', 'ma_phong_ban'),
         }),
         ('Quyền hệ thống', {
             'fields': (
                 'is_active', 'is_staff', 'is_superuser',
-                'groups', 'user_permissions'
+                'groups'
             ),
         }),
         ('Thông tin hệ thống', {

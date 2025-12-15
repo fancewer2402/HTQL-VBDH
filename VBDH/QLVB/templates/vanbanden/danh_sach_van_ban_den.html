@@ -282,10 +282,15 @@
               <label>Hình thức văn bản</label>
               <select name="doc_type" id="docType" class="form-select">
                   <option value="">-- Loại văn bản --</option>
+                  <option {% if doc_type == "Hợp đồng" %}selected{% endif %}>Hợp đồng</option>
                   <option {% if doc_type == "Công văn" %}selected{% endif %}>Công văn</option>
                   <option {% if doc_type == "Thông báo" %}selected{% endif %}>Thông báo</option>
                   <option {% if doc_type == "Quyết định" %}selected{% endif %}>Quyết định</option>
-                  <option {% if doc_type == "Tờ trình" %}selected{% endif %}>Tờ trình</option>
+                  <option {% if doc_type == "Chỉ thị" %}selected{% endif %}>Chỉ thị</option>
+                  <option {% if doc_type == "Biên bản làm việc – nghiệm thu – bàn giao" %}selected{% endif %}>Biên bản làm việc</option>
+                  <option {% if doc_type == "Tờ trình / Đề xuất" %}selected{% endif %}>Tờ trình / Đề xuất</option>
+                  <option {% if doc_type == "Hồ sơ thương mại" %}selected{% endif %}>Hồ sơ thương mại</option>
+                  <option {% if doc_type == "Khác" %}selected{% endif %}>Khác</option>
               </select>
           </div>
       </div>

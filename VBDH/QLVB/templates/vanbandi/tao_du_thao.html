@@ -46,9 +46,10 @@
         .form-box {
             background: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 30px;
         }
+
         .form-select {
             height: calc(1.5em + .75rem + 2px); /* Đảm bảo chiều cao giống input */
             padding: .375rem .75rem;
@@ -84,13 +85,11 @@
                            value="{{ so_hieu_tu_dong }}" readonly>
                 </div>
                 <div class="col-md-6">
-                    <label for="MaPhongBan" class="form-label">Phòng ban</label>
-                    <select id="MaPhongBan" name="MaPhongBan" class="form-select" required>
-                        <option value="">-- Chọn phòng ban --</option>
-                        {% for pb in phong_ban_list %}
-                        <option value="{{ pb.id }}">{{ pb.TenPhongBan }}</option>
-                        {% endfor %}
-                    </select>
+                    <label class="form-label">Phòng ban</label>
+                    <input type="text"
+                           class="form-control"
+                           value="{{ phong_ban_mac_dinh.TenPhongBan }}"
+                           readonly>
                 </div>
             </div>
 
@@ -108,9 +107,11 @@
                         <option value="Thông báo">Thông báo</option>
                         <option value="Quyết định">Quyết định</option>
                         <option value="Chỉ thị">Chỉ thị</option>
-                        <option value="Biên bản làm việc – nghiệm thu – bàn giao">Biên bản làm việc – nghiệm thu – bàn giao</option>
+                        <option value="Biên bản làm việc – nghiệm thu – bàn giao">Biên bản làm việc – nghiệm thu – bàn
+                            giao
+                        </option>
                         <option value="Tờ trình / Đề xuất">Tờ trình / Đề xuất</option>
-                        <option value="Hồ sơ thương mại">Hồ sơ thương mại </option>
+                        <option value="Hồ sơ thương mại">Hồ sơ thương mại</option>
                     </select>
                 </div>
 
@@ -119,7 +120,7 @@
                     <select id="MaVanBanDen" name="MaVanBanDen" class="form-select">
                         <option value="">-- Danh sách yêu cầu --</option>
                         {% for vb in danh_sach_yeu_cau_list %}
-                        <option value="{{ vb.id }}">{{ vb.SoHieu  }}</option>
+                        <option value="{{ vb.id }}">{{ vb.SoHieu }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -132,7 +133,8 @@
                 </div>
                 <div class="col-md-6">
                     <label for="NgaySoanThao" class="form-label">Ngày soạn thảo *</label>
-                    <input type="date" id="NgaySoanThao" name="NgaySoanThao" class="form-control" required>
+                    <input type="date" id="NgaySoanThao" name="NgaySoanThao" class="form-control"
+                           value="{{ today|date:'Y-m-d' }}" required readonly>
                 </div>
             </div>
 
