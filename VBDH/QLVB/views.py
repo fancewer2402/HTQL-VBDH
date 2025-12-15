@@ -121,7 +121,7 @@ def get_so_hieu_tu_dong():
         last_number = 0
 
     new_number = last_number + 1
-    return f"VB/{year}/{new_number:03d}"
+    return f"VBDen/{year}/{new_number:04d}"
 
 @login_required
 @permission_required('QLVB.tao_vanbanden', raise_exception=True)
@@ -266,14 +266,33 @@ def them_van_ban(request):
 def ds_vanbandi(request):
     user = request.user
 
-    # --- 1. NHÂN VIÊN: chỉ xem văn bản mình tạo ---
     if user.vai_tro == 'NV':
+        # Nhân viên: chỉ xem văn bản mình tạo
         vanbandi_list = VanBanDi.objects.filter(
             MaNhanVien=user
-        ).order_by('-NgayTao', '-NgayBanHanh')
+        )
+    elif user.vai_tro == 'QL':
+        # Quản lý: từ Chờ xét duyệt trở lên
+        vanbandi_list = VanBanDi.objects.filter(
+            TrangThai__in=[
+                TrangThaiCongViec.CHO_XET_DUYET,
+                TrangThaiCongViec.CHO_BAN_HANH,
+                TrangThaiCongViec.DA_BAN_HANH,
+            ]
+        )
+    elif user.vai_tro == 'VT':
+        # Văn thư: từ Chờ ban hành trở lên
+        vanbandi_list = VanBanDi.objects.filter(
+            TrangThai__in=[
+                TrangThaiCongViec.CHO_BAN_HANH,
+                TrangThaiCongViec.DA_BAN_HANH,
+            ]
+        )
     else:
-        # Các vai trò khác → xem tất cả (hoặc bạn có thể bổ sung quy định tùy ý)
-        vanbandi_list = VanBanDi.objects.all().order_by('-NgayTao', '-NgayBanHanh')
+        # Các vai trò khác (nếu có)
+        vanbandi_list = VanBanDi.objects.all()
+
+    vanbandi_list = vanbandi_list.order_by('-NgayTao', '-NgayBanHanh')
 
     # Lọc theo từ khóa
     keyword = request.GET.get('keyword', '').strip()
@@ -307,11 +326,25 @@ def ds_vanbandi(request):
             pass
 
     # Lọc theo phòng ban (qua MaNhanVien → MaPhongBan)
-    department = request.GET.get("department")
+    department = request.GET.get('department')
     if department:
-        vanbandi_list = vanbandi_list.filter(
-            MaNhanVien__ma_phong_ban__id=department
-        )
+        if user.vai_tro == 'NV':
+            # NV chỉ được tra cứu phòng ban của chính mình
+            if str(user.ma_phong_ban.id) != str(department):
+                vanbandi_list = VanBanDi.objects.none()
+                messages.warning(
+                    request,
+                    "Không thể tra cứu văn bản không thuộc phòng ban"
+                )
+            else:
+                vanbandi_list = vanbandi_list.filter(
+                    MaPhongBan_id=department
+                )
+        else:
+            # Các vai trò khác tra cứu bình thường
+            vanbandi_list = vanbandi_list.filter(
+                MaPhongBan_id=department
+            )
 
     # Lọc theo loại văn bản
     doc_type = request.GET.get('doc_type')
@@ -363,7 +396,7 @@ def vanbandi_detail(request, pk):
         if vai_tro == "TP" and phancong:
                 return redirect("thong_qua_van_ban", vb_id=van_ban.id)
 
-    elif trang_thai == "Chờ phê duyệt":
+    elif trang_thai == "Chờ xét duyệt":
         if vai_tro == "QL" and phancong:
             return redirect("xetduyetvanbandi", id=van_ban.id)
 
@@ -473,8 +506,9 @@ def chi_tiet_vb_den(request, vb_id):
 @permission_required('QLVB.tao_vanbandi', raise_exception=True)
 def tao_du_thao(request):
     nhanvien = request.user
+    phong_ban_mac_dinh = getattr(nhanvien, "ma_phong_ban", None)
     count = VanBanDi.objects.count() + 1
-    so_hieu_tu_dong = f"VB-{datetime.now().year}-{count:04d}"
+    so_hieu_tu_dong = f"VBDi-{datetime.now().year}-{count:04d}"
 
     danh_sach_yeu_cau_list = VanBanDen.objects.filter(
         TrangThai='Đang xử lý',
@@ -485,7 +519,11 @@ def tao_du_thao(request):
     ).distinct()
 
     if request.method == "POST":
-        ma_phong_ban_id = request.POST.get('MaPhongBan')
+        if not phong_ban_mac_dinh:
+            messages.error(request, "Bạn chưa được gán phòng ban.")
+            return redirect(request.path)
+
+        ma_phong_ban_id = phong_ban_mac_dinh.id
 
         vb = VanBanDi.objects.create(
             SoHieu=so_hieu_tu_dong,
@@ -537,10 +575,13 @@ def tao_du_thao(request):
         messages.success(request, "Văn bản đã được trình duyệt cho Trưởng phòng.")
         return redirect("vanbandi")
     phong_ban_list = PhongBan.objects.all()
+    today = localdate()
     return render(request, "vanbandi/tao_du_thao.html", {
         "phong_ban_list": phong_ban_list,
+        "phong_ban_mac_dinh": phong_ban_mac_dinh,
         "so_hieu_tu_dong": so_hieu_tu_dong,
         "danh_sach_yeu_cau_list": danh_sach_yeu_cau_list,
+        "today": today,
     })
 
 # Xét duyệt văn bản đi
@@ -646,7 +687,7 @@ def xetduyetvanbandi(request, id):
 
             messages.warning(request, " Văn bản đã bị từ chối.")
 
-        return redirect('vanbandi_detail', vb.id)  # quay về danh sách văn bản đi
+        return redirect('vanbandi', vb.id)  # quay về danh sách văn bản đi
 
     return render(request, "vanbandi/xetduyetvanbandi.html", {
         "vb": vb,
@@ -812,7 +853,7 @@ def danh_sach_van_ban_den(request):
         return redirect("login")  # hoặc trang bạn muốn
 
     if role == "VT":  # Văn thư chỉ xem văn bản mình tạo
-        van_ban_list = VanBanDen.objects.filter(MaNhanVien=user).order_by("-NgayTao")
+        van_ban_list = VanBanDen.objects.all().order_by("-NgayTao")
 
     elif role == "NV":  # Nhân viên xem văn bản được phân công
         van_ban_list = (
@@ -855,7 +896,23 @@ def danh_sach_van_ban_den(request):
     # --- Lọc phòng ban ---
     department = request.GET.get('department')
     if department:
-        van_ban_list = van_ban_list.filter(MaPhongBan_id=department)
+        if user.vai_tro == 'NV':
+            # NV chỉ được tra cứu phòng ban của chính mình
+            if str(user.ma_phong_ban.id) != str(department):
+                van_ban_list = VanBanDi.objects.none()
+                messages.warning(
+                    request,
+                    "Không thể tra cứu văn bản không thuộc phòng ban"
+                )
+            else:
+                van_ban_list = van_ban_list.filter(
+                    MaPhongBan_id=department
+                )
+        else:
+            # Các vai trò khác tra cứu bình thường
+            van_ban_list = van_ban_list.filter(
+                MaPhongBan_id=department
+            )
 
     # --- Lọc loại văn bản ---
     doc_type = request.GET.get('doc_type')
@@ -889,6 +946,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.utils.timezone import localdate
+from datetime import datetime
 
 from .models import (
     VanBanDen,
@@ -934,8 +993,20 @@ def xet_duyet_va_phan_cong_vbden(request, vb_id):
                 return redirect(request.path)
 
             nguoi_xu_ly = get_object_or_404(
-                request.user.__class__, id=nguoi_xu_ly_id
+                request.user.__class__,
+                id=nguoi_xu_ly_id,
+                ma_phong_ban=vb.MaPhongBan,
+                vai_tro='NV'
             )
+
+            han_xu_ly_date = datetime.strptime(han_xu_ly, "%Y-%m-%d").date()
+
+            if han_xu_ly_date < localdate():
+                messages.error(
+                    request,
+                    "Hạn xử lý phải là hôm nay hoặc ngày trong tương lai."
+                )
+                return redirect(request.path)
 
             phan_cong_ton_tai = PhanCongCongViec.objects.filter(
                 VanBanDen=vb
@@ -987,7 +1058,8 @@ def xet_duyet_va_phan_cong_vbden(request, vb_id):
 
     context = {
         "vb": vb,
-        "danh_sach_nguoi_dung": vb.MaPhongBan.nhan_viens.all()
+        "danh_sach_nguoi_dung": vb.MaPhongBan.nhan_viens.filter(vai_tro='NV', is_active=True),
+        "today": localdate()
     }
     return render(
         request,
@@ -1001,7 +1073,6 @@ def xac_nhan_phan_cong_vbden(request, vb_id):
     vb = get_object_or_404(VanBanDen, id=vb_id)
     nhanvien = request.user
 
-    # LẤY ĐÚNG PHÂN CÔNG CỦA NHÂN VIÊN ĐANG ĐĂNG NHẬP
     phan_cong = PhanCongCongViec.objects.filter(
         VanBanDen=vb,
         NguoiNhan=nhanvien
@@ -1036,7 +1107,7 @@ def xac_nhan_phan_cong_vbden(request, vb_id):
                 ThaoTac="Nhân viên xác nhận xử lý văn bản",
                 TrangThai="Đang xử lý",
                 NguoiThucHien=nhanvien,
-                MaVBDen = vb.id
+                MaVBDen = vb
             )
 
             # Thông báo cho NGƯỜI GIAO
@@ -1258,7 +1329,7 @@ def trang_thong_qua(request, vb_id):
                 vb.FileChuKy = file_chu_ky
 
             # Cập nhật trạng thái văn bản
-            vb.TrangThai = "Chờ phê duyệt"
+            vb.TrangThai = "Chờ xét duyệt"
             vb.save()
 
             phan_cong_moi = PhanCongCongViec.objects.create(
@@ -1316,7 +1387,7 @@ def trang_thong_qua(request, vb_id):
 
             messages.warning(request, f"Dự thảo '{vb.TrichYeu}' đã bị từ chối.")
 
-        return redirect('vanbandi_detail', vb.id)
+        return redirect('vanbandi')
 
     return render(
         request,

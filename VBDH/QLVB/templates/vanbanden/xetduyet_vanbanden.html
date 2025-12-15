@@ -226,10 +226,6 @@
                         <textarea name="ly_do_tu_choi">{{ vb.LyDoTuChoi }}</textarea>
                     </div>
 
-                    <!-- ========================= -->
-                    <!--        PHẦN PHÂN CÔNG      -->
-                    <!-- ========================= -->
-
                     <div class="field-group" style="margin-top: 15px;">
                         <label>Phân công cho (*):</label>
                         <select name="nguoi_xu_ly">
@@ -242,7 +238,7 @@
 
                     <div class="field-group" style="margin-top: 15px;">
                         <label>Hạn xử lý (*):</label>
-                        <input type="date" name="han_xu_ly" value="{{ vb.HanXuLy|default:'' }}">
+                        <input type="date" name="han_xu_ly" value="{{ vb.HanXuLy|default:'' }}" min="{{ today|date:'Y-m-d' }}">
                     </div>
 
                     <div class="field-group" style="margin-top: 15px;">

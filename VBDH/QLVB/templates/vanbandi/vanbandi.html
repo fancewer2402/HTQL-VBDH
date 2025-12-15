@@ -210,9 +210,9 @@
                        value="{{ keyword }}" placeholder="Số ký hiệu, trích yếu...">
             </div>
             <div class="form-group">
-                <label>Đơn vị ban hành</label>
+                <label>Đơn vị tiếp nhận</label>
                 <input name="agency" id="agency" type="text" class="form-control"
-                       value="{{ agency }}" placeholder="Nhập đơn vị ban hành">
+                       value="{{ agency }}" placeholder="Nhập đơn vị tiếp nhận">
             </div>
         </div>
 
@@ -244,7 +244,10 @@
                     <option {% if doc_type == "Công văn" %}selected{% endif %}>Công văn</option>
                     <option {% if doc_type == "Thông báo" %}selected{% endif %}>Thông báo</option>
                     <option {% if doc_type == "Quyết định" %}selected{% endif %}>Quyết định</option>
-                    <option {% if doc_type == "Tờ trình" %}selected{% endif %}>Tờ trình</option>
+                    <option {% if doc_type == "Chỉ thị" %}selected{% endif %}>Chỉ thị</option>
+                    <option {% if doc_type == "Biên bản làm việc – nghiệm thu – bàn giao" %}selected{% endif %}>Biên bản làm việc</option>
+                    <option {% if doc_type == "Tờ trình / Đề xuất" %}selected{% endif %}>Tờ trình / Đề xuất</option>
+                    <option {% if doc_type == "Hồ sơ thương mại" %}selected{% endif %}>Hồ sơ thương mại</option>
                 </select>
             </div>
         </div>

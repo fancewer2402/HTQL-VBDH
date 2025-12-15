@@ -35,6 +35,12 @@
 </nav>
 
 <div class="container-fluid px-5 mt-3">
+    <div id="errorAlert" class="alert alert-danger alert-dismissible fade d-none" role="alert">
+        <i class="fa-solid fa-circle-exclamation me-2"></i>
+        <span id="errorMessage"></span>
+
+        <button type="button" class="btn-close" onclick="hideError()" aria-label="Close"></button>
+    </div>
     {% if messages %}
         {% for message in messages %}
             <div class="alert
@@ -60,7 +66,6 @@
 
 <div class="container-form">
     <div class="form-box">
-
 
         <form id="formVanBan" method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
@@ -207,46 +212,96 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
-document.getElementById('formVanBan').addEventListener('submit', function(e) {
-    const nb = document.getElementById('NgayBanHanh').value;  // 'YYYY-MM-DD'
-    const nd = document.getElementById('NgayDen').value;
+function showError(message) {
+    const alertBox = document.getElementById("errorAlert");
+    const msg = document.getElementById("errorMessage");
 
-    if (!nb || !nd) return;
+    msg.innerText = message;
+    alertBox.classList.remove("d-none");
+    alertBox.classList.add("show");
+    // Cuộn tới thông báo lỗi
+    alertBox.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function hideError() {
+    const alertBox = document.getElementById("errorAlert");
+    alertBox.classList.remove("show");
+    alertBox.classList.add("d-none");
+}
+document.getElementById("formVanBan").addEventListener("submit", function(e) {
 
-    // Chuyển string sang Date object
-    const ngayBanHanh = new Date(nb + "T00:00");  // bắt buộc set giờ 0:00
-    const ngayDen = new Date(nd + "T00:00");
+    const phongBan = document.getElementById("MaPhongBan").value;
+    const trichYeu = document.getElementById("TrichYeu").value.trim();
+    const loaiVb = document.getElementById("LoaiVBDen").value;
+    const nguoiNhan = document.getElementById("NguoiNhanTrinhKy").value;
+    const donViPhatHanh = document.getElementById("DonViPhatHanh").value.trim();
+    const nb = document.getElementById("NgayBanHanh").value;
+    const nd = document.getElementById("NgayDen").value;
 
-    // Ngày hôm nay, reset giờ
-    const now = new Date();
-    now.setHours(0,0,0,0);
-    const trichYeu = document.getElementById('TrichYeu').value.trim();
+    if (!phongBan) {
+        e.preventDefault();
+        showError("Vui lòng chọn phòng ban.");
+        return;
+    }
 
     if (trichYeu.length <= 5) {
         e.preventDefault();
-        alert("Lỗi: Trích yếu phải lớn hơn 5 ký tự.");
-        return false;
+        showError("Trích yếu phải lớn hơn 5 ký tự.");
+        return;
     }
+
+    if (!loaiVb) {
+        e.preventDefault();
+        showError("Vui lòng chọn loại văn bản.");
+        return;
+    }
+
+    if (!nguoiNhan) {
+        e.preventDefault();
+        showError("Vui lòng chọn người nhận trình ký.");
+        return;
+    }
+
+    if (!donViPhatHanh) {
+        e.preventDefault();
+        showError("Vui lòng nhập đơn vị phát hành.");
+        return;
+    }
+
+    if (!nb) {
+        e.preventDefault();
+        showError("Vui lòng chọn ngày phát hành.");
+        return;
+    }
+
+    if (!nd) {
+        e.preventDefault();
+        showError("Vui lòng chọn ngày đến.");
+        return;
+    }
+
+    const ngayBanHanh = new Date(nb + "T00:00");
+    const ngayDen = new Date(nd + "T00:00");
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+
+    if (ngayBanHanh > today) {
+        e.preventDefault();
+        showError("Ngày phát hành không được lớn hơn ngày hiện tại.");
+        return;
+    }
+
+    if (ngayDen > today) {
+        e.preventDefault();
+        showError("Ngày đến không được lớn hơn ngày hiện tại.");
+        return;
+    }
+
     if (ngayDen < ngayBanHanh) {
         e.preventDefault();
-        alert("Lỗi: Ngày phát hành phải nhỏ hơn ngày đến.");
-        return false;
+        showError("Ngày đến phải lớn hơn hoặc bằng ngày phát hành.");
+        return;
     }
-
-    if (ngayDen > now) {
-        e.preventDefault();
-        alert("Lỗi: Ngày đến không được lớn hơn ngày hôm nay.");
-        return false;
-    }
-
-    const ngayTao = new Date();
-    ngayTao.setSeconds(0,0);
-    if (ngayDen > ngayTao) {
-        e.preventDefault();
-        alert("Lỗi: Ngày đến không được lớn hơn ngày tạo.");
-        return false;
-    }
-
 });
 </script>
 </body>
