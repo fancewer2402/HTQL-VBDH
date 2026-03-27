@@ -38,7 +38,7 @@
             cursor: pointer;
             margin-right: 10px;
             border-radius: 4px;
-            text-decoration: none; /* bỏ underline */
+            text-decoration: none;
             font-weight: normal;
             display: inline-block;
         }
@@ -52,7 +52,7 @@
             font-weight: bold;
         }
 
-        /* Biểu tượng thông báso */
+        /* Biểu tượng thông báo */
         .notification {
             margin-left: auto;
             position: relative;
@@ -85,12 +85,11 @@
             background: #fff;
             border: 1px solid #007bff;
             border-radius: 6px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             z-index: 1000;
             max-height: 400px;
             overflow-y: auto;
-            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; /* font Segoe UI */
-
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .notification-box h3 {
@@ -125,7 +124,6 @@
 
         .notification-item.unread {
             font-weight: normal;
-
         }
 
         .notification-item a {
@@ -135,44 +133,147 @@
         }
 
         .logout {
-           position: relative;
-           display: inline-block;
-           margin-left: 15px;
+            position: relative;
+            display: inline-block;
+            margin-left: 15px;
         }
 
-       .logout-icon {
-           font-size: 22px;
-           color: #333;
-           cursor: pointer;
-       }
+        .logout-icon {
+            font-size: 22px;
+            color: #333;
+            cursor: pointer;
+        }
 
-       .logout-button {
-           position: absolute;
-           top: 100%;
-           left: 50%;
-           transform: translateX(-50%);
-           background-color: #000;
-           color: white;
-           padding: 8px 14px;
-           border-radius: 4px;
-           text-decoration: none;
-           font-size: 14px;
-           opacity: 0;
-           pointer-events: none;
-           transition: opacity 0.3s ease;
-           white-space: nowrap;
-           z-index: 1000;
-       }
+        .logout-button {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #000;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-size: 14px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+            white-space: nowrap;
+            z-index: 1000;
+        }
 
-       .logout:hover .logout-button {
-           opacity: 1;
-           pointer-events: auto;
-       }
+        .logout:hover .logout-button {
+            opacity: 1;
+            pointer-events: auto;
+        }
 
         hr {
             border: none;
             border-top: 1px solid #000;
             margin: 10px 0;
+        }
+
+        /* ================= TOAST ================= */
+        #toast-container {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 320px;
+            max-width: 420px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+            animation: slideIn 0.4s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .toast::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 4px;
+            width: 100%;
+            background: rgba(255, 255, 255, .6);
+            animation: shrink 4s linear forwards;
+        }
+
+        .toast-icon {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .toast-error {
+            background: linear-gradient(135deg, #dc3545, #b02a37);
+        }
+
+        .toast-success {
+            background: linear-gradient(135deg, #28a745, #1e7e34);
+        }
+
+        .toast-warning {
+            background: linear-gradient(135deg, #ffc107, #d39e00);
+            color: #333;
+        }
+
+        .toast-info {
+            background: linear-gradient(135deg, #0d6efd, #084298);
+        }
+
+        .toast-error .toast-icon::before {
+            content: "✖";
+        }
+
+        .toast-success .toast-icon::before {
+            content: "✔";
+        }
+
+        .toast-warning .toast-icon::before {
+            content: "⚠";
+        }
+
+        .toast-info .toast-icon::before {
+            content: "ℹ";
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes shrink {
+            from {
+                width: 100%;
+            }
+            to {
+                width: 0;
+            }
         }
     </style>
 </head>
@@ -246,10 +347,9 @@
 
     <!-- Biểu tượng đăng xuất -->
     <div class="logout">
-        <div class="logout-area">
-            <i class="fa-solid fa-right-from-bracket logout-icon"></i>
-            <a href="{% url 'login' %}" class="logout-button">Đăng xuất</a>
-        </div>
+        <a href="{% url 'logout' %}" class="logout-icon">
+            <i class="fa-solid fa-right-from-bracket"></i>
+        </a>
     </div>
 </div>
 
@@ -260,22 +360,39 @@
     {% block content %}{% endblock %}
 </div>
 
+{% block toast %}
+    {% if messages %}
+    <div id="toast-container">
+        {% for message in messages %}
+        <div class="toast toast-{{ message.tags|default:'info' }}">
+            <span class="toast-icon"></span>
+            <span class="toast-message">{{ message }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+{% endblock %}
+
 <script>
-    document.addEventListener("DOMContentLoaded", function() {
+    document.addEventListener("DOMContentLoaded", function () {
         const btn = document.getElementById("notification-btn");
         const box = document.getElementById("notification-box");
 
-        btn.addEventListener("click", function(e) {
+        btn.addEventListener("click", function (e) {
             e.stopPropagation();
             box.style.display = box.style.display === "block" ? "none" : "block";
         });
 
-        document.addEventListener("click", function(e) {
+        document.addEventListener("click", function (e) {
             if (!btn.contains(e.target)) {
                 box.style.display = "none";
             }
         });
     });
+    setTimeout(() => {
+        document.querySelectorAll("#toast-container .toast")
+            .forEach(t => t.remove());
+    }, 4000);
 </script>
 
 </body>

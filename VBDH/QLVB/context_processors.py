@@ -1,6 +1,8 @@
 from datetime import timedelta
 from django.utils import timezone
-from .models import ThongBao, NhanVien
+from .models import ThongBao
+from accounts.models import User as NhanVien
+
 
 def thong_bao_context(request):
     today_notifications = []
@@ -10,7 +12,7 @@ def thong_bao_context(request):
 
     if request.user.is_authenticated:
         try:
-            nhanvien = NhanVien.objects.get(Email=request.user.email)
+            nhanvien = NhanVien.objects.get(email=request.user.email)
             all_thong_baos = ThongBao.objects.filter(MaNhanVien=nhanvien).order_by('-NgayTao')
 
             today = timezone.now().date()

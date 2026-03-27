@@ -9,9 +9,9 @@ https://docs.djangoproject.com/en/4.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
-
+from django.conf.urls.static import static
 from pathlib import Path
-
+from django.conf import settings
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'QLVB',
+    'accounts.apps.AccountsConfig',
 ]
 
 MIDDLEWARE = [
@@ -56,9 +57,17 @@ ROOT_URLCONF = 'VBDH.urls'
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [ BASE_DIR / 'static' ]   # thư mục chứa css/js tùy chỉnh trong dev
 
-# Media (file upload)
+# settings.py
+import os
+# ...
+
+# Thiết lập đường dẫn gốc cho các file media (tệp đính kèm)
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# Thiết lập URL cơ sở để truy cập các file media
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+
+AUTH_USER_MODEL = "accounts.User"
 
 TEMPLATES = [
     {
@@ -132,3 +141,28 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+LOGIN_URL = '/login/'
+SESSION_COOKIE_AGE = 3600
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+
+# settings.py
+# ================== EMAIL CONFIG ==================
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False  # Không dùng cả TLS và SSL cùng lúc
+
+# THAY ĐỔI: Email và Mật khẩu App của bạn
+EMAIL_HOST_USER = 'hn9272310@gmail.com'
+EMAIL_HOST_PASSWORD = 'oqum xuek ukvj rlzy'  # ← QUAN TRỌNG: DÙNG APP PASSWORD
+
+# Tên hiển thị khi gửi mail
+DEFAULT_FROM_EMAIL = 'DakLak Electric <hn9272310@gmail.com>'
+EMAIL_SUBJECT_PREFIX = '[QLVB] '
+# (Tùy chọn) Gửi mail thử nghiệm ra console (dev only)
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# ==========
+TIME_ZONE = 'Asia/Ho_Chi_Minh'
+USE_TZ = True

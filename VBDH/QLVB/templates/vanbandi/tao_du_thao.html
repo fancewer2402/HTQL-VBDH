@@ -46,8 +46,13 @@
         .form-box {
             background: #fff;
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             padding: 30px;
+        }
+
+        .form-select {
+            height: calc(1.5em + .75rem + 2px); /* Đảm bảo chiều cao giống input */
+            padding: .375rem .75rem;
         }
     </style>
 </head>
@@ -55,23 +60,24 @@
 
 <!-- 🔹 Thanh điều hướng trên cùng -->
 <nav class="navbar navbar-custom d-flex justify-content-between align-items-center">
-    <a href="" class="btn btn-outline-primary btn-sm">
+    <a href="{% url 'vanbandi' %}" class="btn btn-outline-primary btn-sm">
         <i class="fa-solid fa-arrow-left me-1"></i> Quay lại
     </a>
 
     <h4 class="mb-0">Tạo dự thảo</h4>
 
-    <button type="submit" form="formVanBan" class="btn btn-success">
-        <i class="fa-solid fa-save me-1"></i> Lưu &amp; Trình ký
+    <button type="submit" form="formVanBan" class="btn btn-primary">
+        Trình duyệt
     </button>
 </nav>
+
 
 <!-- 🔹 Nội dung chính -->
 <div class="container-form">
     <div class="form-box">
         <form id="formVanBan" method="post" enctype="multipart/form-data">
             {% csrf_token %}
-
+            <input type="hidden" name="hanh_dong" value="trinh_duyet">
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="SoHieu" class="form-label">Số hiệu</label>
@@ -79,13 +85,11 @@
                            value="{{ so_hieu_tu_dong }}" readonly>
                 </div>
                 <div class="col-md-6">
-                    <label for="MaPhongBan" class="form-label">Phòng ban</label>
-                    <select id="MaPhongBan" name="MaPhongBan" class="form-select" required>
-                        <option value="">-- Chọn phòng ban --</option>
-                        {% for pb in phong_ban_list %}
-                        <option value="{{ pb.id }}">{{ pb.TenPhongBan }}</option>
-                        {% endfor %}
-                    </select>
+                    <label class="form-label">Phòng ban</label>
+                    <input type="text"
+                           class="form-control"
+                           value="{{ phong_ban_mac_dinh.TenPhongBan }}"
+                           readonly>
                 </div>
             </div>
 
@@ -96,15 +100,27 @@
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="LoaiVBDi" class="form-label">Loại văn bản *</label>
-                    <input type="text" id="LoaiVBDi" name="LoaiVBDi" class="form-control" required>
+                    <label for="LoaiVbDi" class="form-label">Loại văn bản *</label>
+                    <select id="LoaiVbDi" name="LoaiVbDi" class="form-select" required>
+                        <option value="">-- Chọn loại văn bản --</option>
+                        <option value="Công văn">Công văn</option>
+                        <option value="Thông báo">Thông báo</option>
+                        <option value="Quyết định">Quyết định</option>
+                        <option value="Chỉ thị">Chỉ thị</option>
+                        <option value="Biên bản làm việc – nghiệm thu – bàn giao">Biên bản làm việc – nghiệm thu – bàn
+                            giao
+                        </option>
+                        <option value="Tờ trình / Đề xuất">Tờ trình / Đề xuất</option>
+                        <option value="Hồ sơ thương mại">Hồ sơ thương mại</option>
+                    </select>
                 </div>
+
                 <div class="col-md-6">
                     <label for="MaVanBanDen" class="form-label">Mã văn bản đến</label>
                     <select id="MaVanBanDen" name="MaVanBanDen" class="form-select">
                         <option value="">-- Danh sách yêu cầu --</option>
-                        {% for nv in danh_sach_yeu_cau_list %}
-                        <option value="{{ vb.id }}">{{ vb.Ma }}</option>
+                        {% for vb in danh_sach_yeu_cau_list %}
+                        <option value="{{ vb.id }}">{{ vb.SoHieu }}</option>
                         {% endfor %}
                     </select>
                 </div>
@@ -112,12 +128,13 @@
 
             <div class="row mb-3">
                 <div class="col-md-6">
-                    <label for="DonViSoanThao" class="form-label">Đơn vị soạn thảo *</label>
-                    <input type="text" id="DonViSoanThao" name="DonViSoanThao" class="form-control" required>
+                    <label for="DonViNhan" class="form-label">Đơn vị tiếp nhận *</label>
+                    <input type="text" id="DonViNhan" name="DonViNhan" class="form-control" required>
                 </div>
                 <div class="col-md-6">
                     <label for="NgaySoanThao" class="form-label">Ngày soạn thảo *</label>
-                    <input type="date" id="NgaySoanThao" name="NgaySoanThao" class="form-control" required>
+                    <input type="date" id="NgaySoanThao" name="NgaySoanThao" class="form-control"
+                           value="{{ today|date:'Y-m-d' }}" required readonly>
                 </div>
             </div>
 

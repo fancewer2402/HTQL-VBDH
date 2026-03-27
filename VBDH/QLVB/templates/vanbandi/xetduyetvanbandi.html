@@ -1,3 +1,5 @@
+{% extends "base_toast.html" %}
+{% load static %}
 {% block content %}
 <style>
   .container {
@@ -90,31 +92,16 @@
 </style>
 
 <div class="container">
-  <form method="POST">
+  <form method="POST" enctype="multipart/form-data">
     {% csrf_token %}
+
     <div class="header-buttons">
-          <button class="btn-gray" type="button" onclick="window.history.back()">← Quay lại</button>
-          <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Chờ phê duyệt" }}</span></div>
-         <div class="footer-btn">
-          <!-- Nút phê duyệt -->
-          <button type="button" class="btn-blue" onclick="validateAndApprove()">Phê duyệt</button>
-
-          <!-- Nút hủy -->
-          <button type="button" class="btn-gray" onclick="window.location.href='{% url 'vanbandi' %}'">Từ chối</button>
-        </div>
-
-        <script>
-          function validateAndApprove() {
-            const fileInput = document.querySelector('input[name="chu_ky"]');
-            if (!fileInput.value) {
-              alert("⚠️ Vui lòng tải lên chữ ký trước khi phê duyệt!");
-              return;
-            }
-            // Nếu có chữ ký → chuyển đến trang phân công
-            window.location.href = "{% url 'phancongvanthu' vb.id %}";
-          }
-        </script>
-
+      <button class="btn-gray" type="button" onclick="window.location.href='{% url 'vanbandi'%}'">← Quay lại</button>
+      <div>Trạng thái: <span class="status">{{ vb.TrangThai|default:"Chờ phê duyệt" }}</span></div>
+      <div>
+        <button type="submit" name="action" value="pheduyet" class="btn-blue">Phê duyệt</button>
+          <button type="submit" name="action" value="tuchoi" class="btn-gray" formnovalidate>Từ chối</button>
+      </div>
     </div>
 
     <div class="title">XÉT DUYỆT VĂN BẢN</div>
@@ -134,23 +121,23 @@
             </tr>
             <tr>
               <td><label>Loại văn bản:</label></td>
-              <td><input type="text" readonly value="{{ vb.LoaiVanBan }}"></td>
+              <td><input type="text" readonly value="{{ vb.LoaiVbDi }}"></td>
             </tr>
             <tr>
               <td><label>Mã văn bản đến:</label></td>
-              <td><input type="text" readonly value="{{ vb.MaVanBanDen }}"></td>
+              <td><input type="text" readonly value="{{ vb.MaVBDen.SoHieu }}"></td>
             </tr>
             <tr>
-              <td><label>Đơn vị soạn thảo (*):</label></td>
+              <td><label>Đơn vị tiếp nhận (*):</label></td>
               <td><input type="text" readonly value="{{ vb.DonViNhan }}"></td>
             </tr>
             <tr>
               <td><label>Ngày soạn thảo:</label></td>
-              <td><input type="text" readonly value="{{ vb.NgayBanHanh }}"></td>
+              <td><input type="text" readonly value="{{ vb.NgayTao|date:'d/m/Y' }}"></td>
             </tr>
               <tr>
               <td><label>Phòng ban:</label></td>
-              <td><input type="text" readonly value="{{ vb.PhongBan }}"></td>
+              <td><input type="text" readonly value="{{ vb.MaPhongBan }}"></td>
             </tr>
             <tr>
               <td><label>Nội dung:</label></td>
@@ -159,8 +146,8 @@
             <tr>
               <td><label>Tệp đính kèm:</label></td>
               <td>
-                {% if vb.TepDinhKem %}
-                  <a href="{{ vb.TepDinhKem.url }}" target="_blank">Xem tệp đính kèm</a>
+                {% if vb.FileDinhKem %}
+                  <a href="{{ vb.FileDinhKem.url }}" target="_blank">Xem tệp đính kèm</a>
                 {% else %}
                   <input type="text" readonly value="Không có tệp đính kèm">
                 {% endif %}
@@ -170,17 +157,39 @@
         </td>
 
         <!-- Cột phải: phân công -->
+        <!-- Cột phải: Thông tin phê duyệt -->
         <td class="right-panel">
-          <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="field-group">
-              <label>Chữ ký (tệp hình hoặc PDF) (*)</label>
-              <input type="file" name="chu_ky" accept=".png,.jpg,.jpeg,.pdf" required>
-            </div>
           <div class="field-group">
-            <label>Lý do từ chối (Nếu có)</label>
-              <textarea name="ly_do_tu_choi" placeholder="Nhập lý do nếu từ chối..."></textarea>
+            <label>Chữ ký(*)</label>
+            <input type="file" name="chu_ky" accept=".png,.jpg,.jpeg,.pdf" required>
           </div>
+            <div class="field-group">
+            <label>Lý do từ chối (nếu có)</label>
+            <textarea name="ly_do" placeholder="Nhập lý do nếu từ chối phê duyệt..."></textarea>
+          </div>
+
+            <hr>
+
+          <div class="field-group">
+            <label>Phân công văn thư(*)</label>
+            <select name="van_thu" required>
+              <option value="">-- Chọn văn thư --</option>
+              {% for vt in vanthus %}
+                <option value="{{ vt.id }}">{{ vt.ho_ten }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="field-group">
+            <label>Nội dung phân công</label>
+            <textarea name="noi_dung_phan_cong" placeholder="Nhập nội dung giao cho văn thư..."></textarea>
+          </div>
+
+          <div class="field-group">
+            <label>Hạn cuối(*)</label>
+            <input type="date" name="han_cuoi" required>
+          </div>
+
 
         </td>
       </tr>
